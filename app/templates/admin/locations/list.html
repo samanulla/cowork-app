@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}Locations{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between mb-3">
+  <h3>Locations</h3>
+  <a class="btn btn-dark" href="{{ url_for('admin.location_new') }}">+ New location</a>
+</div>
+
+<div class="card"><div class="card-body p-0">
+<table class="table mb-0">
+  <thead><tr><th>Name</th><th>City</th><th>Seats</th><th>Rooms</th><th>Status</th><th></th></tr></thead>
+  <tbody>
+    {% for l in locations %}
+    <tr>
+      <td><strong>{{ l.name }}</strong><br><span class="text-muted small">{{ l.code }}</span></td>
+      <td>{{ l.city }}, {{ l.country }}</td>
+      <td>{{ l.seats|length }}</td>
+      <td>{{ l.rooms|length }}</td>
+      <td>{% if l.is_active %}<span class="badge bg-success">Active</span>{% else %}<span class="badge bg-secondary">Inactive</span>{% endif %}</td>
+      <td class="text-end"><a class="btn btn-sm btn-outline-dark" href="{{ url_for('admin.location_detail', location_id=l.id) }}">Manage</a></td>
+    </tr>
+    {% else %}
+    <tr><td colspan="6" class="text-center text-muted py-4">No locations yet.</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+</div></div>
+{% endblock %}

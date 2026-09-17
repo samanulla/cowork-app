@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}Email templates{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between mb-3">
+  <h3>Email templates</h3>
+  <a class="btn btn-dark" href="{{ url_for('admin.email_template_new') }}">+ New template</a>
+</div>
+
+<table class="table bg-white shadow-sm">
+  <thead><tr><th>Code</th><th>Name</th><th>Kind</th><th>Subject</th><th>Active</th><th></th></tr></thead>
+  <tbody>
+    {% for t in templates %}
+    <tr>
+      <td><code>{{ t.code }}</code></td>
+      <td>{{ t.name }}</td>
+      <td>{{ t.kind.value }}</td>
+      <td class="text-muted small">{{ t.subject }}</td>
+      <td>{% if t.is_active %}<span class="badge bg-success">Active</span>{% else %}<span class="badge bg-secondary">Off</span>{% endif %}</td>
+      <td class="text-end"><a class="btn btn-sm btn-outline-dark" href="{{ url_for('admin.email_template_edit', tpl_id=t.id) }}">Edit</a></td>
+    </tr>
+    {% else %}
+    <tr><td colspan="6" class="text-muted text-center py-4">No templates yet.</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

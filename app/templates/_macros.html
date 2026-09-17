@@ -1,0 +1,18 @@
+{# Reusable form field renderer for Bootstrap 5 #}
+{% macro field(f, autofocus=false) %}
+<div class="mb-3">
+  {{ f.label(class="form-label") }}
+  {% set css = "form-control" %}
+  {% if f.type == "SelectField" %}{% set css = "form-select" %}{% endif %}
+  {% if f.type == "BooleanField" %}
+    <div class="form-check">
+      {{ f(class="form-check-input") }}
+      {{ f.label(class="form-check-label") }}
+    </div>
+  {% else %}
+    {{ f(class=css + (" is-invalid" if f.errors else ""), **({"autofocus": True} if autofocus else {})) }}
+  {% endif %}
+  {% for e in f.errors %}<div class="invalid-feedback d-block">{{ e }}</div>{% endfor %}
+  {% if f.description %}<div class="form-text">{{ f.description }}</div>{% endif %}
+</div>
+{% endmacro %}

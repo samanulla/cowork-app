@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<h3>Hi {{ current_user.full_name.split(' ')[0] }} 👋</h3>
+
+<div class="row g-3 mb-4">
+  <div class="col-md-4">
+    <div class="card card-stat"><div class="card-body">
+      <div class="text-muted small">Meeting credits</div>
+      <div class="stat-value">{{ credits }}</div>
+    </div></div>
+  </div>
+  <div class="col-md-4">
+    <div class="card card-stat"><div class="card-body">
+      <div class="text-muted small">Upcoming seat bookings</div>
+      <div class="stat-value">{{ upcoming_seats|length }}</div>
+    </div></div>
+  </div>
+  <div class="col-md-4">
+    <div class="card card-stat"><div class="card-body">
+      <div class="text-muted small">Upcoming room bookings</div>
+      <div class="stat-value">{{ upcoming_rooms|length }}</div>
+    </div></div>
+  </div>
+</div>
+
+<div class="mb-4">
+  <a class="btn btn-dark" href="{{ url_for('book.index') }}">Book workspace</a>
+  <a class="btn btn-outline-dark" href="{{ url_for('member.bookings') }}">My bookings</a>
+</div>
+
+<div class="row g-3">
+  <div class="col-md-6"><div class="card"><div class="card-body">
+    <h6>Upcoming seat bookings</h6>
+    <ul class="list-unstyled mb-0">
+      {% for b in upcoming_seats %}
+        <li class="py-1">
+          <strong>{{ b.seat.code }}</strong> — {{ b.start_at.strftime('%b %d, %H:%M') }} → {{ b.end_at.strftime('%H:%M') }}
+        </li>
+      {% else %}
+        <li class="text-muted">Nothing coming up.</li>
+      {% endfor %}
+    </ul>
+  </div></div></div>
+  <div class="col-md-6"><div class="card"><div class="card-body">
+    <h6>Upcoming room bookings</h6>
+    <ul class="list-unstyled mb-0">
+      {% for b in upcoming_rooms %}
+        <li class="py-1">
+          <strong>{{ b.room.name }}</strong> — {{ b.start_at.strftime('%b %d, %H:%M') }} → {{ b.end_at.strftime('%H:%M') }}
+          {% if b.title %}<span class="text-muted">· {{ b.title }}</span>{% endif %}
+        </li>
+      {% else %}
+        <li class="text-muted">Nothing coming up.</li>
+      {% endfor %}
+    </ul>
+  </div></div></div>
+</div>
+
+{% if subscriptions %}
+<div class="card mt-3"><div class="card-body">
+  <h6>Your subscriptions</h6>
+  <ul class="mb-0">
+    {% for s in subscriptions %}
+      <li>{{ s.plan.name }} × {{ s.quantity }} — {{ s.meeting_credits_balance }} credits left</li>
+    {% endfor %}
+  </ul>
+</div></div>
+{% endif %}
+{% endblock %}

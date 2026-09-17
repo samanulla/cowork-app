@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block title %}Employees{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between mb-3">
+  <h3>Employees</h3>
+  <a class="btn btn-dark" href="{{ url_for('company.employee_new') }}">+ Add employee</a>
+</div>
+
+<table class="table bg-white shadow-sm">
+  <thead><tr><th>Name</th><th>Email</th><th>Phone</th><th>Role</th><th>Active</th><th></th></tr></thead>
+  <tbody>
+    {% for u in people %}
+    <tr>
+      <td>{{ u.full_name }}</td>
+      <td>{{ u.email }}</td>
+      <td>{{ u.phone or "—" }}</td>
+      <td><span class="badge bg-secondary">{{ u.role.value }}</span></td>
+      <td>{% if u.is_active %}Yes{% else %}<span class="text-danger">No</span>{% endif %}</td>
+      <td class="text-end">
+        {% if u.role.value == 'employee' and u.is_active %}
+        <form method="post" action="{{ url_for('company.employee_deactivate', user_id=u.id) }}" class="d-inline">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <button class="btn btn-sm btn-outline-danger">Deactivate</button>
+        </form>
+        {% endif %}
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

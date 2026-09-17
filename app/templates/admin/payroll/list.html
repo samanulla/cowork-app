@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}Payroll{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between mb-3">
+  <h3>Payroll runs</h3>
+  <a class="btn btn-dark" href="{{ url_for('admin.payroll_new') }}">+ New run</a>
+</div>
+
+<table class="table bg-white shadow-sm">
+  <thead><tr><th>Period</th><th>Payslips</th><th>Gross</th><th>Deductions</th><th>Net</th><th>Status</th><th></th></tr></thead>
+  <tbody>
+    {% for r in runs %}
+    <tr>
+      <td>{{ r.period_start }} → {{ r.period_end }}</td>
+      <td>{{ r.payslips|length }}</td>
+      <td>${{ r.total_gross }}</td>
+      <td>${{ r.total_deductions }}</td>
+      <td>${{ r.total_net }}</td>
+      <td><span class="badge bg-secondary">{{ r.status.value }}</span></td>
+      <td class="text-end"><a class="btn btn-sm btn-outline-dark" href="{{ url_for('admin.payroll_detail', run_id=r.id) }}">Open</a></td>
+    </tr>
+    {% else %}
+    <tr><td colspan="7" class="text-center text-muted py-4">No payroll runs yet.</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

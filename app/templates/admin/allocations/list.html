@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% from "_macros.html" import field %}
+{% block title %}Allocations{% endblock %}
+
+{% block content %}
+<h3>Seat allocations</h3>
+
+<div class="card mb-3"><div class="card-body">
+  <h6>New allocation</h6>
+  <form method="post" novalidate>
+    {{ form.hidden_tag() }}
+    <div class="row">
+      <div class="col-md-4">{{ field(form.seat_id) }}</div>
+      <div class="col-md-4">{{ field(form.company_id) }}</div>
+      <div class="col-md-4">{{ field(form.user_id) }}</div>
+    </div>
+    <div class="row">
+      <div class="col-md-3">{{ field(form.start_date) }}</div>
+      <div class="col-md-3">{{ field(form.end_date) }}</div>
+      <div class="col-md-3 pt-4"><button class="btn btn-dark">Allocate</button></div>
+    </div>
+  </form>
+</div></div>
+
+<div class="card"><div class="card-body p-0">
+<table class="table mb-0">
+  <thead><tr><th>Seat</th><th>Company</th><th>User</th><th>From</th><th>To</th><th></th></tr></thead>
+  <tbody>
+    {% for a in allocations %}
+    <tr>
+      <td>{{ a.seat.code }} ({{ a.seat.seat_type.value }})</td>
+      <td>{{ a.company.name if a.company else "—" }}</td>
+      <td>{{ a.user.full_name if a.user else "—" }}</td>
+      <td>{{ a.start_date }}</td>
+      <td>{{ a.end_date or "open" }}</td>
+      <td class="text-end">
+        <form method="post" action="{{ url_for('admin.allocation_end', alloc_id=a.id) }}" class="d-inline">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <button class="btn btn-sm btn-outline-danger">End</button>
+        </form>
+      </td>
+    </tr>
+    {% else %}
+    <tr><td colspan="6" class="text-center text-muted py-4">No active allocations.</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+</div></div>
+{% endblock %}

@@ -1,0 +1,134 @@
+{% extends "base.html" %}
+{% block title %}Admin dashboard{% endblock %}
+
+{% block content %}
+<h3 class="mb-4">Platform overview</h3>
+
+<div class="row g-3 mb-4">
+  {% for label, value, icon in [
+      ("Locations", stats.locations, "building"),
+      ("Seats", stats.seats, "grid-3x3-gap"),
+      ("Rooms", stats.rooms, "calendar-event"),
+      ("Companies", stats.companies, "briefcase"),
+      ("Members", stats.members, "people"),
+      ("Active subs", stats.active_subs, "receipt"),
+  ] %}
+  <div class="col-6 col-md-4 col-lg-2">
+    <div class="card card-stat h-100">
+      <div class="card-body">
+        <div class="text-muted small"><i class="bi bi-{{ icon }}"></i> {{ label }}</div>
+        <div class="stat-value">{{ value }}</div>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+
+<div class="row g-3 mb-4">
+  <div class="col-md-6">
+    <div class="card"><div class="card-body">
+      <h6 class="text-muted">Today's seat bookings</h6>
+      <div class="stat-value">{{ stats.today_seat_bookings }}</div>
+    </div></div>
+  </div>
+  <div class="col-md-6">
+    <div class="card"><div class="card-body">
+      <h6 class="text-muted">Today's room bookings</h6>
+      <div class="stat-value">{{ stats.today_room_bookings }}</div>
+    </div></div>
+  </div>
+</div>
+
+<div class="row g-3">
+  <div class="col-md-6">
+    <div class="card"><div class="card-body">
+      <div class="d-flex justify-content-between align-items-center mb-2">
+        <h5 class="mb-0">Workspace</h5>
+        <a class="btn btn-sm btn-dark" href="{{ url_for('admin.location_new') }}">+ New location</a>
+      </div>
+      <ul class="list-unstyled mb-0">
+        <li><a href="{{ url_for('admin.locations_list') }}"><i class="bi bi-building"></i> Locations, floors, seats, rooms →</a></li>
+        <li><a href="{{ url_for('admin.plans_list') }}"><i class="bi bi-tags"></i> Pricing plans →</a></li>
+        <li><a href="{{ url_for('admin.companies_list') }}"><i class="bi bi-briefcase"></i> Companies →</a></li>
+        <li><a href="{{ url_for('admin.allocations') }}"><i class="bi bi-diagram-3"></i> Seat allocations →</a></li>
+      </ul>
+    </div></div>
+  </div>
+
+  <div class="col-md-6">
+    <div class="card"><div class="card-body">
+      <h5>Billing & finance</h5>
+      <ul class="list-unstyled mb-0">
+        <li><a href="{{ url_for('admin.invoices_list') }}"><i class="bi bi-receipt"></i> Invoices →</a></li>
+        <li><a href="{{ url_for('admin.credit_notes') }}"><i class="bi bi-file-earmark-minus"></i> Credit notes →</a></li>
+        <li><a href="{{ url_for('admin.refunds') }}"><i class="bi bi-arrow-counterclockwise"></i> Refunds →</a></li>
+        <li><a href="{{ url_for('admin.expenses_list') }}"><i class="bi bi-cash-stack"></i> Expenses →</a></li>
+        <li><a href="{{ url_for('admin.expense_categories') }}"><i class="bi bi-list-nested"></i> Expense categories →</a></li>
+      </ul>
+    </div></div>
+  </div>
+
+  <div class="col-md-6">
+    <div class="card"><div class="card-body">
+      <h5>People</h5>
+      <ul class="list-unstyled mb-0">
+        <li><a href="{{ url_for('admin.staff_list') }}"><i class="bi bi-people"></i> Staff members →</a></li>
+        <li><a href="{{ url_for('admin.payroll_list') }}"><i class="bi bi-wallet2"></i> Payroll runs →</a></li>
+      </ul>
+    </div></div>
+  </div>
+
+  <div class="col-md-6">
+    <div class="card"><div class="card-body">
+      <h5>Notifications</h5>
+      <ul class="list-unstyled mb-0">
+        <li><a href="{{ url_for('admin.email_templates') }}"><i class="bi bi-envelope"></i> Email templates →</a></li>
+      </ul>
+    </div></div>
+  </div>
+
+  <div class="col-12">
+    <div class="card"><div class="card-body">
+      <h5>Recent companies</h5>
+      <ul class="list-unstyled mb-0">
+        {% for c in recent_companies %}
+          <li class="py-1">
+            <a href="{{ url_for('admin.company_detail', company_id=c.id) }}">{{ c.name }}</a>
+            <span class="badge bg-secondary ms-2">{{ c.status.value }}</span>
+          </li>
+        {% else %}
+          <li class="text-muted">No companies yet.</li>
+        {% endfor %}
+      </ul>
+    </div></div>
+  </div>
+</div>
+
+<div class="card mt-3"><div class="card-body">
+  <h5>Recent room bookings</h5>
+  {% if recent_bookings %}
+    <table class="table table-sm mb-0">
+      <thead><tr><th>When</th><th>Room</th><th>By</th><th>Status</th></tr></thead>
+      <tbody>
+        {% for b in recent_bookings %}
+        <tr>
+          <td>{{ b.start_at.strftime('%b %d, %H:%M') }}</td>
+          <td>{{ b.room.name }}</td>
+          <td>{{ b.user.full_name }}</td>
+          <td><span class="badge bg-secondary">{{ b.status.value }}</span></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <p class="text-muted mb-0">No room bookings yet.</p>
+  {% endif %}
+</div></div>
+
+<form class="mt-3" method="post" action="{{ url_for('admin.billing_run') }}">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <button class="btn btn-outline-secondary btn-sm" type="submit">
+    <i class="bi bi-cash-stack"></i> Run monthly billing now
+  </button>
+</form>
+{% endblock %}

@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% block title %}Book room {{ room.name }}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+<div class="col-md-8">
+  <h3>Book conference room <span class="text-muted">{{ room.name }}</span></h3>
+  <p class="text-muted">
+    {{ room.location.name }} · L{{ room.floor.level }} · Capacity {{ room.capacity }} ·
+    ${{ room.hourly_rate }}/hr ({{ room.credit_cost_per_hour }} credit(s)/hr)
+  </p>
+
+  {% if error %}<div class="alert alert-danger">{{ error }}</div>{% endif %}
+  {% if has_conflict %}<div class="alert alert-warning">That time overlaps with another booking. Please pick a different slot.</div>{% endif %}
+
+  <div class="card"><div class="card-body">
+    <form method="post" novalidate>
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <div class="mb-3">
+        <label class="form-label">Meeting title</label>
+        <input class="form-control" name="title" placeholder="e.g. Sprint planning">
+      </div>
+      <div class="row">
+        <div class="col-md-6 mb-3">
+          <label class="form-label">Start</label>
+          <input class="form-control" type="datetime-local" name="start" value="{{ start }}" required>
+        </div>
+        <div class="col-md-6 mb-3">
+          <label class="form-label">End</label>
+          <input class="form-control" type="datetime-local" name="end" value="{{ end }}" required>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-md-6 mb-3">
+          <label class="form-label">Attendees</label>
+          <input class="form-control" type="number" name="attendees" min="1" max="{{ room.capacity }}" value="1">
+        </div>
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Notes</label>
+        <textarea class="form-control" name="notes" rows="2"></textarea>
+      </div>
+
+      {% if quote %}
+      <div class="alert alert-secondary">
+        <strong>{{ quote.hours }} hour(s)</strong>
+        · Credits used <strong>{{ quote.credits_used }}</strong>
+        (available {{ quote.credits_available }})
+        · Additional charge <strong>${{ quote.subtotal }}</strong>
+      </div>
+      {% endif %}
+
+      <button class="btn btn-outline-dark" name="action" value="quote">Get quote</button>
+      <button class="btn btn-dark" name="action" value="book" {% if has_conflict %}disabled{% endif %}>Confirm booking</button>
+      <a class="btn btn-link" href="{{ url_for('book.location_home', location_id=room.location_id) }}">Cancel</a>
+    </form>
+  </div></div>
+</div>
+</div>
+{% endblock %}

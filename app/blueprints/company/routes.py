@@ -1,0 +1,163 @@
+"""Company-admin portal routes."""
+from __future__ import annotations
+
+from datetime import date
+from decimal import Decimal
+
+from flask import Blueprint, render_template, redirect, url_for, flash, abort
+from flask_login import current_user
+
+from ...extensions import db
+from ...models import (
+    User, UserRole, PricingPlan, Subscription, SubscriptionStatus,
+    SeatAllocation, AllocationStatus, Invoice, SeatBooking, RoomBooking,
+)
+from ...utils.decorators import company_admin_required
+from .forms import InviteEmployeeForm, SubscribeForm
+
+company_bp = Blueprint("company", __name__, template_folder="../../templates")
+
+
+def _own_company():
+    if not current_user.company_id:
+        abort(403)
+    return current_user.company
+
+
+# --------------------------------------------------------------- dashboard --
+
+@company_bp.route("/")
+@company_admin_required
+def dashboard():
+    c = _own_company()
+    stats = {
+        "employees": User.query.filter_by(company_id=c.id, role=UserRole.EMPLOYEE).count(),
+        "allocations": SeatAllocation.query.filter_by(company_id=c.id, status=AllocationStatus.ACTIVE).count(),
+        "active_subs": Subscription.query.filter_by(company_id=c.id, status=SubscriptionStatus.ACTIVE).count(),
+        "meeting_credits": sum(s.meeting_credits_balance for s in
+                               Subscription.query.filter_by(company_id=c.id, status=SubscriptionStatus.ACTIVE).all()),
+        "open_invoices": Invoice.query.filter(Invoice.company_id == c.id,
+                                              Invoice.status.in_(["issued", "partial", "overdue"])).count(),
+    }
+    return render_template("company/dashboard.html", company=c, stats=stats)
+
+
+# --------------------------------------------------------------- employees --
+
+@company_bp.route("/employees")
+@company_admin_required
+def employees():
+    c = _own_company()
+    people = User.query.filter_by(company_id=c.id).order_by(User.full_name).all()
+    return render_template("company/employees.html", company=c, people=people)
+
+
+@company_bp.route("/employees/new", methods=["GET", "POST"])
+@company_admin_required
+def employee_new():
+    c = _own_company()
+    form = InviteEmployeeForm()
+    if form.validate_on_submit():
+        emp_count = User.query.filter_by(company_id=c.id, role=UserRole.EMPLOYEE).count()
+        if emp_count >= c.max_employees:
+            flash(f"Employee limit ({c.max_employees}) reached.", "warning")
+            return redirect(url_for("company.employees"))
+        email = form.email.data.lower().strip()
+        if User.query.filter_by(email=email).first():
+            flash("That email is already registered.", "warning")
+            return redirect(url_for("company.employees"))
+        u = User(
+            email=email,
+            full_name=form.full_name.data.strip(),
+            phone=form.phone.data,
+            role=UserRole.EMPLOYEE,
+            company_id=c.id,
+        )
+        u.set_password(form.temp_password.data)
+        db.session.add(u)
+        db.session.commit()
+        flash(f"Added {u.full_name}. Share the temporary password securely.", "success")
+        return redirect(url_for("company.employees"))
+    return render_template("company/employee_form.html", form=form, company=c)
+
+
+@company_bp.route("/employees/<int:user_id>/deactivate", methods=["POST"])
+@company_admin_required
+def employee_deactivate(user_id: int):
+    c = _own_company()
+    u = User.query.filter_by(id=user_id, company_id=c.id).first_or_404()
+    u.is_active = False
+    db.session.commit()
+    flash(f"{u.full_name} deactivated.", "info")
+    return redirect(url_for("company.employees"))
+
+
+# --------------------------------------------------------------- plans --
+
+@company_bp.route("/plans", methods=["GET", "POST"])
+@company_admin_required
+def plans():
+    c = _own_company()
+    form = SubscribeForm()
+    form.plan_id.choices = [(p.id, f"{p.name} — ${p.base_price}/{p.billing_cycle.value}")
+                            for p in PricingPlan.query.filter_by(is_active=True).order_by(PricingPlan.base_price).all()]
+    if form.validate_on_submit():
+        plan = PricingPlan.query.get_or_404(form.plan_id.data)
+        sub = Subscription(
+            plan_id=plan.id,
+            company_id=c.id,
+            quantity=form.quantity.data,
+            unit_price=Decimal(plan.base_price),
+            start_date=date.today(),
+            status=SubscriptionStatus.ACTIVE,
+            meeting_credits_balance=(plan.included_meeting_credits or 0) * form.quantity.data,
+        )
+        db.session.add(sub)
+        db.session.commit()
+        flash(f"Subscribed to {plan.name}.", "success")
+        return redirect(url_for("company.subscriptions"))
+    return render_template("company/plans.html", company=c, form=form,
+                           plans=PricingPlan.query.filter_by(is_active=True).all())
+
+
+@company_bp.route("/subscriptions")
+@company_admin_required
+def subscriptions():
+    c = _own_company()
+    subs = Subscription.query.filter_by(company_id=c.id).order_by(Subscription.created_at.desc()).all()
+    return render_template("company/subscriptions.html", company=c, subs=subs)
+
+
+# ------------------------------------------------------------ allocations --
+
+@company_bp.route("/allocations")
+@company_admin_required
+def allocations():
+    c = _own_company()
+    allocs = (SeatAllocation.query.filter_by(company_id=c.id, status=AllocationStatus.ACTIVE)
+              .order_by(SeatAllocation.start_date.desc()).all())
+    return render_template("company/allocations.html", company=c, allocations=allocs)
+
+
+# --------------------------------------------------------------- invoices --
+
+@company_bp.route("/invoices")
+@company_admin_required
+def invoices():
+    c = _own_company()
+    invs = Invoice.query.filter_by(company_id=c.id).order_by(Invoice.issued_at.desc().nullslast()).all()
+    return render_template("company/invoices.html", company=c, invoices=invs)
+
+
+# --------------------------------------------------------------- bookings --
+
+@company_bp.route("/bookings")
+@company_admin_required
+def bookings():
+    c = _own_company()
+    seat_bookings = (SeatBooking.query.filter_by(company_id=c.id)
+                     .order_by(SeatBooking.start_at.desc()).limit(50).all())
+    room_bookings = (RoomBooking.query.filter_by(company_id=c.id)
+                     .order_by(RoomBooking.start_at.desc()).limit(50).all())
+    return render_template("company/bookings.html", company=c,
+                           seat_bookings=seat_bookings, room_bookings=room_bookings)

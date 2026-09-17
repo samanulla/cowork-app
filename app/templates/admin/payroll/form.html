@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% from "_macros.html" import field %}
+{% block title %}New payroll run{% endblock %}
+
+{% block content %}
+<h3>Generate payroll run</h3>
+<p class="text-muted small">One payslip will be generated for every ACTIVE staff member with a current
+salary structure. Payslips are drafts until you approve the run.</p>
+
+<div class="card"><div class="card-body">
+  <form method="post" novalidate>
+    {{ form.hidden_tag() }}
+    <div class="row">
+      <div class="col-md-4">{{ field(form.period_start) }}</div>
+      <div class="col-md-4">{{ field(form.period_end) }}</div>
+    </div>
+    {{ field(form.notes) }}
+    <button class="btn btn-dark">Generate</button>
+    <a class="btn btn-link" href="{{ url_for('admin.payroll_list') }}">Cancel</a>
+  </form>
+</div></div>
+{% endblock %}

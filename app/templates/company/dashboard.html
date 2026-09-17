@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block title %}{{ company.name }}{% endblock %}
+
+{% block content %}
+<h3>{{ company.name }}</h3>
+<p class="text-muted">Company dashboard</p>
+
+<div class="row g-3 mb-4">
+  <div class="col-md-3"><div class="card card-stat"><div class="card-body">
+    <div class="text-muted small">Employees</div>
+    <div class="stat-value">{{ stats.employees }}</div>
+  </div></div></div>
+  <div class="col-md-3"><div class="card card-stat"><div class="card-body">
+    <div class="text-muted small">Active seats</div>
+    <div class="stat-value">{{ stats.allocations }}</div>
+  </div></div></div>
+  <div class="col-md-3"><div class="card card-stat"><div class="card-body">
+    <div class="text-muted small">Meeting credits</div>
+    <div class="stat-value">{{ stats.meeting_credits }}</div>
+  </div></div></div>
+  <div class="col-md-3"><div class="card card-stat"><div class="card-body">
+    <div class="text-muted small">Open invoices</div>
+    <div class="stat-value">{{ stats.open_invoices }}</div>
+  </div></div></div>
+</div>
+
+<div class="row g-3">
+  <div class="col-md-6"><div class="card"><div class="card-body">
+    <h6>Manage</h6>
+    <ul class="list-unstyled mb-0">
+      <li><a href="{{ url_for('company.employees') }}">Employees →</a></li>
+      <li><a href="{{ url_for('company.plans') }}">Plans & subscriptions →</a></li>
+      <li><a href="{{ url_for('company.allocations') }}">Seat allocations →</a></li>
+      <li><a href="{{ url_for('company.bookings') }}">Team bookings →</a></li>
+      <li><a href="{{ url_for('company.invoices') }}">Invoices →</a></li>
+    </ul>
+  </div></div></div>
+  <div class="col-md-6"><div class="card"><div class="card-body">
+    <h6>Book workspace</h6>
+    <p class="mb-2">You and your employees can book seats and conference rooms.</p>
+    <a class="btn btn-dark" href="{{ url_for('book.index') }}">Browse locations</a>
+  </div></div></div>
+</div>
+{% endblock %}

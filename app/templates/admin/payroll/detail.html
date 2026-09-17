@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block title %}Payroll {{ run.period_start }}{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <div>
+    <h3 class="mb-0">Payroll {{ run.period_start }} → {{ run.period_end }}</h3>
+    <div class="text-muted">
+      {{ run.payslips|length }} payslip(s) ·
+      Gross <strong>${{ run.total_gross }}</strong> ·
+      Deductions <strong>${{ run.total_deductions }}</strong> ·
+      Net <strong>${{ run.total_net }}</strong>
+    </div>
+  </div>
+  <div>
+    <span class="badge bg-secondary me-2">{{ run.status.value }}</span>
+    {% if run.status.value == 'draft' %}
+    <form method="post" action="{{ url_for('admin.payroll_approve', run_id=run.id) }}" class="d-inline">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <button class="btn btn-outline-dark">Approve</button>
+    </form>
+    {% elif run.status.value == 'approved' %}
+    <form method="post" action="{{ url_for('admin.payroll_mark_paid', run_id=run.id) }}" class="d-inline">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <button class="btn btn-success">Mark paid</button>
+    </form>
+    {% endif %}
+  </div>
+</div>
+
+<div class="card"><div class="card-body p-0">
+<table class="table mb-0">
+  <thead><tr><th>Staff</th><th>Basic</th><th>Allowances</th><th>Deductions</th><th>Gross</th><th>Net</th></tr></thead>
+  <tbody>
+    {% for p in run.payslips %}
+    <tr>
+      <td>{{ p.staff.full_name }} <span class="text-muted small">({{ p.staff.employee_code }})</span></td>
+      <td>{{ p.basic }}</td>
+      <td>{{ p.allowances }}</td>
+      <td>{{ p.deductions }}</td>
+      <td>{{ p.gross }}</td>
+      <td><strong>{{ p.net }}</strong></td>
+    </tr>
+    {% else %}
+    <tr><td colspan="6" class="text-muted text-center py-4">No payslips.</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+</div></div>
+
+{% if run.notes %}<p class="mt-3 text-muted small">Notes: {{ run.notes }}</p>{% endif %}
+{% endblock %}

@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}Staff{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between mb-3">
+  <h3>Staff members</h3>
+  <a class="btn btn-dark" href="{{ url_for('admin.staff_new') }}">+ Add staff</a>
+</div>
+
+<table class="table bg-white shadow-sm">
+  <thead>
+    <tr><th>Code</th><th>Name</th><th>Title</th><th>Dept</th><th>Type</th><th>Location</th><th>Status</th><th></th></tr>
+  </thead>
+  <tbody>
+    {% for s in staff %}
+    <tr>
+      <td>{{ s.employee_code }}</td>
+      <td><strong>{{ s.full_name }}</strong><br><span class="text-muted small">{{ s.email }}</span></td>
+      <td>{{ s.job_title }}</td>
+      <td>{{ s.department.value.replace('_',' ') }}</td>
+      <td>{{ s.employment_type.value.replace('_',' ') }}</td>
+      <td>{{ s.location.name if s.location else "—" }}</td>
+      <td><span class="badge bg-secondary">{{ s.status.value }}</span></td>
+      <td class="text-end"><a class="btn btn-sm btn-outline-dark" href="{{ url_for('admin.staff_detail', staff_id=s.id) }}">Open</a></td>
+    </tr>
+    {% else %}
+    <tr><td colspan="8" class="text-center text-muted py-4">No staff yet. <a href="{{ url_for('admin.staff_new') }}">Add someone</a>.</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

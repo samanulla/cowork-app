@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block title %}My bookings{% endblock %}
+
+{% block content %}
+<h3>My bookings</h3>
+
+<h5 class="mt-4">Seats</h5>
+<table class="table bg-white shadow-sm">
+  <thead><tr><th>When</th><th>Seat</th><th>Status</th><th>Total</th><th></th></tr></thead>
+  <tbody>
+    {% for b in seat_bookings %}
+    <tr>
+      <td>{{ b.start_at.strftime('%b %d, %H:%M') }} → {{ b.end_at.strftime('%H:%M') }}</td>
+      <td>{{ b.seat.code }} <span class="text-muted small">at {{ b.seat.location.name }}</span></td>
+      <td><span class="badge bg-secondary">{{ b.status.value }}</span></td>
+      <td>${{ b.total_amount }}</td>
+      <td class="text-end">
+        {% if b.status.value in ['confirmed','checked_in'] %}
+        <form method="post" action="{{ url_for('member.cancel_seat_booking', booking_id=b.id) }}" class="d-inline">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <button class="btn btn-sm btn-outline-danger">Cancel</button>
+        </form>
+        {% endif %}
+      </td>
+    </tr>
+    {% else %}
+    <tr><td colspan="5" class="text-center text-muted py-4">No seat bookings.</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<h5 class="mt-4">Rooms</h5>
+<table class="table bg-white shadow-sm">
+  <thead><tr><th>When</th><th>Room</th><th>Title</th><th>Credits</th><th>Total</th><th>Status</th><th></th></tr></thead>
+  <tbody>
+    {% for b in room_bookings %}
+    <tr>
+      <td>{{ b.start_at.strftime('%b %d, %H:%M') }} → {{ b.end_at.strftime('%H:%M') }}</td>
+      <td>{{ b.room.name }} <span class="text-muted small">at {{ b.room.location.name }}</span></td>
+      <td>{{ b.title or "—" }}</td>
+      <td>{{ b.credits_used }}</td>
+      <td>${{ b.total_amount }}</td>
+      <td><span class="badge bg-secondary">{{ b.status.value }}</span></td>
+      <td class="text-end">
+        {% if b.status.value in ['confirmed','checked_in'] %}
+        <form method="post" action="{{ url_for('member.cancel_room_booking', booking_id=b.id) }}" class="d-inline">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <button class="btn btn-sm btn-outline-danger">Cancel</button>
+        </form>
+        {% endif %}
+      </td>
+    </tr>
+    {% else %}
+    <tr><td colspan="7" class="text-center text-muted py-4">No room bookings.</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

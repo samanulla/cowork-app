@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% from "_macros.html" import field %}
+{% block title %}Register company{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-7">
+    <div class="card shadow-sm">
+      <div class="card-body p-4">
+        <h4 class="mb-3">Register your company</h4>
+        <p class="text-muted small">Set up billing centrally, invite employees, and manage allocations.</p>
+        <form method="post" novalidate>
+          {{ form.hidden_tag() }}
+          <div class="row">
+            <div class="col-md-6">{{ field(form.company_name, autofocus=true) }}</div>
+            <div class="col-md-6">{{ field(form.billing_email) }}</div>
+          </div>
+          <hr>
+          <h6 class="mb-3">Your admin account</h6>
+          <div class="row">
+            <div class="col-md-6">{{ field(form.admin_full_name) }}</div>
+            <div class="col-md-6">{{ field(form.admin_email) }}</div>
+          </div>
+          <div class="row">
+            <div class="col-md-6">{{ field(form.password) }}</div>
+            <div class="col-md-6">{{ field(form.confirm) }}</div>
+          </div>
+          <button class="btn btn-dark w-100" type="submit">Create company account</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% from "_macros.html" import field %}
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<h3 class="mb-3">{{ title }}</h3>
+<div class="card"><div class="card-body">
+  <form method="post" novalidate>
+    {{ form.hidden_tag() }}
+    <div class="row">
+      <div class="col-md-8">{{ field(form.name) }}</div>
+      <div class="col-md-4">{{ field(form.code) }}</div>
+    </div>
+    {{ field(form.address_line1) }}
+    {{ field(form.address_line2) }}
+    <div class="row">
+      <div class="col-md-4">{{ field(form.city) }}</div>
+      <div class="col-md-3">{{ field(form.state) }}</div>
+      <div class="col-md-3">{{ field(form.country) }}</div>
+      <div class="col-md-2">{{ field(form.postal_code) }}</div>
+    </div>
+    <div class="row">
+      <div class="col-md-4">{{ field(form.timezone) }}</div>
+      <div class="col-md-3">{{ field(form.open_time) }}</div>
+      <div class="col-md-3">{{ field(form.close_time) }}</div>
+      <div class="col-md-2 pt-4">{{ field(form.is_247) }}</div>
+    </div>
+    {{ field(form.description) }}
+    {{ field(form.is_active) }}
+    <button class="btn btn-dark">Save</button>
+    <a class="btn btn-link" href="{{ url_for('admin.locations_list') }}">Cancel</a>
+  </form>
+</div></div>
+{% endblock %}

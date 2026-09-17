@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block title %}Credit notes{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between mb-3">
+  <h3>Credit notes</h3>
+  <a class="btn btn-dark" href="{{ url_for('admin.credit_note_new') }}">+ Issue credit note</a>
+</div>
+
+<table class="table bg-white shadow-sm">
+  <thead>
+    <tr><th>Number</th><th>Beneficiary</th><th>Invoice</th><th>Amount</th><th>Reason</th><th>Status</th><th></th></tr>
+  </thead>
+  <tbody>
+    {% for n in notes %}
+    <tr>
+      <td><strong>{{ n.number }}</strong></td>
+      <td>{{ n.company.name if n.company else (n.user.full_name if n.user else "—") }}</td>
+      <td>{{ n.invoice.number if n.invoice else "—" }}</td>
+      <td>{{ n.currency }} {{ n.amount }}</td>
+      <td>{{ n.reason }}</td>
+      <td><span class="badge bg-secondary">{{ n.status.value }}</span></td>
+      <td class="text-end">
+        {% if n.status.value == 'issued' %}
+          <form method="post" action="{{ url_for('admin.credit_note_apply', cn_id=n.id) }}" class="d-inline">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button class="btn btn-sm btn-outline-success">Apply</button>
+          </form>
+          <form method="post" action="{{ url_for('admin.credit_note_cancel', cn_id=n.id) }}" class="d-inline">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button class="btn btn-sm btn-outline-danger">Cancel</button>
+          </form>
+        {% endif %}
+      </td>
+    </tr>
+    {% else %}
+    <tr><td colspan="7" class="text-center text-muted py-4">No credit notes yet.</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

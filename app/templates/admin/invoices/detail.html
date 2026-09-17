@@ -1,0 +1,137 @@
+{% extends "base.html" %}
+{% from "_macros.html" import field %}
+{% block title %}Invoice {{ invoice.number }}{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <div>
+    <h3 class="mb-0">Invoice {{ invoice.number }}
+      <span class="badge bg-secondary">{{ invoice.status.value }}</span>
+    </h3>
+    <div class="text-muted">
+      {{ invoice.company.name if invoice.company else (invoice.user.full_name if invoice.user else "—") }}
+      · {{ invoice.period_start }} → {{ invoice.period_end }}
+      · Due {{ invoice.due_date }}
+    </div>
+  </div>
+  <div>
+    {% if invoice.status.value == 'draft' %}
+    <form method="post" action="{{ url_for('admin.invoice_issue', invoice_id=invoice.id) }}" class="d-inline">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <button class="btn btn-outline-dark">Issue</button>
+    </form>
+    {% endif %}
+    {% if invoice.status.value not in ('void',) %}
+    <form method="post" action="{{ url_for('admin.invoice_void', invoice_id=invoice.id) }}" class="d-inline"
+          onsubmit="return confirm('Void this invoice?');">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <button class="btn btn-outline-danger">Void</button>
+    </form>
+    {% endif %}
+  </div>
+</div>
+
+<div class="row g-3">
+  <div class="col-md-8">
+
+    <div class="card mb-3"><div class="card-body">
+      <h6>Line items</h6>
+      <table class="table table-sm mb-2">
+        <thead><tr><th>Description</th><th class="text-end">Qty</th><th class="text-end">Unit</th><th class="text-end">Amount</th><th></th></tr></thead>
+        <tbody>
+          {% for li in invoice.line_items %}
+          <tr>
+            <td>{{ li.description }}</td>
+            <td class="text-end">{{ li.quantity }}</td>
+            <td class="text-end">{{ li.unit_price }}</td>
+            <td class="text-end">{{ li.amount }}</td>
+            <td class="text-end">
+              {% if invoice.status.value in ('draft','issued') %}
+              <form method="post" action="{{ url_for('admin.invoice_line_delete', invoice_id=invoice.id, line_id=li.id) }}"
+                    onsubmit="return confirm('Delete this line?');">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button class="btn btn-sm btn-link text-danger">×</button>
+              </form>
+              {% endif %}
+            </td>
+          </tr>
+          {% else %}
+          <tr><td colspan="5" class="text-muted text-center py-3">No line items.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+
+      {% if invoice.status.value in ('draft','issued') %}
+      <form method="post" action="{{ url_for('admin.invoice_line_add', invoice_id=invoice.id) }}" class="row g-2 align-items-end mt-2">
+        {{ line_form.hidden_tag() }}
+        <div class="col-md-6">{{ line_form.description(class="form-control", placeholder="Description") }}</div>
+        <div class="col-md-2">{{ line_form.quantity(class="form-control", placeholder="Qty") }}</div>
+        <div class="col-md-2">{{ line_form.unit_price(class="form-control", placeholder="Unit price") }}</div>
+        <div class="col-md-2"><button class="btn btn-dark w-100">Add</button></div>
+      </form>
+      {% endif %}
+    </div></div>
+
+    <div class="card"><div class="card-body">
+      <h6>Payments</h6>
+      <table class="table table-sm mb-2">
+        <thead><tr><th>Paid on</th><th>Method</th><th>Reference</th><th class="text-end">Amount</th><th></th></tr></thead>
+        <tbody>
+          {% for p in invoice.payments %}
+          <tr>
+            <td>{{ p.paid_at.strftime('%Y-%m-%d') }}</td>
+            <td>{{ p.method }}</td>
+            <td>{{ p.reference or "—" }}</td>
+            <td class="text-end">{{ p.amount }}</td>
+            <td class="text-end"><a class="btn btn-sm btn-outline-danger" href="{{ url_for('admin.refund_new', payment_id=p.id) }}">Refund</a></td>
+          </tr>
+          {% else %}
+          <tr><td colspan="5" class="text-muted text-center py-3">No payments recorded.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+
+      {% if invoice.status.value in ('issued','partial','overdue') %}
+      <form method="post" action="{{ url_for('admin.payment_new', invoice_id=invoice.id) }}" class="row g-2 align-items-end">
+        {{ payment_form.hidden_tag() }}
+        <div class="col-md-3">{{ payment_form.amount(class="form-control", placeholder="Amount") }}</div>
+        <div class="col-md-3">{{ payment_form.method(class="form-select") }}</div>
+        <div class="col-md-3">{{ payment_form.reference(class="form-control", placeholder="Reference") }}</div>
+        <div class="col-md-2">{{ payment_form.paid_at(class="form-control") }}</div>
+        <div class="col-md-1"><button class="btn btn-dark w-100">Add</button></div>
+      </form>
+      {% endif %}
+    </div></div>
+
+  </div>
+
+  <div class="col-md-4">
+    <div class="card mb-3"><div class="card-body">
+      <h6>Summary</h6>
+      <table class="table table-sm mb-0">
+        <tr><th>Subtotal</th><td class="text-end">${{ invoice.subtotal }}</td></tr>
+        <tr><th>Tax</th><td class="text-end">${{ invoice.tax_amount }}</td></tr>
+        <tr class="table-secondary"><th>Total</th><td class="text-end"><strong>${{ invoice.total_amount }}</strong></td></tr>
+        <tr><th>Paid</th><td class="text-end">${{ invoice.amount_paid }}</td></tr>
+        <tr class="{{ 'table-success' if invoice.balance_due <= 0 else 'table-warning' }}">
+          <th>Balance</th><td class="text-end"><strong>${{ invoice.balance_due }}</strong></td>
+        </tr>
+      </table>
+    </div></div>
+
+    <div class="card"><div class="card-body">
+      <div class="d-flex justify-content-between align-items-center mb-2">
+        <h6 class="mb-0">Credit notes</h6>
+        <a class="btn btn-sm btn-outline-dark" href="{{ url_for('admin.credit_note_new') }}">Issue</a>
+      </div>
+      <ul class="list-unstyled small mb-0">
+        {% for cn in credit_notes %}
+          <li>{{ cn.number }} · ${{ cn.amount }} · <span class="badge bg-secondary">{{ cn.status.value }}</span></li>
+        {% else %}
+          <li class="text-muted">No credit notes.</li>
+        {% endfor %}
+      </ul>
+    </div></div>
+  </div>
+</div>
+{% endblock %}

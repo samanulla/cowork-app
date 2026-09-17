@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}Subscriptions{% endblock %}
+
+{% block content %}
+<h3>Subscriptions</h3>
+
+<table class="table bg-white shadow-sm">
+  <thead>
+    <tr><th>Plan</th><th>Qty</th><th>Unit price</th><th>Total</th><th>Credits</th><th>Status</th><th>Start</th></tr>
+  </thead>
+  <tbody>
+    {% for s in subs %}
+    <tr>
+      <td>{{ s.plan.name }}</td>
+      <td>{{ s.quantity }}</td>
+      <td>${{ s.unit_price }}</td>
+      <td>${{ s.monthly_total }}</td>
+      <td>{{ s.meeting_credits_balance }}</td>
+      <td><span class="badge bg-secondary">{{ s.status.value }}</span></td>
+      <td>{{ s.start_date }}</td>
+    </tr>
+    {% else %}
+    <tr><td colspan="7" class="text-muted text-center py-4">No subscriptions yet — <a href="{{ url_for('company.plans') }}">choose a plan</a>.</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

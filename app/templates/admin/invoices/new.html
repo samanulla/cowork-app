@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}New invoice{% endblock %}
+
+{% block content %}
+<h3>New invoice</h3>
+<div class="card"><div class="card-body">
+  <form method="post" novalidate>
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <div class="row">
+      <div class="col-md-6 mb-3">
+        <label class="form-label">Company</label>
+        <select name="company_id" class="form-select">
+          <option value="">— none —</option>
+          {% for c in companies %}<option value="{{ c.id }}">{{ c.name }}</option>{% endfor %}
+        </select>
+      </div>
+      <div class="col-md-6 mb-3">
+        <label class="form-label">Individual user</label>
+        <select name="user_id" class="form-select">
+          <option value="">— none —</option>
+          {% for u in users %}<option value="{{ u.id }}">{{ u.full_name }} ({{ u.email }})</option>{% endfor %}
+        </select>
+      </div>
+    </div>
+    <button class="btn btn-dark">Create draft</button>
+    <a class="btn btn-link" href="{{ url_for('admin.invoices_list') }}">Cancel</a>
+  </form>
+</div></div>
+{% endblock %}

@@ -1,0 +1,29 @@
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: coworkhub
+      POSTGRES_PASSWORD: coworkhub
+      POSTGRES_DB: coworkhub
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  web:
+    build: .
+    depends_on: [db]
+    ports:
+      - "8000:8000"
+    environment:
+      FLASK_ENV: production
+      SECRET_KEY: change-me
+      DATABASE_URL: postgresql+psycopg2://coworkhub:coworkhub@db:5432/coworkhub
+      STORAGE_BACKEND: local
+      LOCAL_STORAGE_DIR: /app/var/uploads
+    volumes:
+      - uploads:/app/var/uploads
+
+volumes:
+  pgdata:
+  uploads:

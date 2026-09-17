@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% from "_macros.html" import field %}
+{% block title %}Refund payment #{{ payment.id }}{% endblock %}
+
+{% block content %}
+<h3>Refund payment</h3>
+<div class="text-muted mb-3">
+  Payment #{{ payment.id }} on invoice
+  <a href="{{ url_for('admin.invoice_detail', invoice_id=payment.invoice_id) }}">{{ payment.invoice.number }}</a>
+  · Original amount <strong>${{ payment.amount }}</strong> · {{ payment.method }}
+</div>
+
+<div class="card"><div class="card-body">
+  <form method="post" novalidate>
+    {{ form.hidden_tag() }}
+    <div class="row">
+      <div class="col-md-3">{{ field(form.amount) }}</div>
+      <div class="col-md-3">{{ field(form.method) }}</div>
+      <div class="col-md-3">{{ field(form.reference) }}</div>
+    </div>
+    {{ field(form.reason) }}
+    {{ field(form.notes) }}
+    <button class="btn btn-dark">Issue refund</button>
+    <a class="btn btn-link" href="{{ url_for('admin.invoice_detail', invoice_id=payment.invoice_id) }}">Cancel</a>
+  </form>
+</div></div>
+{% endblock %}

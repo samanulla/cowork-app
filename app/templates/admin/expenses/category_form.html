@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% from "_macros.html" import field %}
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<h3>{{ title }}</h3>
+<div class="card"><div class="card-body">
+  <form method="post" novalidate>
+    {{ form.hidden_tag() }}
+    {{ field(form.name) }}
+    {{ field(form.description) }}
+    {{ field(form.is_active) }}
+    <button class="btn btn-dark">Save</button>
+    <a class="btn btn-link" href="{{ url_for('admin.expense_categories') }}">Cancel</a>
+  </form>
+</div></div>
+{% endblock %}

@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}Expense categories{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between mb-3">
+  <h3>Expense categories</h3>
+  <div>
+    <a class="btn btn-outline-dark" href="{{ url_for('admin.expenses_list') }}">Back to expenses</a>
+    <a class="btn btn-dark" href="{{ url_for('admin.expense_category_new') }}">+ New category</a>
+  </div>
+</div>
+
+<table class="table bg-white shadow-sm">
+  <thead><tr><th>Name</th><th>Description</th><th>Active</th><th></th></tr></thead>
+  <tbody>
+    {% for c in categories %}
+    <tr>
+      <td><strong>{{ c.name }}</strong></td>
+      <td>{{ c.description or "—" }}</td>
+      <td>{% if c.is_active %}<span class="badge bg-success">Active</span>{% else %}<span class="badge bg-secondary">No</span>{% endif %}</td>
+      <td class="text-end"><a class="btn btn-sm btn-outline-dark" href="{{ url_for('admin.expense_category_edit', cat_id=c.id) }}">Edit</a></td>
+    </tr>
+    {% else %}
+    <tr><td colspan="4" class="text-muted text-center py-4">No categories yet.</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

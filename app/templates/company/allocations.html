@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}Allocations{% endblock %}
+
+{% block content %}
+<h3>Company seat allocations</h3>
+<p class="text-muted">Platform admins allocate dedicated desks/private offices to your company.
+Employees can then use them without booking.</p>
+
+<table class="table bg-white shadow-sm">
+  <thead><tr><th>Seat</th><th>Location</th><th>Assigned to</th><th>Start</th><th>End</th></tr></thead>
+  <tbody>
+    {% for a in allocations %}
+    <tr>
+      <td>{{ a.seat.code }} <span class="text-muted small">({{ a.seat.seat_type.value }})</span></td>
+      <td>{{ a.seat.location.name }}</td>
+      <td>{{ a.user.full_name if a.user else "Company (any employee)" }}</td>
+      <td>{{ a.start_date }}</td>
+      <td>{{ a.end_date or "open" }}</td>
+    </tr>
+    {% else %}
+    <tr><td colspan="5" class="text-muted text-center py-4">No allocations yet.</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

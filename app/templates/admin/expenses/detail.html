@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block title %}Expense {{ expense.id }}{% endblock %}
+
+{% block content %}
+<h3>Expense #{{ expense.id }}
+  <span class="badge bg-secondary">{{ expense.status.value }}</span>
+</h3>
+
+<div class="row g-3 mt-1">
+  <div class="col-md-6"><div class="card"><div class="card-body">
+    <table class="table table-sm mb-0">
+      <tr><th>Category</th><td>{{ expense.category.name }}</td></tr>
+      <tr><th>Amount</th><td>{{ expense.currency }} <strong>{{ expense.amount }}</strong></td></tr>
+      <tr><th>Date</th><td>{{ expense.expense_date }}</td></tr>
+      <tr><th>Vendor</th><td>{{ expense.vendor or "—" }}</td></tr>
+      <tr><th>Payment method</th><td>{{ expense.payment_method }}</td></tr>
+      <tr><th>Location</th><td>{{ expense.location.name if expense.location else "—" }}</td></tr>
+      <tr><th>Reimburse to</th><td>{{ expense.staff.full_name if expense.staff else "—" }}</td></tr>
+      <tr><th>Submitted by</th><td>{{ expense.submitted_by.full_name if expense.submitted_by else "—" }}</td></tr>
+      {% if expense.approved_by %}
+      <tr><th>{{ 'Approved' if expense.status.value != 'rejected' else 'Reviewed' }} by</th><td>{{ expense.approved_by.full_name }} at {{ expense.approved_at.strftime('%Y-%m-%d %H:%M') }}</td></tr>
+      {% endif %}
+      {% if expense.rejection_reason %}
+      <tr><th>Rejection reason</th><td class="text-danger">{{ expense.rejection_reason }}</td></tr>
+      {% endif %}
+    </table>
+  </div></div></div>
+
+  <div class="col-md-6"><div class="card"><div class="card-body">
+    <h6>Description</h6>
+    <p>{{ expense.description or "—" }}</p>
+    {% if expense.receipt_document %}
+      <p class="mb-0"><i class="bi bi-paperclip"></i> {{ expense.receipt_document.filename }} ({{ (expense.receipt_document.size_bytes/1024)|round(1) }} KB)</p>
+    {% endif %}
+  </div></div></div>
+</div>
+
+{% if expense.status.value in ['submitted', 'draft'] %}
+<div class="card mt-3"><div class="card-body">
+  <h6>Decision</h6>
+  <div class="d-flex align-items-start gap-3">
+    <form method="post" action="{{ url_for('admin.expense_approve', exp_id=expense.id) }}">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <button class="btn btn-success">Approve</button>
+    </form>
+    <form method="post" action="{{ url_for('admin.expense_reject', exp_id=expense.id) }}" class="flex-grow-1">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <div class="input-group">
+        <input class="form-control" name="rejection_reason" placeholder="Reason for rejection">
+        <button class="btn btn-outline-danger">Reject</button>
+      </div>
+    </form>
+  </div>
+</div></div>
+{% elif expense.status.value == 'approved' %}
+<form method="post" action="{{ url_for('admin.expense_mark_paid', exp_id=expense.id) }}" class="mt-3">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <button class="btn btn-dark">Mark as paid</button>
+</form>
+{% endif %}
+{% endblock %}

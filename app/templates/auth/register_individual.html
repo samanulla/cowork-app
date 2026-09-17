@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% from "_macros.html" import field %}
+{% block title %}Join{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-6">
+    <div class="card shadow-sm">
+      <div class="card-body p-4">
+        <h4 class="mb-3">Join as an individual member</h4>
+        <form method="post" novalidate>
+          {{ form.hidden_tag() }}
+          {{ field(form.full_name, autofocus=true) }}
+          {{ field(form.email) }}
+          {{ field(form.phone) }}
+          {{ field(form.password) }}
+          {{ field(form.confirm) }}
+          <button class="btn btn-dark w-100" type="submit">Create account</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

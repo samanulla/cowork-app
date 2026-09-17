@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block title %}Refunds{% endblock %}
+
+{% block content %}
+<h3>Refunds</h3>
+
+<table class="table bg-white shadow-sm">
+  <thead>
+    <tr><th>Created</th><th>Payment</th><th>Amount</th><th>Method</th><th>Reason</th><th>Status</th><th></th></tr>
+  </thead>
+  <tbody>
+    {% for r in refunds %}
+    <tr>
+      <td>{{ r.created_at.strftime('%Y-%m-%d') }}</td>
+      <td>
+        {% if r.payment %}
+          <a href="{{ url_for('admin.invoice_detail', invoice_id=r.payment.invoice_id) }}">
+            {{ r.payment.invoice.number if r.payment.invoice else '#' + r.payment_id|string }}
+          </a>
+        {% else %}—{% endif %}
+      </td>
+      <td>${{ r.amount }}</td>
+      <td>{{ r.method }}</td>
+      <td>{{ r.reason }}</td>
+      <td><span class="badge bg-secondary">{{ r.status.value }}</span></td>
+      <td class="text-end">
+        {% if r.status.value == 'pending' %}
+          <form method="post" action="{{ url_for('admin.refund_complete', refund_id=r.id) }}" class="d-inline">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button class="btn btn-sm btn-outline-success">Complete</button>
+          </form>
+          <form method="post" action="{{ url_for('admin.refund_fail', refund_id=r.id) }}" class="d-inline">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button class="btn btn-sm btn-outline-danger">Fail</button>
+          </form>
+        {% endif %}
+      </td>
+    </tr>
+    {% else %}
+    <tr><td colspan="7" class="text-center text-muted py-4">No refunds yet.</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

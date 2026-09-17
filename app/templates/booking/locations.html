@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}Locations{% endblock %}
+
+{% block content %}
+<h3>Choose a location</h3>
+<div class="row g-3 mt-2">
+  {% for l in locations %}
+  <div class="col-md-4">
+    <div class="card h-100"><div class="card-body">
+      <h5>{{ l.name }}</h5>
+      <div class="text-muted small mb-2">{{ l.city }}, {{ l.country }}</div>
+      <p class="small">{{ l.description or "" }}</p>
+      <a class="btn btn-dark" href="{{ url_for('book.location_home', location_id=l.id) }}">Browse spaces</a>
+    </div></div>
+  </div>
+  {% else %}
+  <p class="text-muted">No locations available.</p>
+  {% endfor %}
+</div>
+{% endblock %}

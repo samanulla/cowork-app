@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}Companies{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between mb-3">
+  <h3>Companies</h3>
+  <a class="btn btn-dark" href="{{ url_for('admin.company_new') }}">+ New company</a>
+</div>
+
+<table class="table bg-white shadow-sm">
+  <thead><tr><th>Name</th><th>Billing email</th><th>Status</th><th>Employees</th><th></th></tr></thead>
+  <tbody>
+    {% for c in companies %}
+    <tr>
+      <td><strong>{{ c.name }}</strong></td>
+      <td>{{ c.billing_email }}</td>
+      <td><span class="badge bg-secondary">{{ c.status.value }}</span></td>
+      <td>{{ c.users|length }} / {{ c.max_employees }}</td>
+      <td class="text-end">
+        <a class="btn btn-sm btn-outline-dark" href="{{ url_for('admin.company_detail', company_id=c.id) }}">View</a>
+        <a class="btn btn-sm btn-outline-secondary" href="{{ url_for('admin.company_documents', company_id=c.id) }}">Docs</a>
+      </td>
+    </tr>
+    {% else %}
+    <tr><td colspan="5" class="text-center text-muted py-4">No companies yet.</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

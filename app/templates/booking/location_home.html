@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block title %}{{ location.name }} — Book{% endblock %}
+
+{% block content %}
+<h3>{{ location.name }}</h3>
+<p class="text-muted">{{ location.city }}, {{ location.country }}</p>
+
+<ul class="nav nav-tabs mb-3" role="tablist">
+  <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tab-desks">Hot desks</button></li>
+  <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-rooms">Conference rooms</button></li>
+</ul>
+
+<div class="tab-content">
+  <div class="tab-pane fade show active" id="tab-desks">
+    <div class="row g-3">
+      {% for s in hot_desks %}
+      <div class="col-md-4">
+        <div class="card h-100"><div class="card-body">
+          <h6>{{ s.code }}</h6>
+          <div class="text-muted small">L{{ s.floor.level }} · {{ s.floor.name }}</div>
+          <p class="small mb-2">Hourly ${{ s.hourly_rate }} · Daily ${{ s.daily_rate }}</p>
+          <a class="btn btn-sm btn-dark" href="{{ url_for('book.seat_book', seat_id=s.id) }}">Book</a>
+        </div></div>
+      </div>
+      {% else %}
+      <p class="text-muted">No hot desks available.</p>
+      {% endfor %}
+    </div>
+  </div>
+  <div class="tab-pane fade" id="tab-rooms">
+    <div class="row g-3">
+      {% for r in rooms %}
+      <div class="col-md-4">
+        <div class="card h-100"><div class="card-body">
+          <h6>{{ r.name }}</h6>
+          <div class="text-muted small">Cap {{ r.capacity }} · L{{ r.floor.level }}</div>
+          <p class="small mb-2">${{ r.hourly_rate }}/hr · {{ r.credit_cost_per_hour }} credit(s)/hr</p>
+          <a class="btn btn-sm btn-dark" href="{{ url_for('book.room_book', room_id=r.id) }}">Book</a>
+        </div></div>
+      </div>
+      {% else %}
+      <p class="text-muted">No rooms available.</p>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}Seats — {{ location.name }}{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between mb-3">
+  <h3>Seats at {{ location.name }}</h3>
+  <a class="btn btn-dark" href="{{ url_for('admin.seat_new', location_id=location.id) }}">+ New seat</a>
+</div>
+
+<table class="table bg-white shadow-sm">
+  <thead><tr><th>Code</th><th>Floor</th><th>Type</th><th>Hourly</th><th>Daily</th><th>Monthly</th><th>Active</th><th></th></tr></thead>
+  <tbody>
+    {% for s in seats %}
+    <tr>
+      <td><strong>{{ s.code }}</strong></td>
+      <td>L{{ s.floor.level }} — {{ s.floor.name }}</td>
+      <td>{{ s.seat_type.value.replace('_',' ') }}</td>
+      <td>${{ s.hourly_rate }}</td>
+      <td>${{ s.daily_rate }}</td>
+      <td>${{ s.monthly_rate }}</td>
+      <td>{% if s.is_active %}<span class="badge bg-success">Active</span>{% else %}<span class="badge bg-secondary">No</span>{% endif %}</td>
+      <td class="text-end"><a class="btn btn-sm btn-outline-dark" href="{{ url_for('admin.seat_edit', seat_id=s.id) }}">Edit</a></td>
+    </tr>
+    {% else %}
+    <tr><td colspan="8" class="text-center text-muted py-4">No seats yet.</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

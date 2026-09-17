@@ -1,0 +1,45 @@
+"""Pricing plans."""
+from __future__ import annotations
+
+import enum
+from sqlalchemy import Column, String, Integer, Numeric, Enum, Text, Boolean
+from sqlalchemy.orm import relationship
+
+from ..extensions import db
+from ._mixins import PkMixin, TimestampMixin
+
+
+class PlanType(str, enum.Enum):
+    HOT_DESK = "hot_desk"
+    DEDICATED_DESK = "dedicated_desk"
+    PRIVATE_OFFICE = "private_office"
+    ALL_ACCESS = "all_access"
+    DAY_PASS = "day_pass"
+    CUSTOM = "custom"
+
+
+class BillingCycle(str, enum.Enum):
+    DAILY = "daily"
+    MONTHLY = "monthly"
+    QUARTERLY = "quarterly"
+    ANNUAL = "annual"
+
+
+class PricingPlan(db.Model, PkMixin, TimestampMixin):
+    __tablename__ = "pricing_plans"
+
+    name = Column(String(120), nullable=False, unique=True)
+    plan_type = Column(Enum(PlanType), nullable=False, default=PlanType.HOT_DESK)
+    billing_cycle = Column(Enum(BillingCycle), nullable=False, default=BillingCycle.MONTHLY)
+    base_price = Column(Numeric(10, 2), nullable=False)
+    included_meeting_credits = Column(Integer, default=0, nullable=False)
+    included_print_credits = Column(Integer, default=0, nullable=False)
+    guest_passes = Column(Integer, default=0, nullable=False)
+    max_locations = Column(Integer, default=1, nullable=False)  # 0 = unlimited
+    is_active = Column(Boolean, default=True, nullable=False)
+    description = Column(Text)
+
+    subscriptions = relationship("Subscription", back_populates="plan")
+
+    def __repr__(self) -> str:
+        return f"<PricingPlan {self.name} ${self.base_price}/{self.billing_cycle.value}>"

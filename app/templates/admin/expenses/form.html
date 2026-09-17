@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% from "_macros.html" import field %}
+{% block title %}New expense{% endblock %}
+
+{% block content %}
+<h3>Record expense</h3>
+<div class="card"><div class="card-body">
+  <form method="post" novalidate enctype="multipart/form-data">
+    {{ form.hidden_tag() }}
+    <div class="row">
+      <div class="col-md-4">{{ field(form.category_id) }}</div>
+      <div class="col-md-4">{{ field(form.location_id) }}</div>
+      <div class="col-md-4">{{ field(form.staff_id) }}</div>
+    </div>
+    <div class="row">
+      <div class="col-md-3">{{ field(form.amount) }}</div>
+      <div class="col-md-2">{{ field(form.currency) }}</div>
+      <div class="col-md-4">{{ field(form.expense_date) }}</div>
+      <div class="col-md-3">{{ field(form.payment_method) }}</div>
+    </div>
+    <div class="row">
+      <div class="col-md-8">{{ field(form.vendor) }}</div>
+      <div class="col-md-4">{{ field(form.receipt) }}</div>
+    </div>
+    {{ field(form.description) }}
+    <button class="btn btn-dark">Save</button>
+    <a class="btn btn-link" href="{{ url_for('admin.expenses_list') }}">Cancel</a>
+  </form>
+</div></div>
+{% endblock %}
