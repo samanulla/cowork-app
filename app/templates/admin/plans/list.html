@@ -15,7 +15,7 @@
       <td>{{ p.name }}</td>
       <td>{{ p.plan_type.value.replace('_',' ') }}</td>
       <td>{{ p.billing_cycle.value }}</td>
-      <td>${{ p.base_price }}</td>
+      <td>{{ p.base_price | money }}</td>
       <td>{{ p.included_meeting_credits }}</td>
       <td>{% if p.is_active %}<span class="badge bg-success">Active</span>{% else %}<span class="badge bg-secondary">No</span>{% endif %}</td>
       <td class="text-end"><a class="btn btn-sm btn-outline-dark" href="{{ url_for('admin.plan_edit', plan_id=p.id) }}">Edit</a></td>

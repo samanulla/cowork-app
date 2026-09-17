@@ -83,6 +83,9 @@
       <h5>Notifications</h5>
       <ul class="list-unstyled mb-0">
         <li><a href="{{ url_for('admin.email_templates') }}"><i class="bi bi-envelope"></i> Email templates →</a></li>
+        {% if current_user.is_super_admin %}
+        <li><a href="{{ url_for('admin.settings') }}"><i class="bi bi-gear"></i> System settings →</a></li>
+        {% endif %}
       </ul>
     </div></div>
   </div>
@@ -124,7 +127,7 @@
       <tbody>
         {% for b in recent_bookings %}
         <tr>
-          <td>{{ b.start_at.strftime('%b %d, %H:%M') }}</td>
+          <td>{{ b.start_at | dt }}</td>
           <td>{{ b.room.name }}</td>
           <td>{{ b.user.full_name }}</td>
           <td><span class="badge bg-secondary">{{ b.status.value }}</span></td>

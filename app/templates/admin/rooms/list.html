@@ -16,7 +16,7 @@
       <td>{{ r.name }}</td>
       <td>L{{ r.floor.level }}</td>
       <td>{{ r.capacity }}</td>
-      <td>${{ r.hourly_rate }}</td>
+      <td>{{ r.hourly_rate | money }}</td>
       <td>{{ r.credit_cost_per_hour }}</td>
       <td class="text-end"><a class="btn btn-sm btn-outline-dark" href="{{ url_for('admin.room_edit', room_id=r.id) }}">Edit</a></td>
     </tr>

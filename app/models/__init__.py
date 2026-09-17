@@ -16,6 +16,7 @@ from .payroll import (
 from .expense import Expense, ExpenseCategory, ExpenseStatus
 from .finance import CreditNote, CreditNoteStatus, Refund, RefundStatus
 from .email_template import EmailTemplate, EmailKind
+from .settings import SystemSettings
 
 __all__ = [
     "User", "UserRole",
@@ -33,4 +34,5 @@ __all__ = [
     "Expense", "ExpenseCategory", "ExpenseStatus",
     "CreditNote", "CreditNoteStatus", "Refund", "RefundStatus",
     "EmailTemplate", "EmailKind",
+    "SystemSettings",
 ]

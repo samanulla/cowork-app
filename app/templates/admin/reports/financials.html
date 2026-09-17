@@ -20,7 +20,7 @@
   <div class="col-6 col-md-4 col-lg-2">
     <div class="card card-stat h-100"><div class="card-body">
       <div class="text-muted small">{{ label }}</div>
-      <div class="stat-value text-{{ color }}">${{ '%.0f'|format(val) }}</div>
+      <div class="stat-value text-{{ color }}">{{ val | money }}</div>
     </div></div>
   </div>
   {% endfor %}
@@ -43,7 +43,7 @@
       <thead><tr><th>Bucket</th><th class="text-end">Amount</th></tr></thead>
       <tbody>
         {% for bucket, val in aging.items() %}
-          <tr><td>{{ bucket }} days</td><td class="text-end">${{ val }}</td></tr>
+          <tr><td>{{ bucket }} days</td><td class="text-end">{{ val | money }}</td></tr>
         {% endfor %}
       </tbody>
     </table>

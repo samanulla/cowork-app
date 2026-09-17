@@ -14,6 +14,7 @@ from ...models import (
 )
 from ...utils.decorators import company_admin_required
 from .forms import InviteEmployeeForm, SubscribeForm
+from ...services.formatting import format_money
 
 company_bp = Blueprint("company", __name__, template_folder="../../templates")
 
@@ -99,7 +100,7 @@ def employee_deactivate(user_id: int):
 def plans():
     c = _own_company()
     form = SubscribeForm()
-    form.plan_id.choices = [(p.id, f"{p.name} — ${p.base_price}/{p.billing_cycle.value}")
+    form.plan_id.choices = [(p.id, f"{p.name} — {format_money(p.base_price)}/{p.billing_cycle.value}")
                             for p in PricingPlan.query.filter_by(is_active=True).order_by(PricingPlan.base_price).all()]
     if form.validate_on_submit():
         plan = PricingPlan.query.get_or_404(form.plan_id.data)

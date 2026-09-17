@@ -7,9 +7,9 @@
     <h3 class="mb-0">Payroll {{ run.period_start }} → {{ run.period_end }}</h3>
     <div class="text-muted">
       {{ run.payslips|length }} payslip(s) ·
-      Gross <strong>${{ run.total_gross }}</strong> ·
-      Deductions <strong>${{ run.total_deductions }}</strong> ·
-      Net <strong>${{ run.total_net }}</strong>
+      Gross <strong>{{ run.total_gross | money }}</strong> ·
+      Deductions <strong>{{ run.total_deductions | money }}</strong> ·
+      Net <strong>{{ run.total_net | money }}</strong>
     </div>
   </div>
   <div>

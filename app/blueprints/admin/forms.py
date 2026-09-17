@@ -263,3 +263,35 @@ class EmailTemplateForm(FlaskForm):
                                    validators=[Optional()], render_kw={"rows": 3})
     is_active = BooleanField("Active", default=True)
     submit = SubmitField("Save template")
+
+
+# ============================================================
+# System settings (Super admin only)
+# ============================================================
+
+class SystemSettingsForm(FlaskForm):
+    currency_code = StringField("Currency code", validators=[DataRequired(), Length(min=3, max=3)])
+    currency_symbol = StringField("Currency symbol", validators=[DataRequired(), Length(max=4)])
+    locale = StringField("Locale", validators=[DataRequired(), Length(max=10)])
+    number_grouping = SelectField("Number grouping", choices=[
+        ("indian", "Indian (12,34,56,789)"),
+        ("western", "Western (123,456,789)"),
+    ], validators=[DataRequired()])
+    show_currency_code_after_symbol = BooleanField("Show currency code after amount (e.g. ₹1,000.00 INR)")
+
+    timezone = StringField("Timezone (IANA)", validators=[DataRequired(), Length(max=64)])
+    date_format = StringField("Date format", validators=[DataRequired(), Length(max=30)],
+                              description="strftime pattern, e.g. %d-%b-%Y")
+    datetime_format = StringField("Datetime format", validators=[DataRequired(), Length(max=30)],
+                                  description="strftime pattern, e.g. %d-%b-%Y %H:%M")
+    time_format = StringField("Time format", validators=[DataRequired(), Length(max=20)])
+
+    default_tax_rate = DecimalField("Default tax rate (%)", validators=[DataRequired(), NumberRange(min=0, max=100)])
+    tax_label = StringField("Tax label (e.g. GST)", validators=[DataRequired(), Length(max=30)])
+
+    company_legal_name = StringField("Business legal name", validators=[Optional(), Length(max=200)])
+    gstin = StringField("GSTIN", validators=[Optional(), Length(max=20)])
+    pan = StringField("PAN", validators=[Optional(), Length(max=20)])
+    invoice_prefix = StringField("Invoice number prefix", validators=[DataRequired(), Length(max=10)])
+
+    submit = SubmitField("Save settings")

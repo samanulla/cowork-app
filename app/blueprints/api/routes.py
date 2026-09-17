@@ -14,6 +14,7 @@ from ...models import Location, Seat, ConferenceRoom
 from ...services.booking_service import (
     create_seat_booking, create_room_booking, BookingError,
 )
+from ...services.formatting import parse_local_naive_to_utc as _parse_local
 from ...utils.datetime_helpers import parse_dt_local
 
 api_bp = Blueprint("api", __name__)
@@ -74,8 +75,8 @@ def book_seat_api():
     data = request.get_json(silent=True) or {}
     try:
         seat = Seat.query.get_or_404(int(data["seat_id"]))
-        start = parse_dt_local(data["start"])
-        end = parse_dt_local(data["end"])
+        start = _parse_local(data["start"])
+        end = _parse_local(data["end"])
     except (KeyError, ValueError):
         abort(400, description="seat_id, start, end are required")
     try:
@@ -93,8 +94,8 @@ def book_room_api():
     data = request.get_json(silent=True) or {}
     try:
         room = ConferenceRoom.query.get_or_404(int(data["room_id"]))
-        start = parse_dt_local(data["start"])
-        end = parse_dt_local(data["end"])
+        start = _parse_local(data["start"])
+        end = _parse_local(data["end"])
     except (KeyError, ValueError):
         abort(400, description="room_id, start, end are required")
     try:

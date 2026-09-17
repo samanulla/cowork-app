@@ -64,6 +64,10 @@ def seed_demo_cmd() -> None:
         db.session.add(mgr)
         click.echo(f"Seeded manager: {manager_email}")
 
+    # --- system settings singleton (INR / Asia-Kolkata defaults for India) ---
+    from .models import SystemSettings
+    SystemSettings.get()
+
     # --- amenities ---
     amenity_names = ["Wi-Fi", "Coffee", "Printing", "Phone booths", "Kitchen", "Shower", "Bike storage"]
     for n in amenity_names:
@@ -78,15 +82,15 @@ def seed_demo_cmd() -> None:
     db.session.flush()
 
     # --- location ---
-    loc = Location.query.filter_by(code="NYC-01").first()
+    loc = Location.query.filter_by(code="BLR-01").first()
     if not loc:
         loc = Location(
-            name="CoWorkHub NYC — Bryant Park", code="NYC-01",
-            address_line1="1140 Avenue of the Americas",
-            city="New York", state="NY", country="US", postal_code="10036",
-            timezone="America/New_York",
+            name="CoWorkHub Bengaluru — Indiranagar", code="BLR-01",
+            address_line1="100 Feet Road",
+            city="Bengaluru", state="KA", country="IN", postal_code="560038",
+            timezone="Asia/Kolkata",
             open_time=time(7, 0), close_time=time(22, 0),
-            description="Flagship NYC location with 3 floors of workspace.",
+            description="Flagship Bengaluru location with 4 floors of workspace.",
         )
         db.session.add(loc)
         db.session.flush()
@@ -99,53 +103,53 @@ def seed_demo_cmd() -> None:
         db.session.add_all([ground, l5, l6, l7])
         db.session.flush()
 
-        # seats
+        # seats (rates in INR)
         for i in range(1, 21):
             db.session.add(Seat(
                 location_id=loc.id, floor_id=l5.id,
                 code=f"L5-HD-{i:03d}", seat_type=SeatType.HOT_DESK,
-                hourly_rate=Decimal("8.00"), daily_rate=Decimal("35.00"),
-                monthly_rate=Decimal("299.00"),
+                hourly_rate=Decimal("150.00"), daily_rate=Decimal("900.00"),
+                monthly_rate=Decimal("12000.00"),
             ))
         for i in range(1, 11):
             db.session.add(Seat(
                 location_id=loc.id, floor_id=l6.id,
                 code=f"L6-DD-{i:03d}", seat_type=SeatType.DEDICATED_DESK,
-                monthly_rate=Decimal("599.00"),
+                monthly_rate=Decimal("22000.00"),
             ))
         for i in range(1, 6):
             db.session.add(Seat(
                 location_id=loc.id, floor_id=l7.id,
                 code=f"L7-PO-{i:03d}", seat_type=SeatType.PRIVATE_OFFICE,
-                capacity=4, monthly_rate=Decimal("2499.00"),
+                capacity=4, monthly_rate=Decimal("85000.00"),
             ))
 
-        # rooms
+        # rooms (rates in INR)
         db.session.add_all([
             ConferenceRoom(location_id=loc.id, floor_id=ground.id, code="G-BOARD",
                            name="The Boardroom", capacity=12,
-                           hourly_rate=Decimal("60.00"), credit_cost_per_hour=2,
+                           hourly_rate=Decimal("2400.00"), credit_cost_per_hour=2,
                            description="Boardroom with 65\" TV and speakerphone."),
             ConferenceRoom(location_id=loc.id, floor_id=l5.id, code="L5-HUD",
-                           name="Hudson", capacity=6,
-                           hourly_rate=Decimal("30.00"), credit_cost_per_hour=1,
+                           name="Cauvery", capacity=6,
+                           hourly_rate=Decimal("1200.00"), credit_cost_per_hour=1,
                            description="6-person meeting room with whiteboard."),
             ConferenceRoom(location_id=loc.id, floor_id=l5.id, code="L5-CEN",
-                           name="Central", capacity=4,
-                           hourly_rate=Decimal("20.00"), credit_cost_per_hour=1),
+                           name="Krishna", capacity=4,
+                           hourly_rate=Decimal("800.00"), credit_cost_per_hour=1),
             ConferenceRoom(location_id=loc.id, floor_id=l7.id, code="L7-EXEC",
                            name="Executive Suite", capacity=8,
-                           hourly_rate=Decimal("45.00"), credit_cost_per_hour=2),
+                           hourly_rate=Decimal("1800.00"), credit_cost_per_hour=2),
         ])
         click.echo(f"Seeded location {loc.code} with seats & rooms.")
 
-    # --- pricing plans ---
+    # --- pricing plans (INR) ---
     plans_seed = [
-        ("Hot Desk Monthly", PlanType.HOT_DESK, BillingCycle.MONTHLY, Decimal("299"), 8, 1),
-        ("Dedicated Desk", PlanType.DEDICATED_DESK, BillingCycle.MONTHLY, Decimal("599"), 20, 1),
-        ("Private Office (4-person)", PlanType.PRIVATE_OFFICE, BillingCycle.MONTHLY, Decimal("2499"), 40, 1),
-        ("All Access", PlanType.ALL_ACCESS, BillingCycle.MONTHLY, Decimal("499"), 12, 0),
-        ("Day Pass", PlanType.DAY_PASS, BillingCycle.DAILY, Decimal("35"), 0, 1),
+        ("Hot Desk Monthly", PlanType.HOT_DESK, BillingCycle.MONTHLY, Decimal("12000"), 8, 1),
+        ("Dedicated Desk", PlanType.DEDICATED_DESK, BillingCycle.MONTHLY, Decimal("22000"), 20, 1),
+        ("Private Office (4-person)", PlanType.PRIVATE_OFFICE, BillingCycle.MONTHLY, Decimal("85000"), 40, 1),
+        ("All Access", PlanType.ALL_ACCESS, BillingCycle.MONTHLY, Decimal("18000"), 12, 0),
+        ("Day Pass", PlanType.DAY_PASS, BillingCycle.DAILY, Decimal("900"), 0, 1),
     ]
     for name, ptype, cycle, price, credits, max_loc in plans_seed:
         if not PricingPlan.query.filter_by(name=name).first():

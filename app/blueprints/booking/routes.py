@@ -11,7 +11,7 @@ from ...services.booking_service import (
     create_seat_booking, create_room_booking, quote_seat, quote_room,
     BookingError, check_seat_conflict, check_room_conflict,
 )
-from ...utils.datetime_helpers import parse_dt_local
+from ...services.formatting import format_money, now_local, parse_local_naive_to_utc
 from ...utils.decorators import member_required
 
 booking_bp = Blueprint("book", __name__, template_folder="../../templates")
@@ -41,7 +41,7 @@ def location_home(location_id: int):
 def seat_book(seat_id: int):
     seat = Seat.query.get_or_404(seat_id)
 
-    default_start = (datetime.utcnow() + timedelta(hours=1)).replace(minute=0, second=0, microsecond=0)
+    default_start = (now_local() + timedelta(hours=1)).replace(minute=0, second=0, microsecond=0, tzinfo=None)
     default_end = default_start + timedelta(hours=4)
 
     ctx = {"seat": seat, "quote": None, "error": None,
@@ -51,8 +51,8 @@ def seat_book(seat_id: int):
     if request.method == "POST":
         action = request.form.get("action", "quote")
         try:
-            start = parse_dt_local(request.form["start"])
-            end = parse_dt_local(request.form["end"])
+            start = parse_local_naive_to_utc(request.form["start"])
+            end = parse_local_naive_to_utc(request.form["end"])
         except (KeyError, ValueError):
             flash("Invalid start or end time.", "danger")
             return render_template("booking/seat_book.html", **ctx)
@@ -64,7 +64,7 @@ def seat_book(seat_id: int):
             try:
                 b = create_seat_booking(user=current_user, seat=seat, start=start, end=end,
                                         notes=request.form.get("notes"))
-                flash(f"Seat booked. Total ${b.total_amount}.", "success")
+                flash(f"Seat booked. Total {format_money(b.total_amount)}.", "success")
                 return redirect(url_for("member.bookings"))
             except BookingError as e:
                 ctx["error"] = str(e)
@@ -84,7 +84,7 @@ def seat_book(seat_id: int):
 def room_book(room_id: int):
     room = ConferenceRoom.query.get_or_404(room_id)
 
-    default_start = (datetime.utcnow() + timedelta(hours=1)).replace(minute=0, second=0, microsecond=0)
+    default_start = (now_local() + timedelta(hours=1)).replace(minute=0, second=0, microsecond=0, tzinfo=None)
     default_end = default_start + timedelta(hours=1)
 
     ctx = {"room": room, "quote": None, "error": None,
@@ -94,8 +94,8 @@ def room_book(room_id: int):
     if request.method == "POST":
         action = request.form.get("action", "quote")
         try:
-            start = parse_dt_local(request.form["start"])
-            end = parse_dt_local(request.form["end"])
+            start = parse_local_naive_to_utc(request.form["start"])
+            end = parse_local_naive_to_utc(request.form["end"])
         except (KeyError, ValueError):
             flash("Invalid start or end time.", "danger")
             return render_template("booking/room_book.html", **ctx)
@@ -114,7 +114,7 @@ def room_book(room_id: int):
                 if b.credits_used:
                     msg += f"Used {b.credits_used} credit(s). "
                 if b.total_amount and b.total_amount > 0:
-                    msg += f"Charge ${b.total_amount}."
+                    msg += f"Charge {format_money(b.total_amount)}."
                 flash(msg, "success")
                 return redirect(url_for("member.bookings"))
             except BookingError as e:

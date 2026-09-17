@@ -43,8 +43,8 @@
           <tr>
             <td>{{ li.description }}</td>
             <td class="text-end">{{ li.quantity }}</td>
-            <td class="text-end">{{ li.unit_price }}</td>
-            <td class="text-end">{{ li.amount }}</td>
+            <td class="text-end">{{ li.unit_price | money }}</td>
+            <td class="text-end">{{ li.amount | money }}</td>
             <td class="text-end">
               {% if invoice.status.value in ('draft','issued') %}
               <form method="post" action="{{ url_for('admin.invoice_line_delete', invoice_id=invoice.id, line_id=li.id) }}"
@@ -79,10 +79,10 @@
         <tbody>
           {% for p in invoice.payments %}
           <tr>
-            <td>{{ p.paid_at.strftime('%Y-%m-%d') }}</td>
+            <td>{{ p.paid_at | date }}</td>
             <td>{{ p.method }}</td>
             <td>{{ p.reference or "—" }}</td>
-            <td class="text-end">{{ p.amount }}</td>
+            <td class="text-end">{{ p.amount | money }}</td>
             <td class="text-end"><a class="btn btn-sm btn-outline-danger" href="{{ url_for('admin.refund_new', payment_id=p.id) }}">Refund</a></td>
           </tr>
           {% else %}
@@ -109,12 +109,12 @@
     <div class="card mb-3"><div class="card-body">
       <h6>Summary</h6>
       <table class="table table-sm mb-0">
-        <tr><th>Subtotal</th><td class="text-end">${{ invoice.subtotal }}</td></tr>
-        <tr><th>Tax</th><td class="text-end">${{ invoice.tax_amount }}</td></tr>
-        <tr class="table-secondary"><th>Total</th><td class="text-end"><strong>${{ invoice.total_amount }}</strong></td></tr>
-        <tr><th>Paid</th><td class="text-end">${{ invoice.amount_paid }}</td></tr>
+        <tr><th>Subtotal</th><td class="text-end">{{ invoice.subtotal | money }}</td></tr>
+        <tr><th>Tax</th><td class="text-end">{{ invoice.tax_amount | money }}</td></tr>
+        <tr class="table-secondary"><th>Total</th><td class="text-end"><strong>{{ invoice.total_amount | money }}</strong></td></tr>
+        <tr><th>Paid</th><td class="text-end">{{ invoice.amount_paid | money }}</td></tr>
         <tr class="{{ 'table-success' if invoice.balance_due <= 0 else 'table-warning' }}">
-          <th>Balance</th><td class="text-end"><strong>${{ invoice.balance_due }}</strong></td>
+          <th>Balance</th><td class="text-end"><strong>{{ invoice.balance_due | money }}</strong></td>
         </tr>
       </table>
     </div></div>
@@ -126,7 +126,7 @@
       </div>
       <ul class="list-unstyled small mb-0">
         {% for cn in credit_notes %}
-          <li>{{ cn.number }} · ${{ cn.amount }} · <span class="badge bg-secondary">{{ cn.status.value }}</span></li>
+          <li>{{ cn.number }} · {{ cn.amount | money }} · <span class="badge bg-secondary">{{ cn.status.value }}</span></li>
         {% else %}
           <li class="text-muted">No credit notes.</li>
         {% endfor %}

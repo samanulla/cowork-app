@@ -13,8 +13,8 @@
     <tr>
       <td>{{ s.plan.name }}</td>
       <td>{{ s.quantity }}</td>
-      <td>${{ s.unit_price }}</td>
-      <td>${{ s.monthly_total }}</td>
+      <td>{{ s.unit_price | money }}</td>
+      <td>{{ s.monthly_total | money }}</td>
       <td>{{ s.meeting_credits_balance }}</td>
       <td><span class="badge bg-secondary">{{ s.status.value }}</span></td>
       <td>{{ s.start_date }}</td>

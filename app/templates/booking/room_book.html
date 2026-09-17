@@ -7,7 +7,7 @@
   <h3>Book conference room <span class="text-muted">{{ room.name }}</span></h3>
   <p class="text-muted">
     {{ room.location.name }} · L{{ room.floor.level }} · Capacity {{ room.capacity }} ·
-    ${{ room.hourly_rate }}/hr ({{ room.credit_cost_per_hour }} credit(s)/hr)
+    {{ room.hourly_rate | money }}/hr ({{ room.credit_cost_per_hour }} credit(s)/hr)
   </p>
 
   {% if error %}<div class="alert alert-danger">{{ error }}</div>{% endif %}
@@ -46,7 +46,7 @@
         <strong>{{ quote.hours }} hour(s)</strong>
         · Credits used <strong>{{ quote.credits_used }}</strong>
         (available {{ quote.credits_available }})
-        · Additional charge <strong>${{ quote.subtotal }}</strong>
+        · Additional charge <strong>{{ quote.subtotal | money }}</strong>
       </div>
       {% endif %}
 

@@ -9,6 +9,7 @@ from dotenv import load_dotenv
 from .config import get_config
 from .extensions import db, migrate, login_manager, csrf, mail
 from .services.storage import storage_service
+from .services.formatting import register_formatting
 
 load_dotenv()
 
@@ -25,6 +26,7 @@ def create_app(config_override: dict | None = None) -> Flask:
     _register_error_handlers(app)
     _register_context(app)
     _register_root_routes(app)
+    register_formatting(app)
 
     return app
 

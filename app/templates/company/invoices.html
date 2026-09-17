@@ -13,9 +13,9 @@
     <tr>
       <td>{{ i.number }}</td>
       <td>{{ i.period_start }} → {{ i.period_end }}</td>
-      <td>${{ i.total_amount }}</td>
-      <td>${{ i.amount_paid }}</td>
-      <td>${{ i.balance_due }}</td>
+      <td>{{ i.total_amount | money }}</td>
+      <td>{{ i.amount_paid | money }}</td>
+      <td>{{ i.balance_due | money }}</td>
       <td><span class="badge bg-secondary">{{ i.status.value }}</span></td>
       <td>{{ i.due_date }}</td>
     </tr>

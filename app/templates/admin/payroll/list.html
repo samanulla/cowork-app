@@ -14,9 +14,9 @@
     <tr>
       <td>{{ r.period_start }} → {{ r.period_end }}</td>
       <td>{{ r.payslips|length }}</td>
-      <td>${{ r.total_gross }}</td>
-      <td>${{ r.total_deductions }}</td>
-      <td>${{ r.total_net }}</td>
+      <td>{{ r.total_gross | money }}</td>
+      <td>{{ r.total_deductions | money }}</td>
+      <td>{{ r.total_net | money }}</td>
       <td><span class="badge bg-secondary">{{ r.status.value }}</span></td>
       <td class="text-end"><a class="btn btn-sm btn-outline-dark" href="{{ url_for('admin.payroll_detail', run_id=r.id) }}">Open</a></td>
     </tr>

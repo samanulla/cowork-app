@@ -15,9 +15,9 @@
       <td><strong>{{ s.code }}</strong></td>
       <td>L{{ s.floor.level }} — {{ s.floor.name }}</td>
       <td>{{ s.seat_type.value.replace('_',' ') }}</td>
-      <td>${{ s.hourly_rate }}</td>
-      <td>${{ s.daily_rate }}</td>
-      <td>${{ s.monthly_rate }}</td>
+      <td>{{ s.hourly_rate | money }}</td>
+      <td>{{ s.daily_rate | money }}</td>
+      <td>{{ s.monthly_rate | money }}</td>
       <td>{% if s.is_active %}<span class="badge bg-success">Active</span>{% else %}<span class="badge bg-secondary">No</span>{% endif %}</td>
       <td class="text-end"><a class="btn btn-sm btn-outline-dark" href="{{ url_for('admin.seat_edit', seat_id=s.id) }}">Edit</a></td>
     </tr>

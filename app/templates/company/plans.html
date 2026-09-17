@@ -15,7 +15,7 @@
           <div class="text-muted small">{{ p.plan_type.value.replace('_',' ') }}</div>
         </div>
         <div class="text-end">
-          <div class="fs-4 fw-bold">${{ p.base_price }}</div>
+          <div class="fs-4 fw-bold">{{ p.base_price | money }}</div>
           <div class="text-muted small">/ {{ p.billing_cycle.value }}</div>
         </div>
       </div>

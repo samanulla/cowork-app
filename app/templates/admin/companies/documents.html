@@ -28,7 +28,7 @@
         <td>{{ d.filename }}</td>
         <td>{{ d.kind.value }}</td>
         <td>{{ (d.size_bytes / 1024) | round(1) }} KB</td>
-        <td>{{ d.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+        <td>{{ d.created_at | dt }}</td>
         <td class="text-end">
           <span class="text-muted small">{{ d.storage_backend }}</span>
         </td>

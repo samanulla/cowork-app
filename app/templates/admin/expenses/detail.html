@@ -18,7 +18,7 @@
       <tr><th>Reimburse to</th><td>{{ expense.staff.full_name if expense.staff else "—" }}</td></tr>
       <tr><th>Submitted by</th><td>{{ expense.submitted_by.full_name if expense.submitted_by else "—" }}</td></tr>
       {% if expense.approved_by %}
-      <tr><th>{{ 'Approved' if expense.status.value != 'rejected' else 'Reviewed' }} by</th><td>{{ expense.approved_by.full_name }} at {{ expense.approved_at.strftime('%Y-%m-%d %H:%M') }}</td></tr>
+      <tr><th>{{ 'Approved' if expense.status.value != 'rejected' else 'Reviewed' }} by</th><td>{{ expense.approved_by.full_name }} at {{ expense.approved_at | dt }}</td></tr>
       {% endif %}
       {% if expense.rejection_reason %}
       <tr><th>Rejection reason</th><td class="text-danger">{{ expense.rejection_reason }}</td></tr>

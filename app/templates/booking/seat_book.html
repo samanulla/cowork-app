@@ -30,7 +30,7 @@
 
       {% if quote %}
       <div class="alert alert-secondary">
-        <strong>{{ quote.hours }} hour(s)</strong> · Estimated cost <strong>${{ quote.subtotal }}</strong>
+        <strong>{{ quote.hours }} hour(s)</strong> · Estimated cost <strong>{{ quote.subtotal | money }}</strong>
       </div>
       {% endif %}
 

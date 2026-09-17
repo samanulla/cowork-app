@@ -16,7 +16,7 @@ class BaseConfig:
     APP_NAME = os.getenv("APP_NAME", "CoWorkHub")
     APP_BASE_URL = os.getenv("APP_BASE_URL", "http://localhost:5000")
     SECRET_KEY = os.getenv("SECRET_KEY", "dev-secret-change-me")
-    TIMEZONE = os.getenv("TIMEZONE", "UTC")
+    TIMEZONE = os.getenv("TIMEZONE", "Asia/Kolkata")
 
     SQLALCHEMY_DATABASE_URI = os.getenv(
         "DATABASE_URL",

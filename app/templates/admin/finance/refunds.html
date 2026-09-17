@@ -11,7 +11,7 @@
   <tbody>
     {% for r in refunds %}
     <tr>
-      <td>{{ r.created_at.strftime('%Y-%m-%d') }}</td>
+      <td>{{ r.created_at | date }}</td>
       <td>
         {% if r.payment %}
           <a href="{{ url_for('admin.invoice_detail', invoice_id=r.payment.invoice_id) }}">
@@ -19,7 +19,7 @@
           </a>
         {% else %}—{% endif %}
       </td>
-      <td>${{ r.amount }}</td>
+      <td>{{ r.amount | money }}</td>
       <td>{{ r.method }}</td>
       <td>{{ r.reason }}</td>
       <td><span class="badge bg-secondary">{{ r.status.value }}</span></td>

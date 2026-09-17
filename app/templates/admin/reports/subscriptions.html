@@ -51,7 +51,7 @@
     <thead><tr><th>Company</th><th class="text-end">Monthly total</th></tr></thead>
     <tbody>
       {% for name, val in top_companies %}
-        <tr><td>{{ name }}</td><td class="text-end">${{ val }}</td></tr>
+        <tr><td>{{ name }}</td><td class="text-end">{{ val | money }}</td></tr>
       {% else %}
         <tr><td colspan="2" class="text-muted text-center py-3">No active company subscriptions.</td></tr>
       {% endfor %}

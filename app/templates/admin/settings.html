@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% from "_macros.html" import field %}
+{% block title %}System settings{% endblock %}
+
+{% block content %}
+<h3>System settings</h3>
+<p class="text-muted small">These settings control currency, timezone, and date formatting across the whole application.</p>
+
+<div class="card"><div class="card-body">
+  <form method="post" novalidate>
+    {{ form.hidden_tag() }}
+
+    <h6>Currency & numbers</h6>
+    <div class="row">
+      <div class="col-md-2">{{ field(form.currency_code) }}</div>
+      <div class="col-md-2">{{ field(form.currency_symbol) }}</div>
+      <div class="col-md-2">{{ field(form.locale) }}</div>
+      <div class="col-md-3">{{ field(form.number_grouping) }}</div>
+      <div class="col-md-3 pt-4">{{ field(form.show_currency_code_after_symbol) }}</div>
+    </div>
+
+    <hr>
+    <h6>Timezone & datetime formatting</h6>
+    <div class="row">
+      <div class="col-md-4">{{ field(form.timezone) }}</div>
+      <div class="col-md-3">{{ field(form.date_format) }}</div>
+      <div class="col-md-3">{{ field(form.datetime_format) }}</div>
+      <div class="col-md-2">{{ field(form.time_format) }}</div>
+    </div>
+    <div class="text-muted small mb-3">
+      Uses Python <code>strftime</code> patterns.
+      Common examples for India: <code>%d-%b-%Y</code> · <code>%d/%m/%Y</code> · <code>%d-%m-%Y %I:%M %p</code>.
+      Timezone must be an IANA name (e.g. <code>Asia/Kolkata</code>).
+    </div>
+
+    <hr>
+    <h6>Tax</h6>
+    <div class="row">
+      <div class="col-md-3">{{ field(form.default_tax_rate) }}</div>
+      <div class="col-md-3">{{ field(form.tax_label) }}</div>
+    </div>
+
+    <hr>
+    <h6>Business identity (used on invoices)</h6>
+    <div class="row">
+      <div class="col-md-6">{{ field(form.company_legal_name) }}</div>
+      <div class="col-md-3">{{ field(form.gstin) }}</div>
+      <div class="col-md-3">{{ field(form.pan) }}</div>
+    </div>
+    <div class="row">
+      <div class="col-md-3">{{ field(form.invoice_prefix) }}</div>
+    </div>
+
+    <button class="btn btn-dark">Save settings</button>
+  </form>
+</div></div>
+
+<div class="mt-3 text-muted small">
+  Preview with current settings:
+  <strong>{{ 1234567.89 | money }}</strong> ·
+  <strong>{{ now | dt if now else '' }}</strong>
+</div>
+{% endblock %}

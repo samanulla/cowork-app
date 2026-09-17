@@ -12,6 +12,13 @@ managed containers.
 > **Convention.** Replace values inside `<angle brackets>` with your own before
 > running commands. All examples assume region `us-east-1`; adjust as needed.
 
+> **India-first defaults.** CoWorkHub ships with **INR / ₹**, Indian number
+> grouping (`12,34,56,789`), **`Asia/Kolkata`** timezone, `%d-%b-%Y` date
+> format, and **GST 18%** pre-configured. For lowest latency to Indian
+> customers, use region **`ap-south-1` (Mumbai)** everywhere in this guide —
+> RDS, S3, SES, EC2, and ALB. All of these defaults can be changed after
+> deployment from **Admin → System settings**.
+
 ---
 
 ## 0. Prerequisites
@@ -72,7 +79,7 @@ Pick names once; the rest of the guide reuses them.
 Export them into the shell you'll run commands from:
 
 ```bash
-export REGION=us-east-1
+export REGION=ap-south-1              # Mumbai — recommended for India
 export ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
 export DOMAIN=coworkhub.example.com
 export S3_BUCKET=coworkhub-docs-prod-$ACCOUNT_ID
@@ -689,6 +696,104 @@ Then immediately:
    the admin UI.
 4. Add SES domain **DKIM** records to Route 53 if not done in step 5.
 5. Move SES out of the sandbox in the AWS console.
+
+---
+
+## 12a. What `flask seed-demo` inserts (India defaults)
+
+The CLI command runs idempotently on every boot. It only inserts rows that
+don't already exist, so re-running is safe. Everything below can be edited
+from the admin UI after boot.
+
+### System settings (single row)
+
+Written to `system_settings`, editable at **Admin → System settings** (super
+admin only):
+
+| Field | Default |
+|---|---|
+| Currency code / symbol | `INR` · `₹` |
+| Locale · number grouping | `en_IN` · Indian (`12,34,56,789`) |
+| Timezone | `Asia/Kolkata` |
+| Date format | `%d-%b-%Y` (e.g. `17-Sep-2026`) |
+| Datetime format | `%d-%b-%Y %H:%M` |
+| Default tax rate · label | `18.00%` · `GST` |
+| Invoice prefix | `INV` |
+
+### Users (all with password `ChangeMe123!` — rotate on first login)
+
+| Role | Email |
+|---|---|
+| Super Admin | `admin@coworkhub.io` |
+| CoWorkHub Manager | `manager@coworkhub.io` |
+| Company Admin (Acme Robotics) | `jane@acme.example` |
+| Employee (Acme Robotics) | `bob@acme.example` |
+| Individual member | `alex@example.com` |
+
+### Location: `BLR-01` — CoWorkHub Bengaluru (Indiranagar)
+
+- Address: 100 Feet Road, Bengaluru, KA 560038, India
+- Timezone: `Asia/Kolkata`
+- Hours: 07:00 – 22:00
+- **4 floors**: Ground (Lounge), L5 (Hot Desks), L6 (Dedicated Desks), L7 (Private Offices)
+- **35 seats**:
+  - 20 hot desks — ₹150/hr · ₹900/day · ₹12,000/month
+  - 10 dedicated desks — ₹22,000/month
+  - 5 private offices (capacity 4) — ₹85,000/month
+- **4 conference rooms**:
+  - The Boardroom (12p) — ₹2,400/hr · 2 credits/hr
+  - Cauvery (6p) — ₹1,200/hr · 1 credit/hr
+  - Krishna (4p) — ₹800/hr · 1 credit/hr
+  - Executive Suite (8p) — ₹1,800/hr · 2 credits/hr
+
+### Pricing plans (INR)
+
+| Name | Type | Cycle | Price | Included credits |
+|---|---|---|---|---|
+| Day Pass | day pass | daily | ₹900 | 0 |
+| Hot Desk Monthly | hot desk | monthly | ₹12,000 | 8 |
+| All Access | all access | monthly | ₹18,000 | 12 |
+| Dedicated Desk | dedicated desk | monthly | ₹22,000 | 20 |
+| Private Office (4-person) | private office | monthly | ₹85,000 | 40 |
+
+### Company + subscription
+
+- **Acme Robotics** — Active status, max 25 employees
+- 1 active `Dedicated Desk` subscription × 5 quantity → 100 meeting credits pool
+
+### Amenities
+
+- Location amenities: Wi-Fi, Coffee, Printing, Phone booths, Kitchen, Shower, Bike storage
+- Room amenities: TV Screen, Whiteboard, Video Conference, Speakerphone
+
+### Skipping the seed in production
+
+If you do not want the demo data in production, remove this line from the
+`user-data.sh` bootstrap script (step 9):
+
+```bash
+docker exec coworkhub flask --app wsgi.py seed-demo || true
+```
+
+Then create your real data through **Admin → New location**, **Admin →
+Companies**, **Admin → Pricing plans** in the UI.
+
+### Removing existing demo data
+
+If you already seeded and want to remove the demo tenant:
+
+```bash
+# On the EC2 host, exec into the container:
+docker exec -it coworkhub flask shell
+>>> from app.extensions import db
+>>> from app.models import User, Company
+>>> User.query.filter(User.email.in_([
+...   'jane@acme.example','bob@acme.example','alex@example.com'
+... ])).delete(synchronize_session=False)
+>>> Company.query.filter_by(name='Acme Robotics').delete()
+>>> db.session.commit()
+```
+
 
 ---
 

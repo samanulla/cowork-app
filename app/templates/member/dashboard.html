@@ -36,7 +36,7 @@
     <ul class="list-unstyled mb-0">
       {% for b in upcoming_seats %}
         <li class="py-1">
-          <strong>{{ b.seat.code }}</strong> — {{ b.start_at.strftime('%b %d, %H:%M') }} → {{ b.end_at.strftime('%H:%M') }}
+          <strong>{{ b.seat.code }}</strong> — {{ b.start_at | dt }} → {{ b.end_at | time }}
         </li>
       {% else %}
         <li class="text-muted">Nothing coming up.</li>
@@ -48,7 +48,7 @@
     <ul class="list-unstyled mb-0">
       {% for b in upcoming_rooms %}
         <li class="py-1">
-          <strong>{{ b.room.name }}</strong> — {{ b.start_at.strftime('%b %d, %H:%M') }} → {{ b.end_at.strftime('%H:%M') }}
+          <strong>{{ b.room.name }}</strong> — {{ b.start_at | dt }} → {{ b.end_at | time }}
           {% if b.title %}<span class="text-muted">· {{ b.title }}</span>{% endif %}
         </li>
       {% else %}

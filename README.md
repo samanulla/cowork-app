@@ -4,6 +4,11 @@ A production-ready Flask application for running a WeWork-style coworking space.
 multi-tenant SaaS-style workflows for platform admins, subscribing companies, employees,
 and individual members.
 
+**Configured out of the box for India** — INR (₹), Indian number grouping (12,34,56,789),
+`Asia/Kolkata` timezone, `%d-%b-%Y` date format, and GST 18%. Every one of these is
+editable from the super-admin **System settings** page, so you can run the same codebase
+in any region.
+
 ## Feature summary
 
 | Area | Capabilities |
@@ -17,6 +22,7 @@ and individual members.
 | **Admin console** | Manage locations, floors, seats, rooms, pricing plans, companies, invoices, documents, occupancy analytics |
 | **Back office** | Staff members, salary structures, monthly payroll runs, expense management (categories, receipts, approvals), credit notes, refunds, editable email templates |
 | **Reports** | Occupancy (booking volume, top rooms, per-location inventory), Financials (revenue vs expenses trend, AR aging, invoice status), Subscriptions (MRR/ARR, plan mix, top customers), People (staff by department, new members, headcount) |
+| **Localisation** | Configurable currency (defaults ₹ INR + Indian grouping), timezone (defaults Asia/Kolkata), date/datetime formats (defaults `%d-%b-%Y`), tax label + rate (defaults GST 18%), business identity (GSTIN, PAN, invoice prefix) — all editable by super admin |
 | **Company console** | Onboard/offboard employees, allocate seats, view invoices, manage credits, upload company documents |
 | **Employee/Individual** | Book seats and rooms, view bookings, download invoices, manage profile |
 | **Billing** | Auto-generated monthly invoices, per-booking usage charges, credit tracking, downloadable PDFs (stub) |

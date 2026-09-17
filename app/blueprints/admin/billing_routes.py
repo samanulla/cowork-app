@@ -15,6 +15,7 @@ from ...models import (
     Company, User, UserRole,
 )
 from ...services.billing_service import next_invoice_number
+from ...services.formatting import format_money
 from ...utils.decorators import admin_required, super_admin_required
 from .forms import (
     PaymentForm, InvoiceLineItemForm, CreditNoteForm, RefundForm,
@@ -170,7 +171,7 @@ def register_billing_routes(bp):
         inv.amount_paid = Decimal(inv.amount_paid or 0) + Decimal(form.amount.data)
         _refresh_invoice_status(inv)
         db.session.commit()
-        flash(f"Recorded ${form.amount.data} payment.", "success")
+        flash(f"Recorded {format_money(form.amount.data)} payment.", "success")
         return redirect(url_for("admin.invoice_detail", invoice_id=inv.id))
 
     # ----------------------------------------------------- credit notes --
@@ -192,7 +193,7 @@ def register_billing_routes(bp):
             for u in User.query.filter_by(role=UserRole.INDIVIDUAL).order_by(User.full_name).all()
         ]
         form.invoice_id.choices = [(0, "— none —")] + [
-            (i.id, f"{i.number} (${i.total_amount})")
+            (i.id, f"{i.number} ({format_money(i.total_amount)})")
             for i in Invoice.query.order_by(Invoice.id.desc()).limit(200).all()
         ]
         if form.validate_on_submit():
@@ -278,7 +279,7 @@ def register_billing_routes(bp):
                     inv.amount_paid = max(Decimal(0), Decimal(inv.amount_paid or 0) - Decimal(form.amount.data))
                     _refresh_invoice_status(inv)
                 db.session.commit()
-                flash(f"Refund of ${form.amount.data} recorded (pending).", "success")
+                flash(f"Refund of {format_money(form.amount.data)} recorded (pending).", "success")
                 return redirect(url_for("admin.refunds"))
         return render_template("admin/finance/refund_form.html", form=form, payment=p)
 
