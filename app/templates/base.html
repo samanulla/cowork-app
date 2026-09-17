@@ -134,8 +134,7 @@
       box-shadow: none; background: var(--cream);
     }
     .card-body { padding: 1.4rem 1.5rem; }
-    .card-stat { position: relative; overflow: hidden; transition: border-color .15s; }
-    .card-stat:hover { border-color: var(--ink); }
+    .card-stat { position: relative; overflow: hidden; border: 0; border-top: 1px solid var(--line); background: transparent; }
     .card-stat .stat-value {
       font-family: 'Inter Tight', 'Inter', sans-serif;
       font-size: 2.25rem; font-weight: 700; color: var(--ink);
@@ -147,17 +146,17 @@
       letter-spacing: .12em; color: var(--ink-soft); margin-bottom: .4rem;
     }
     .card-stat .stat-icon {
-      width: 36px; height: 36px; border-radius: 0;
       display: inline-flex; align-items: center; justify-content: center;
-      font-size: 1rem; margin-bottom: .8rem;
-      background: transparent; color: var(--saffron); border: 1px solid var(--saffron);
+      font-size: 1.35rem; margin-bottom: .9rem;
+      background: transparent; color: var(--saffron); border: none;
+      width: auto; height: auto; padding: 0;
     }
-    .card-stat .stat-icon.teal   { background: transparent; color: var(--forest); border-color: var(--forest); }
-    .card-stat .stat-icon.purple { background: transparent; color: var(--brand-2); border-color: var(--brand-2); }
-    .card-stat .stat-icon.orange { background: transparent; color: var(--coral); border-color: var(--coral); }
-    .card-stat .stat-icon.blue   { background: transparent; color: #3b82f6; border-color: #3b82f6; }
-    .card-stat .stat-icon.pink   { background: transparent; color: #ec4899; border-color: #ec4899; }
-    .card-stat .stat-icon.amber  { background: transparent; color: var(--saffron); border-color: var(--saffron); }
+    .card-stat .stat-icon.teal   { color: var(--forest); }
+    .card-stat .stat-icon.purple { color: var(--brand-2); }
+    .card-stat .stat-icon.orange { color: var(--coral); }
+    .card-stat .stat-icon.blue   { color: #3b82f6; }
+    .card-stat .stat-icon.pink   { color: #ec4899; }
+    .card-stat .stat-icon.amber  { color: var(--saffron); }
 
     /* Tables — editorial minimal */
     .table { color: var(--ink); }
