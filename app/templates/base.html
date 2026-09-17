@@ -6,118 +6,241 @@
   <title>{% block title %}{{ app_name }}{% endblock %} · {{ tenant.name if tenant else app_name }}</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
     :root {
-      --brand: {{ tenant.brand_color if tenant else "#0f766e" }};
+      /* Editorial palette — same across marketing + app */
+      --ink: #1a1a1a;
+      --ink-soft: #4a4a4a;
+      --cream: #fbf7f0;
+      --cream-2: #f3ede1;
+      --line: #e5dfd0;
+      --saffron: #f5b642;
+      --coral: #ff6b57;
+      --forest: #2b4a3e;
+      /* Per-tenant accent still available for badges/highlights */
+      --brand: {{ tenant.brand_color if tenant else "#f5b642" }};
       --brand-2: #7c3aed;
-      --brand-3: #f97316;
-      --bg-soft: #f8fafc;
-      --card-shadow: 0 1px 2px rgba(0,0,0,.04), 0 8px 24px -12px rgba(0,0,0,.08);
-      --nav-shadow: 0 1px 3px rgba(15, 23, 42, 0.04), 0 6px 20px -12px rgba(15, 23, 42, 0.12);
+      --brand-3: #ff6b57;
     }
-    body { font-family: 'Inter', system-ui, -apple-system, sans-serif; background: var(--bg-soft); color: #0f172a; }
+    body { font-family: 'Inter', system-ui, -apple-system, sans-serif; background: var(--cream); color: var(--ink); }
+    h1, h2, h3, h4, h5, h6 { color: var(--ink); }
+    /* Editorial serif for page-level headings only */
+    h1, h2, h3, .serif { font-family: 'Cormorant Garamond', Georgia, serif; font-weight: 600; letter-spacing: -0.01em; }
+    h1 { font-size: 2.25rem; line-height: 1.15; }
+    h2 { font-size: 1.75rem; line-height: 1.2; }
+    h3 { font-size: 1.4rem; line-height: 1.25; }
+    /* Keep sub-heads sans for readability in data-dense areas */
+    h4, h5, h6 { font-family: 'Inter', sans-serif; font-weight: 600; }
+    h5 { font-size: 1.05rem; }
+    h6 { font-size: .95rem; }
+    .eyebrow { font-size: .72rem; font-weight: 600; text-transform: uppercase; letter-spacing: .12em; color: var(--ink-soft); }
 
     /* Navbar */
-    .navbar { padding: .85rem 0; background: rgba(255,255,255,.85) !important; backdrop-filter: saturate(180%) blur(10px); border-bottom: 1px solid #eef2f7 !important; box-shadow: var(--nav-shadow); }
-    .navbar-brand { font-weight: 800; letter-spacing: -0.02em; font-size: 1.15rem; display: flex; align-items: center; }
+    .navbar {
+      padding: .85rem 0; background: var(--cream) !important;
+      border-bottom: 1px solid var(--line) !important; box-shadow: none;
+    }
+    .navbar-brand {
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      font-weight: 700; letter-spacing: -0.01em; font-size: 1.4rem;
+      color: var(--ink) !important;
+      display: flex; align-items: center;
+    }
     .brand-mark {
-      color: white; background: linear-gradient(135deg, var(--brand), var(--brand-2));
-      width: 32px; height: 32px; border-radius: 8px;
-      display: inline-flex; align-items: center; justify-content: center;
-      font-size: .85rem; font-weight: 800; margin-right: .6rem;
+      width: 10px; height: 10px; border-radius: 50%;
+      background: var(--saffron); margin-right: .6rem;
+      display: inline-block;
     }
     .navbar-nav .nav-item { margin: 0 .1rem; }
-    .navbar-nav .nav-link { font-weight: 500; color: #334155; padding: .5rem .9rem !important; border-radius: 8px; transition: all .15s; }
-    .navbar-nav .nav-link:hover { color: var(--brand); background: color-mix(in srgb, var(--brand) 8%, transparent); }
-    .navbar-nav .nav-link.active { color: var(--brand); background: color-mix(in srgb, var(--brand) 12%, transparent); }
-    /* User chip */
+    .navbar-nav .nav-link {
+      font-family: 'Inter', sans-serif;
+      font-weight: 500; font-size: .82rem;
+      color: var(--ink) !important; padding: .5rem .9rem !important;
+      text-transform: uppercase; letter-spacing: .08em;
+      border-radius: 0; border-bottom: 2px solid transparent;
+      transition: border-color .15s;
+    }
+    .navbar-nav .nav-link:hover { border-bottom-color: var(--saffron); background: transparent; }
+    .navbar-nav .nav-link.active { border-bottom-color: var(--ink); }
+
+    /* User chip — editorial: hairline border, no gradient */
     .user-chip {
       display: inline-flex; align-items: center; gap: .6rem;
-      padding: .35rem .35rem .35rem .8rem !important;
-      background: #f1f5f9; border-radius: 999px; margin-left: .5rem;
-      color: #0f172a !important;
+      padding: .35rem .5rem .35rem .8rem !important;
+      background: var(--cream-2); border: 1px solid var(--line);
+      border-radius: 0; margin-left: .5rem;
+      color: var(--ink) !important;
+      text-transform: none !important; letter-spacing: normal !important;
     }
-    .user-chip:hover { background: #e2e8f0 !important; }
-    .user-chip::after { display: none !important; }   /* hide the Bootstrap caret */
+    .user-chip:hover { background: var(--cream); border-color: var(--ink); }
+    .user-chip::after { display: none !important; }
     .user-avatar {
       width: 30px; height: 30px; border-radius: 50%;
       display: inline-flex; align-items: center; justify-content: center;
-      color: white; font-weight: 700; font-size: .8rem;
-      background: linear-gradient(135deg, var(--brand), var(--brand-2));
+      color: var(--cream); font-weight: 700; font-size: .8rem;
+      background: var(--ink);
     }
     .badge-role {
-      background: rgba(15,23,42,.06); color: #475569 !important;
-      font-size: .65rem; font-weight: 600; letter-spacing: .05em;
-      text-transform: uppercase; padding: .3em .55em; border-radius: 999px;
+      background: transparent; color: var(--ink-soft) !important;
+      font-size: .62rem; font-weight: 600; letter-spacing: .1em;
+      text-transform: uppercase; padding: 0;
     }
-    .dropdown-menu { border: 1px solid #eef2f7; border-radius: 10px; box-shadow: var(--card-shadow); padding: .4rem; }
-    .dropdown-item { border-radius: 6px; padding: .5rem .75rem; font-weight: 500; }
-    .dropdown-item:hover { background: color-mix(in srgb, var(--brand) 8%, transparent); color: var(--brand); }
+    .dropdown-menu {
+      border: 1px solid var(--line); border-radius: 0;
+      box-shadow: 0 4px 24px -8px rgba(0,0,0,.12);
+      padding: .35rem; background: var(--cream);
+    }
+    .dropdown-item {
+      border-radius: 0; padding: .55rem .8rem;
+      font-weight: 500; font-size: .9rem; color: var(--ink);
+    }
+    .dropdown-item:hover { background: var(--cream-2); color: var(--ink); }
+    .dropdown-divider { border-top-color: var(--line); }
 
-    /* Buttons */
-    .btn { font-weight: 500; border-radius: 8px; padding: .5rem 1rem; }
-    .btn-dark, .btn-primary { background: var(--brand); border-color: var(--brand); }
-    .btn-dark:hover, .btn-primary:hover { background: color-mix(in srgb, var(--brand) 85%, black); border-color: color-mix(in srgb, var(--brand) 85%, black); }
-    .btn-outline-dark { color: var(--brand); border-color: var(--brand); }
-    .btn-outline-dark:hover { background: var(--brand); border-color: var(--brand); }
-    .btn-lg { padding: .75rem 1.5rem; }
+    /* Buttons — flat, block-style, editorial */
+    .btn { font-weight: 500; border-radius: 0; padding: .55rem 1.25rem; letter-spacing: .02em; font-size: .9rem; }
+    .btn-dark, .btn-primary {
+      background: var(--ink); border-color: var(--ink); color: var(--cream);
+    }
+    .btn-dark:hover, .btn-primary:hover {
+      background: var(--forest); border-color: var(--forest); color: var(--cream);
+    }
+    .btn-outline-dark, .btn-outline-secondary {
+      color: var(--ink); border: 1.5px solid var(--ink); background: transparent;
+    }
+    .btn-outline-dark:hover, .btn-outline-secondary:hover {
+      background: var(--ink); color: var(--cream); border-color: var(--ink);
+    }
+    .btn-outline-danger { color: var(--coral); border: 1.5px solid var(--coral); background: transparent; }
+    .btn-outline-danger:hover { background: var(--coral); border-color: var(--coral); color: white; }
+    .btn-link { color: var(--ink-soft); text-decoration: underline; }
+    .btn-link:hover { color: var(--ink); }
+    .btn-lg { padding: .8rem 1.75rem; font-size: 1rem; }
+    .btn-saffron {
+      background: var(--saffron); border: none; color: var(--ink); font-weight: 600;
+    }
+    .btn-saffron:hover { background: color-mix(in srgb, var(--saffron) 80%, black); color: var(--ink); }
 
-    /* Cards */
-    .card { border: 1px solid #eef2f7; border-radius: 12px; box-shadow: var(--card-shadow); background: white; }
-    .card-body { padding: 1.25rem; }
-    .card-stat { position: relative; overflow: hidden; }
-    .card-stat .stat-value { font-size: 2.15rem; font-weight: 800; color: #0f172a; line-height: 1.1; letter-spacing: -0.02em; }
-    .card-stat .stat-label { font-size: .75rem; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; color: #64748b; margin-bottom: .35rem; }
+    /* Cards — flat, hairline border, no shadow */
+    .card {
+      border: 1px solid var(--line); border-radius: 0;
+      box-shadow: none; background: var(--cream);
+    }
+    .card-body { padding: 1.4rem 1.5rem; }
+    .card-stat { position: relative; overflow: hidden; transition: border-color .15s; }
+    .card-stat:hover { border-color: var(--ink); }
+    .card-stat .stat-value {
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      font-size: 2.75rem; font-weight: 600; color: var(--ink);
+      line-height: 1.05; letter-spacing: -0.02em;
+    }
+    .card-stat .stat-label {
+      font-size: .68rem; font-weight: 600; text-transform: uppercase;
+      letter-spacing: .12em; color: var(--ink-soft); margin-bottom: .4rem;
+    }
     .card-stat .stat-icon {
-      width: 42px; height: 42px; border-radius: 10px;
+      width: 36px; height: 36px; border-radius: 0;
       display: inline-flex; align-items: center; justify-content: center;
-      font-size: 1.15rem; margin-bottom: .8rem;
-      background: color-mix(in srgb, var(--brand) 12%, white); color: var(--brand);
+      font-size: 1rem; margin-bottom: .8rem;
+      background: transparent; color: var(--saffron); border: 1px solid var(--saffron);
     }
-    .card-stat .stat-icon.teal { background: rgba(20,184,166,.12); color: #14b8a6; }
-    .card-stat .stat-icon.purple { background: rgba(124,58,237,.12); color: var(--brand-2); }
-    .card-stat .stat-icon.orange { background: rgba(249,115,22,.12); color: var(--brand-3); }
-    .card-stat .stat-icon.blue { background: rgba(59,130,246,.12); color: #3b82f6; }
-    .card-stat .stat-icon.pink { background: rgba(236,72,153,.12); color: #ec4899; }
-    .card-stat .stat-icon.amber { background: rgba(245,158,11,.12); color: #f59e0b; }
+    .card-stat .stat-icon.teal   { background: transparent; color: var(--forest); border-color: var(--forest); }
+    .card-stat .stat-icon.purple { background: transparent; color: var(--brand-2); border-color: var(--brand-2); }
+    .card-stat .stat-icon.orange { background: transparent; color: var(--coral); border-color: var(--coral); }
+    .card-stat .stat-icon.blue   { background: transparent; color: #3b82f6; border-color: #3b82f6; }
+    .card-stat .stat-icon.pink   { background: transparent; color: #ec4899; border-color: #ec4899; }
+    .card-stat .stat-icon.amber  { background: transparent; color: var(--saffron); border-color: var(--saffron); }
 
-    .badge.bg-secondary { background: #e2e8f0 !important; color: #475569; }
-    a { text-decoration: none; color: var(--brand); }
-    a:hover { color: color-mix(in srgb, var(--brand) 80%, black); }
+    /* Tables — editorial minimal */
+    .table { color: var(--ink); }
+    .table thead th {
+      text-transform: uppercase; font-size: .68rem;
+      letter-spacing: .12em; color: var(--ink-soft);
+      font-weight: 600; background: transparent; border-bottom: 1.5px solid var(--ink);
+    }
+    .table tbody td { border-bottom: 1px solid var(--line); vertical-align: middle; }
+    .table > :not(caption) > * > * { background-color: transparent; }
 
-    footer { color: #64748b; font-size: .875rem; }
+    /* Badges */
+    .badge { border-radius: 0; font-weight: 500; letter-spacing: .04em; text-transform: uppercase; font-size: .68rem; padding: .35em .55em; }
+    .badge.bg-secondary { background: var(--cream-2) !important; color: var(--ink-soft) !important; border: 1px solid var(--line); }
+    .badge.bg-success { background: var(--forest) !important; color: var(--cream) !important; }
+    .badge.bg-primary { background: var(--ink) !important; color: var(--cream) !important; }
+    .badge.bg-warning { background: var(--saffron) !important; color: var(--ink) !important; }
+    .badge.bg-danger  { background: var(--coral) !important; color: white !important; }
 
-    /* Marketing landing */
-    .hero { background: linear-gradient(135deg, var(--brand) 0%, var(--brand-2) 100%); color: white; padding: 6rem 0; }
-    .hero h1 { font-size: 3.5rem; font-weight: 800; letter-spacing: -0.03em; line-height: 1.1; }
-    .hero .lead { font-size: 1.25rem; opacity: 0.95; }
-    .hero .btn-light { color: var(--brand); font-weight: 600; }
+    /* Forms */
+    .form-control, .form-select {
+      background: var(--cream); border: 1px solid var(--line); border-radius: 0;
+      color: var(--ink); padding: .55rem .75rem;
+    }
+    .form-control:focus, .form-select:focus {
+      background: var(--cream); border-color: var(--ink); box-shadow: none;
+    }
+    .form-label { font-weight: 500; font-size: .82rem; color: var(--ink); }
+    .form-text { color: var(--ink-soft); font-size: .82rem; }
+    hr { border-color: var(--line); opacity: 1; }
+
+    /* Links */
+    a { text-decoration: none; color: var(--ink); border-bottom: 1px dotted var(--ink-soft); transition: color .15s, border-color .15s; }
+    a:hover { color: var(--saffron); border-bottom-color: var(--saffron); }
+    a.no-underline, .card a, .navbar a, .btn, .dropdown-item, .badge a, .nav-link, .flat-link { border-bottom: none; }
+    a.no-underline:hover, .card a:hover, .flat-link:hover { border-bottom: none; }
+
+    /* Alerts */
+    .alert { border-radius: 0; border: 1px solid var(--line); background: var(--cream-2); color: var(--ink); font-weight: 500; }
+    .alert-danger { background: var(--coral); color: white; border-color: var(--coral); }
+    .alert-success { background: var(--forest); color: var(--cream); border-color: var(--forest); }
+    .alert-warning { background: var(--saffron); color: var(--ink); border-color: var(--saffron); }
+    .alert-info { background: var(--cream-2); color: var(--ink); border-color: var(--line); }
+
+    footer { color: var(--ink-soft); font-size: .875rem; }
+    footer a { color: var(--ink-soft); border-bottom: none; }
+    footer a:hover { color: var(--ink); }
+
+    /* Marketing landing hero (legacy — kept for compat but landing now uses base_marketing) */
+    .hero { background: var(--ink); color: var(--cream); padding: 6rem 0; }
+    .hero h1 { color: var(--cream); font-size: 3.5rem; font-weight: 600; letter-spacing: -0.03em; line-height: 1.1; }
+    .hero .lead { font-size: 1.25rem; opacity: 0.9; }
+    .hero .btn-light { color: var(--ink); font-weight: 600; }
     .feature-icon {
-      width: 48px; height: 48px; border-radius: 12px;
+      width: 44px; height: 44px; border-radius: 0;
       display: inline-flex; align-items: center; justify-content: center;
-      background: color-mix(in srgb, var(--brand) 15%, white); color: var(--brand);
-      font-size: 1.5rem; margin-bottom: 1rem;
+      background: transparent; color: var(--ink); border: 1.5px solid var(--ink);
+      font-size: 1.35rem; margin-bottom: 1rem;
     }
-    .feature-icon.orange { background: rgba(249,115,22,.15); color: var(--brand-3); }
-    .feature-icon.purple { background: rgba(124,58,237,.15); color: var(--brand-2); }
-    .role-card { border-top: 4px solid var(--brand); transition: transform .15s; }
+    .feature-icon.orange { color: var(--coral); border-color: var(--coral); }
+    .feature-icon.purple { color: var(--brand-2); border-color: var(--brand-2); }
+    .role-card { border-top: 4px solid var(--ink); }
     .role-card.company { border-top-color: var(--brand-2); }
-    .role-card.individual { border-top-color: var(--brand-3); }
-    .role-card:hover { transform: translateY(-4px); }
-    .table thead th { text-transform: uppercase; font-size: .75rem; letter-spacing: .05em; color: #64748b; font-weight: 600; background: #f8fafc; }
+    .role-card.individual { border-top-color: var(--coral); }
+    .role-card:hover { border-top-color: var(--saffron); }
     .heatmap td { transition: background .2s; }
+
+    /* Bootstrap utility overrides to keep editorial feel across legacy templates */
+    .bg-white, .bg-body, .bg-light { background-color: var(--cream) !important; }
+    .shadow-sm, .shadow { box-shadow: none !important; border: 1px solid var(--line); }
+    .rounded, .rounded-3, .rounded-2, .rounded-1 { border-radius: 0 !important; }
+    .border { border-color: var(--line) !important; }
+    .text-muted, .text-secondary { color: var(--ink-soft) !important; }
+    /* Editorial section header spacing */
+    main.container { padding-top: 2rem; padding-bottom: 2rem; }
+    main.container > h1:first-child,
+    main.container > h2:first-child,
+    main.container > .d-flex:first-child h1,
+    main.container > .d-flex:first-child h2 { margin-bottom: 1.25rem; }
   </style>
 </head>
-<body class="bg-light">
+<body>
 
-<nav class="navbar navbar-expand-lg bg-white border-bottom sticky-top">
+<nav class="navbar navbar-expand-lg sticky-top">
   <div class="container">
     <a class="navbar-brand d-flex align-items-center" href="{{ url_for('index') }}">
       {% if tenant and tenant.logo_url %}
         <img src="{{ tenant.logo_url }}" alt="{{ tenant.name }}" style="height:32px;" class="me-2">
       {% else %}
-        <span class="brand-mark">{{ (tenant.name if tenant else app_name)[:1] | upper }}</span>
+        <span class="brand-mark"></span>
       {% endif %}
       {{ tenant.name if tenant else app_name }}
     </a>
