@@ -118,6 +118,7 @@ flask create-admin --email you@coworkhub.io --password ChangeMe123! --platform-o
 - **Dedicated deployment mode** (single tenant per deployment) is supported via `DEPLOY_MODE=dedicated` + `TENANT_ID=<n>` env vars.
 - **Per-tenant branding** (name, logo, brand colour, tagline, support email) is injected into `base.html` at every render.
 - **Per-tenant localisation** (currency, symbol, locale, timezone, date/datetime/time format, tax rate, tax label, invoice prefix, GSTIN, PAN, legal name) lives on the `Tenant` row and is read by the formatting service on every request.
+- **Email addresses are unique per tenant, not globally.** The same email (say `john@gmail.com`) can register with Adyar and Winnspace as two independent accounts — each with its own password. The `Host` header (the URL the user visits) selects the tenant before authentication, so login is unambiguous. Enforced by `UniqueConstraint(tenant_id, email)`. The Platform Owner row (`tenant_id IS NULL`) is separately enforced globally-unique by a partial index.
 
 ---
 

@@ -3,7 +3,10 @@ from __future__ import annotations
 
 import enum
 from flask_login import UserMixin
-from sqlalchemy import Column, String, Boolean, Enum, ForeignKey, Integer
+from sqlalchemy import (
+    Column, String, Boolean, Enum, ForeignKey, Integer,
+    UniqueConstraint, Index, text,
+)
 from sqlalchemy.orm import relationship
 from werkzeug.security import generate_password_hash, check_password_hash
 
@@ -24,12 +27,24 @@ class UserRole(str, enum.Enum):
 
 class User(db.Model, PkMixin, TimestampMixin, UserMixin, TenantScoped):
     __tablename__ = "users"
+    # Email is unique per-tenant; a second partial unique index enforces
+    # a single platform-owner row per email (tenant_id IS NULL).
+    __table_args__ = (
+        UniqueConstraint("tenant_id", "email", name="uq_users_tenant_email"),
+        Index(
+            "uq_users_platform_email",
+            "email",
+            unique=True,
+            postgresql_where=text("tenant_id IS NULL"),
+            sqlite_where=text("tenant_id IS NULL"),
+        ),
+    )
 
     tenant_id = Column(Integer, ForeignKey("tenants.id", ondelete="CASCADE"),
                        nullable=True, index=True)
     tenant = relationship("Tenant", foreign_keys=[tenant_id])
 
-    email = Column(String(255), unique=True, nullable=False, index=True)
+    email = Column(String(255), nullable=False, index=True)
     password_hash = Column(String(255), nullable=False)
     full_name = Column(String(150), nullable=False)
     phone = Column(String(30))
