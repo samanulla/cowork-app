@@ -16,6 +16,7 @@ from ...models import (
     PayrollRun, PayrollStatus, Payslip, Location,
 )
 from ...utils.decorators import admin_required, super_admin_required
+from ...services import audit_service
 from .forms import StaffForm, SalaryStructureForm, PayrollRunForm
 
 
@@ -82,6 +83,8 @@ def register_staff_routes(bp):
             if ss.effective_to is None:
                 ss.effective_to = date.today()
         db.session.commit()
+        audit_service.record("staff.terminated", "staff", s.id,
+                             {"employee_code": s.employee_code, "name": s.full_name})
         flash("Staff member terminated.", "info")
         return redirect(url_for("admin.staff_detail", staff_id=s.id))
 

@@ -85,6 +85,7 @@
         <li><a href="{{ url_for('admin.email_templates') }}"><i class="bi bi-envelope"></i> Email templates →</a></li>
         {% if current_user.is_super_admin %}
         <li><a href="{{ url_for('admin.settings') }}"><i class="bi bi-gear"></i> System settings →</a></li>
+        <li><a href="{{ url_for('admin.audit_log') }}"><i class="bi bi-shield-check"></i> Audit log →</a></li>
         {% endif %}
       </ul>
     </div></div>
@@ -127,7 +128,7 @@
       <tbody>
         {% for b in recent_bookings %}
         <tr>
-          <td>{{ b.start_at | dt }}</td>
+          <td>{{ b.start_at | dt_at(b.room.location) }}</td>
           <td>{{ b.room.name }}</td>
           <td>{{ b.user.full_name }}</td>
           <td><span class="badge bg-secondary">{{ b.status.value }}</span></td>

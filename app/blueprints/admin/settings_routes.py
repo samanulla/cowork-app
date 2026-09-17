@@ -5,6 +5,7 @@ from flask import render_template, redirect, url_for, flash
 
 from ...extensions import db
 from ...models import SystemSettings
+from ...services import audit_service
 from ...utils.decorators import super_admin_required
 from .forms import SystemSettingsForm
 
@@ -19,6 +20,9 @@ def register_settings_routes(bp):
         if form.validate_on_submit():
             form.populate_obj(s)
             db.session.commit()
+            audit_service.record("settings.updated", "settings", s.id,
+                                 {"currency": s.currency_code, "tz": s.timezone,
+                                  "tax_rate": str(s.default_tax_rate)})
             flash("Settings saved. Currency, timezone, and date formats updated system-wide.", "success")
             return redirect(url_for("admin.settings"))
         return render_template("admin/settings.html", form=form, s=s)

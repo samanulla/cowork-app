@@ -15,6 +15,7 @@ from ..extensions import db
 from ..models import (
     Seat, SeatBooking, ConferenceRoom, RoomBooking, BookingStatus,
     User, Subscription, SubscriptionStatus,
+    SeatAllocation, AllocationStatus, Location,
 )
 
 
@@ -53,10 +54,57 @@ def _hours_between(start: datetime, end: datetime) -> Decimal:
     return (Decimal(seconds) / Decimal(3600)).quantize(Decimal("0.01"))
 
 
+def _validate_location_hours(location: Location, start: datetime, end: datetime) -> None:
+    """Ensure the booking window falls inside the location's operating hours.
+    Times are compared after converting the UTC window to the location's tz."""
+    if location.is_247 or not (location.open_time and location.close_time):
+        return
+    try:
+        from zoneinfo import ZoneInfo
+    except ImportError:  # pragma: no cover
+        return
+    tz = ZoneInfo(location.timezone or "UTC")
+    local_start = start.replace(tzinfo=ZoneInfo("UTC")).astimezone(tz)
+    local_end = end.replace(tzinfo=ZoneInfo("UTC")).astimezone(tz)
+    if local_start.time() < location.open_time or local_end.time() > location.close_time:
+        raise BookingError(
+            f"Bookings must be between {location.open_time.strftime('%H:%M')} "
+            f"and {location.close_time.strftime('%H:%M')} at {location.name}."
+        )
+
+
+def _seat_allocation_conflict(seat_id: int, start: datetime, end: datetime,
+                              booker: User | None) -> bool:
+    """Return True if an active SeatAllocation blocks this booking.
+
+    A booking is allowed if there is no active allocation overlapping the window,
+    OR the booker is the allocated user, OR the booker's company is the allocated
+    company."""
+    start_d = start.date()
+    end_d = end.date()
+    allocs = SeatAllocation.query.filter(
+        SeatAllocation.seat_id == seat_id,
+        SeatAllocation.status == AllocationStatus.ACTIVE,
+        SeatAllocation.start_date <= end_d,
+        or_(SeatAllocation.end_date.is_(None), SeatAllocation.end_date >= start_d),
+    ).all()
+    if not allocs:
+        return False
+    if booker is None:
+        return True
+    for a in allocs:
+        if a.user_id and a.user_id == booker.id:
+            return False
+        if a.company_id and a.company_id == booker.company_id and booker.company_id:
+            return False
+    return True
+
+
 # -------------------------------------------------------------- seat book --
 
 def check_seat_conflict(seat_id: int, start: datetime, end: datetime,
-                        exclude_id: int | None = None) -> bool:
+                        exclude_id: int | None = None,
+                        booker: User | None = None) -> bool:
     q = SeatBooking.query.filter(
         SeatBooking.seat_id == seat_id,
         SeatBooking.status.in_([BookingStatus.CONFIRMED, BookingStatus.CHECKED_IN]),
@@ -64,7 +112,10 @@ def check_seat_conflict(seat_id: int, start: datetime, end: datetime,
     )
     if exclude_id:
         q = q.filter(SeatBooking.id != exclude_id)
-    return db.session.query(q.exists()).scalar()
+    if db.session.query(q.exists()).scalar():
+        return True
+    # Also blocked if the seat is exclusively allocated to someone else
+    return _seat_allocation_conflict(seat_id, start, end, booker)
 
 
 def quote_seat(seat: Seat, start: datetime, end: datetime) -> Quote:
@@ -80,8 +131,9 @@ def create_seat_booking(*, user: User, seat: Seat, start: datetime, end: datetim
     _validate_window(start, end)
     if not seat.is_active:
         raise BookingError("Seat is inactive.")
-    if check_seat_conflict(seat.id, start, end):
-        raise BookingError("Seat already booked for this time.")
+    _validate_location_hours(seat.location, start, end)
+    if check_seat_conflict(seat.id, start, end, booker=user):
+        raise BookingError("Seat is unavailable for the selected time.")
 
     q = quote_seat(seat, start, end)
     booking = SeatBooking(
@@ -154,6 +206,7 @@ def create_room_booking(*, user: User, room: ConferenceRoom, start: datetime, en
         raise BookingError("Room is inactive.")
     if attendees > room.capacity:
         raise BookingError(f"Room capacity is {room.capacity}.")
+    _validate_location_hours(room.location, start, end)
     if check_room_conflict(room.id, start, end):
         raise BookingError("Room already booked for this time.")
 

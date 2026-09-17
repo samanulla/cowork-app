@@ -10,7 +10,7 @@
   <tbody>
     {% for b in seat_bookings %}
     <tr>
-      <td>{{ b.start_at | dt }} → {{ b.end_at | time }}</td>
+      <td>{{ b.start_at | dt_at(b.seat.location) }} → {{ b.end_at | time_at(b.seat.location) }}</td>
       <td>{{ b.seat.code }} <span class="text-muted small">at {{ b.seat.location.name }}</span></td>
       <td><span class="badge bg-secondary">{{ b.status.value }}</span></td>
       <td>{{ b.total_amount | money }}</td>
@@ -35,7 +35,7 @@
   <tbody>
     {% for b in room_bookings %}
     <tr>
-      <td>{{ b.start_at | dt }} → {{ b.end_at | time }}</td>
+      <td>{{ b.start_at | dt_at(b.room.location) }} → {{ b.end_at | time_at(b.room.location) }}</td>
       <td>{{ b.room.name }} <span class="text-muted small">at {{ b.room.location.name }}</span></td>
       <td>{{ b.title or "—" }}</td>
       <td>{{ b.credits_used }}</td>

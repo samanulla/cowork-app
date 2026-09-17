@@ -183,9 +183,15 @@ class ExpenseForm(FlaskForm):
     expense_date = DateField("Expense date", validators=[DataRequired()])
     vendor = StringField("Vendor / payee", validators=[Optional(), Length(max=200)])
     payment_method = SelectField("Payment method", choices=[
-        ("cash", "Cash"), ("card", "Card"),
-        ("bank_transfer", "Bank transfer"), ("cheque", "Cheque"),
-        ("ach", "ACH"), ("other", "Other"),
+        ("upi", "UPI"),
+        ("neft", "NEFT"),
+        ("rtgs", "RTGS"),
+        ("imps", "IMPS"),
+        ("card", "Card"),
+        ("cheque", "Cheque"),
+        ("cash", "Cash"),
+        ("bank_transfer", "Bank transfer"),
+        ("other", "Other"),
     ], validators=[DataRequired()])
     description = TextAreaField("Description", validators=[Optional()])
     receipt = FileField("Receipt", validators=[
@@ -207,9 +213,17 @@ class ExpenseDecisionForm(FlaskForm):
 class PaymentForm(FlaskForm):
     amount = DecimalField("Amount", validators=[DataRequired(), NumberRange(min=0.01)])
     method = SelectField("Method", choices=[
-        ("manual", "Manual"), ("stripe", "Stripe"),
-        ("ach", "ACH / Bank transfer"), ("wire", "Wire"),
-        ("cheque", "Cheque"), ("cash", "Cash"),
+        ("upi", "UPI"),
+        ("neft", "NEFT"),
+        ("rtgs", "RTGS"),
+        ("imps", "IMPS"),
+        ("card", "Card"),
+        ("cheque", "Cheque"),
+        ("cash", "Cash"),
+        ("bank_transfer", "Bank transfer (other)"),
+        ("stripe", "Stripe"),
+        ("razorpay", "Razorpay"),
+        ("manual", "Manual / Other"),
     ], validators=[DataRequired()])
     reference = StringField("Reference / txn id", validators=[Optional(), Length(max=120)])
     paid_at = DateField("Paid on", validators=[DataRequired()])
@@ -238,8 +252,16 @@ class RefundForm(FlaskForm):
     amount = DecimalField("Amount to refund", validators=[DataRequired(), NumberRange(min=0.01)])
     reason = StringField("Reason", validators=[DataRequired(), Length(max=255)])
     method = SelectField("Method", choices=[
-        ("manual", "Manual"), ("stripe", "Stripe reversal"),
-        ("ach", "ACH"), ("wire", "Wire"), ("cheque", "Cheque"), ("cash", "Cash"),
+        ("upi", "UPI"),
+        ("neft", "NEFT"),
+        ("rtgs", "RTGS"),
+        ("imps", "IMPS"),
+        ("cheque", "Cheque"),
+        ("cash", "Cash"),
+        ("stripe", "Stripe reversal"),
+        ("razorpay", "Razorpay reversal"),
+        ("bank_transfer", "Bank transfer"),
+        ("manual", "Manual / Other"),
     ], validators=[DataRequired()])
     reference = StringField("Reference", validators=[Optional(), Length(max=120)])
     notes = TextAreaField("Notes", validators=[Optional()])

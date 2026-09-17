@@ -7,7 +7,7 @@ from flask_login import current_user
 from dotenv import load_dotenv
 
 from .config import get_config
-from .extensions import db, migrate, login_manager, csrf, mail
+from .extensions import db, migrate, login_manager, csrf, mail, limiter
 from .services.storage import storage_service
 from .services.formatting import register_formatting
 
@@ -37,6 +37,7 @@ def _init_extensions(app: Flask) -> None:
     login_manager.init_app(app)
     csrf.init_app(app)
     mail.init_app(app)
+    limiter.init_app(app)
     storage_service.init(app)
 
     from .models.user import User

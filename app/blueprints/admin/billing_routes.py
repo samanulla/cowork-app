@@ -16,6 +16,7 @@ from ...models import (
 )
 from ...services.billing_service import next_invoice_number
 from ...services.formatting import format_money
+from ...services import audit_service
 from ...utils.decorators import admin_required, super_admin_required
 from .forms import (
     PaymentForm, InvoiceLineItemForm, CreditNoteForm, RefundForm,
@@ -23,12 +24,16 @@ from .forms import (
 
 
 def _next_credit_number() -> str:
+    from ...models import SystemSettings
+    prefix = (SystemSettings.get().invoice_prefix or "INV").strip() or "INV"
+    # Replace INV -> CN if using default, else '<prefix>-CN'
+    cn_prefix = "CN" if prefix == "INV" else f"{prefix}-CN"
     ts = datetime.utcnow().strftime("%Y%m")
     last = (CreditNote.query
-            .filter(CreditNote.number.like(f"CN-{ts}-%"))
+            .filter(CreditNote.number.like(f"{cn_prefix}-{ts}-%"))
             .order_by(CreditNote.id.desc()).first())
     seq = 1 if last is None else int(last.number.split("-")[-1]) + 1
-    return f"CN-{ts}-{seq:05d}"
+    return f"{cn_prefix}-{ts}-{seq:05d}"
 
 
 def _recompute_invoice(inv: Invoice) -> None:
@@ -148,6 +153,8 @@ def register_billing_routes(bp):
         inv = Invoice.query.get_or_404(invoice_id)
         inv.status = InvoiceStatus.VOID
         db.session.commit()
+        audit_service.record("invoice.void", "invoice", inv.id,
+                             {"number": inv.number})
         flash("Invoice voided.", "info")
         return redirect(url_for("admin.invoice_detail", invoice_id=inv.id))
 
@@ -243,6 +250,8 @@ def register_billing_routes(bp):
         cn = CreditNote.query.get_or_404(cn_id)
         cn.status = CreditNoteStatus.CANCELLED
         db.session.commit()
+        audit_service.record("credit_note.cancelled", "credit_note", cn.id,
+                             {"number": cn.number, "amount": str(cn.amount)})
         flash("Credit note cancelled.", "info")
         return redirect(url_for("admin.credit_notes"))
 
@@ -260,8 +269,17 @@ def register_billing_routes(bp):
         form = RefundForm()
         form.amount.data = form.amount.data or p.amount
         if form.validate_on_submit():
-            if Decimal(form.amount.data) > Decimal(p.amount or 0):
-                flash("Refund amount cannot exceed payment amount.", "warning")
+            already_refunded = sum(
+                (Decimal(r.amount or 0) for r in
+                 Refund.query.filter(
+                     Refund.payment_id == p.id,
+                     Refund.status.in_([RefundStatus.PENDING, RefundStatus.COMPLETED]),
+                 ).all()),
+                Decimal("0"),
+            )
+            refundable = Decimal(p.amount or 0) - already_refunded
+            if Decimal(form.amount.data) > refundable:
+                flash(f"Refund amount cannot exceed refundable balance ({refundable}).", "warning")
             else:
                 r = Refund(
                     payment_id=p.id,
@@ -273,13 +291,10 @@ def register_billing_routes(bp):
                     status=RefundStatus.PENDING,
                 )
                 db.session.add(r)
-                # Reflect on invoice balance
-                inv = p.invoice
-                if inv:
-                    inv.amount_paid = max(Decimal(0), Decimal(inv.amount_paid or 0) - Decimal(form.amount.data))
-                    _refresh_invoice_status(inv)
                 db.session.commit()
-                flash(f"Refund of {format_money(form.amount.data)} recorded (pending).", "success")
+                audit_service.record("refund.created", "refund", r.id,
+                                     {"payment_id": p.id, "amount": str(form.amount.data)})
+                flash(f"Refund of {format_money(form.amount.data)} created and awaiting completion.", "success")
                 return redirect(url_for("admin.refunds"))
         return render_template("admin/finance/refund_form.html", form=form, payment=p)
 
@@ -287,10 +302,21 @@ def register_billing_routes(bp):
     @super_admin_required
     def refund_complete(refund_id: int):
         r = Refund.query.get_or_404(refund_id)
+        if r.status != RefundStatus.PENDING:
+            flash("Only pending refunds can be completed.", "warning")
+            return redirect(url_for("admin.refunds"))
         r.status = RefundStatus.COMPLETED
         r.processed_at = datetime.utcnow()
         r.processed_by_id = current_user.id
+        # Reduce the invoice's paid balance only NOW that the refund has settled.
+        inv = r.payment.invoice if r.payment else None
+        if inv is not None:
+            inv.amount_paid = max(Decimal("0"),
+                                  Decimal(inv.amount_paid or 0) - Decimal(r.amount or 0))
+            _refresh_invoice_status(inv)
         db.session.commit()
+        audit_service.record("refund.completed", "refund", r.id,
+                             {"amount": str(r.amount), "invoice_id": inv.id if inv else None})
         flash("Refund marked complete.", "success")
         return redirect(url_for("admin.refunds"))
 
@@ -298,9 +324,13 @@ def register_billing_routes(bp):
     @super_admin_required
     def refund_fail(refund_id: int):
         r = Refund.query.get_or_404(refund_id)
+        if r.status != RefundStatus.PENDING:
+            flash("Only pending refunds can be marked failed.", "warning")
+            return redirect(url_for("admin.refunds"))
         r.status = RefundStatus.FAILED
         r.processed_at = datetime.utcnow()
         r.processed_by_id = current_user.id
         db.session.commit()
+        audit_service.record("refund.failed", "refund", r.id, {"amount": str(r.amount)})
         flash("Refund marked failed.", "info")
         return redirect(url_for("admin.refunds"))

@@ -17,6 +17,7 @@ from .expense import Expense, ExpenseCategory, ExpenseStatus
 from .finance import CreditNote, CreditNoteStatus, Refund, RefundStatus
 from .email_template import EmailTemplate, EmailKind
 from .settings import SystemSettings
+from .audit import AuditLog
 
 __all__ = [
     "User", "UserRole",
@@ -35,4 +36,5 @@ __all__ = [
     "CreditNote", "CreditNoteStatus", "Refund", "RefundStatus",
     "EmailTemplate", "EmailKind",
     "SystemSettings",
+    "AuditLog",
 ]

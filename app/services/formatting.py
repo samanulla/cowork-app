@@ -115,6 +115,21 @@ def _tzinfo():
         return ZoneInfo("UTC")
 
 
+def _location_tz(location) -> "ZoneInfo":
+    """Resolve a ZoneInfo from a Location (or a plain tz string)."""
+    name = None
+    if location is None:
+        name = None
+    elif isinstance(location, str):
+        name = location
+    else:
+        name = getattr(location, "timezone", None)
+    try:
+        return ZoneInfo(name) if name else _tzinfo()
+    except Exception:  # pragma: no cover
+        return _tzinfo()
+
+
 def to_local(dt: datetime | None) -> datetime | None:
     """Interpret a naive UTC datetime as UTC and return an aware datetime in the
     configured timezone. Returns ``None`` if input is ``None``."""
@@ -147,6 +162,25 @@ def format_dt(dt: datetime | None, fmt: str | None = None) -> str:
     return local.strftime(fmt or _cfg("datetime_format"))
 
 
+def format_dt_at(dt: datetime | None, location, fmt: str | None = None) -> str:
+    """Format a UTC datetime in the given Location's timezone (or a tz string)."""
+    if dt is None:
+        return "—"
+    if dt.tzinfo is None:
+        dt = dt.replace(tzinfo=ZoneInfo("UTC"))
+    tz = _location_tz(location)
+    return dt.astimezone(tz).strftime(fmt or _cfg("datetime_format"))
+
+
+def format_time_at(dt: datetime | None, location, fmt: str | None = None) -> str:
+    if dt is None:
+        return "—"
+    if dt.tzinfo is None:
+        dt = dt.replace(tzinfo=ZoneInfo("UTC"))
+    tz = _location_tz(location)
+    return dt.astimezone(tz).strftime(fmt or _cfg("time_format"))
+
+
 def format_date(dt, fmt: str | None = None) -> str:
     if dt is None:
         return "—"
@@ -169,6 +203,8 @@ def format_time(dt: datetime | None, fmt: str | None = None) -> str:
 def register_formatting(app) -> None:
     app.jinja_env.filters["money"] = format_money
     app.jinja_env.filters["dt"] = format_dt
+    app.jinja_env.filters["dt_at"] = format_dt_at
+    app.jinja_env.filters["time_at"] = format_time_at
     app.jinja_env.filters["date"] = format_date
     app.jinja_env.filters["time"] = format_time
 

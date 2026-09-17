@@ -72,7 +72,7 @@ def seat_book(seat_id: int):
         # Always show a quote
         if end > start:
             ctx["quote"] = quote_seat(seat, start, end)
-            ctx["has_conflict"] = check_seat_conflict(seat.id, start, end)
+            ctx["has_conflict"] = check_seat_conflict(seat.id, start, end, booker=current_user)
 
     return render_template("booking/seat_book.html", **ctx)
 

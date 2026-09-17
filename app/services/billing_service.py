@@ -7,22 +7,41 @@ from decimal import Decimal
 from ..extensions import db
 from ..models import (
     Invoice, InvoiceLineItem, InvoiceStatus, Subscription, SubscriptionStatus,
+    SystemSettings,
 )
 
 
+def _prefix() -> str:
+    try:
+        return (SystemSettings.get().invoice_prefix or "INV").strip() or "INV"
+    except Exception:
+        return "INV"
+
+
 def next_invoice_number() -> str:
+    prefix = _prefix()
     ts = datetime.utcnow().strftime("%Y%m")
     last = (Invoice.query
-            .filter(Invoice.number.like(f"INV-{ts}-%"))
+            .filter(Invoice.number.like(f"{prefix}-{ts}-%"))
             .order_by(Invoice.id.desc())
             .first())
     seq = 1 if last is None else int(last.number.split("-")[-1]) + 1
-    return f"INV-{ts}-{seq:05d}"
+    return f"{prefix}-{ts}-{seq:05d}"
+
+
+def _default_tax_rate() -> Decimal:
+    try:
+        rate = SystemSettings.get().default_tax_rate
+        return (Decimal(rate) / Decimal(100)) if rate is not None else Decimal("0")
+    except Exception:
+        return Decimal("0")
 
 
 def generate_invoice_for_subscription(sub: Subscription,
                                       period_start: date, period_end: date,
-                                      tax_rate: Decimal = Decimal("0.0")) -> Invoice:
+                                      tax_rate: Decimal | None = None) -> Invoice:
+    if tax_rate is None:
+        tax_rate = _default_tax_rate()
     subtotal = Decimal(sub.unit_price or 0) * Decimal(sub.quantity or 1)
     tax = (subtotal * tax_rate).quantize(Decimal("0.01"))
     total = subtotal + tax
