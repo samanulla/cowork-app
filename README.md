@@ -116,17 +116,51 @@ Default super admin: `admin@coworkhub.io` / `ChangeMe123!`
 `flask seed-demo` creates the following accounts. **Change all passwords before
 promoting this environment.**
 
-| Role | Email | Password | What they can do |
-|------|-------|----------|------------------|
-| Super Admin | `admin@coworkhub.io` | `ChangeMe123!` | Full access. Manage locations, pricing plans, staff terminations, payroll approvals, invoice voids, credit-note cancellations, refund settlements, email-template deletion. |
-| **CoWorkHub Manager** | `manager@coworkhub.io` | `ChangeMe123!` | Day-to-day operations. Companies, staff, expenses (approve/reject/pay), invoices (line items, payments), credit notes (issue), refunds (issue), booking allocations, reports. Cannot create locations, edit pricing plans, terminate staff, run/approve payroll, void invoices, or delete templates. |
-| Location Manager | *(none seeded)* | — | Same as Manager but scoped to a specific location. |
-| Company Admin (Acme Robotics) | `jane@acme.example` | `ChangeMe123!` | Manage Acme's employees, subscriptions, allocations, invoices |
-| Employee (Acme Robotics) | `bob@acme.example` | `ChangeMe123!` | Book seats/rooms; view own bookings |
-| Individual member | `alex@example.com` | `ChangeMe123!` | Book seats/rooms; view own bookings |
+| Role | Email | Password | Lands on | What they can do |
+|------|-------|----------|----------|------------------|
+| **Platform Owner** (SaaS operator) | `platform@coworkhub.io` | `ChangeMe123!` | `/platform/` | Provision and manage all tenants; suspend/reactivate; view tenant list. Does not touch per-tenant business data. |
+| Super Admin (default tenant) | `admin@coworkhub.io` | `ChangeMe123!` | `/admin/` | Full access to the CoWorkHub tenant. Locations, pricing plans, staff terminations, payroll approvals, invoice voids, credit-note cancellations, refund settlements, email-template deletion. |
+| CoWorkHub Manager | `manager@coworkhub.io` | `ChangeMe123!` | `/admin/` | Day-to-day operations. Companies, staff, expenses (approve/reject/pay), invoices (line items, payments), credit notes (issue), refunds (issue), booking allocations, reports. Cannot create locations, edit pricing plans, terminate staff, run/approve payroll, void invoices, or delete templates. |
+| Location Manager | *(none seeded)* | — | `/admin/` | Same as Manager but scoped to a specific location. |
+| Company Admin (Acme Robotics) | `jane@acme.example` | `ChangeMe123!` | `/company/` | Manage Acme's employees, subscriptions, allocations, invoices. |
+| Employee (Acme Robotics) | `bob@acme.example` | `ChangeMe123!` | `/me/` | Book seats/rooms; view own bookings. |
+| Individual member | `alex@example.com` | `ChangeMe123!` | `/me/` | Book seats/rooms; view own bookings. |
 
 Sign in at `/auth/login`. New members can self-register at `/auth/register`;
-companies at `/auth/register/company`.
+companies at `/auth/register/company`. New tenants are provisioned by the
+Platform Owner at `/platform/tenants/new` or from the CLI:
+
+```powershell
+flask --app wsgi.py create-tenant `
+    --slug adyar-space `
+    --name "Adyar Space" `
+    --primary-domain adyar.example.com `
+    --admin-email admin@adyar.example.com `
+    --admin-password ChangeMe123!
+```
+
+## Bootstrapping configuration
+
+These env vars control app startup (see `.env.example` for the full list):
+
+| Variable | Default | Purpose |
+|---|---|---|
+| `DATABASE_URL` | `postgresql+psycopg2://coworkhub:coworkhub@localhost:5432/coworkhub` | Postgres connection string. |
+| `SECRET_KEY` | *(required)* | Flask session signing key. Generate a fresh one for prod. |
+| `BOOTSTRAP_ADMIN_EMAIL` | `admin@coworkhub.io` | Email of the tenant Super Admin that `seed-demo` creates. |
+| `BOOTSTRAP_ADMIN_PASSWORD` | `ChangeMe123!` | Password for the seeded Super Admin. |
+| `DEPLOY_MODE` | `shared` | `shared` = one deployment serves many tenants (Host-based routing). `dedicated` = one tenant per deployment. |
+| `TENANT_ID` | *(unset)* | Only used when `DEPLOY_MODE=dedicated` — pins this deployment to a specific tenant row. |
+| `PLATFORM_BASE_DOMAIN` | `coworkhub.io` | The apex domain the Platform Owner uses (informational, for reserved-slug checks). |
+| `STORAGE_BACKEND` | `local` | `local` \| `s3` \| `azure_blob` for document uploads. |
+| `TIMEZONE` | `Asia/Kolkata` | Fallback timezone if the tenant's setting is missing. |
+| `MAIL_*` | *(unset)* | SMTP config for outgoing email. |
+
+Additional Platform Owner accounts can be created without running `seed-demo`:
+
+```powershell
+flask --app wsgi.py create-admin --email you@coworkhub.io --password ChangeMe123! --platform-owner
+```
 
 ## Deploying to AWS
 
