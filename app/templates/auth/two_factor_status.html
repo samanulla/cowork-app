@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}Two-factor{% endblock %}
+{% block content %}
+<div class="row justify-content-center"><div class="col-md-6">
+  <div class="card shadow-sm"><div class="card-body p-4">
+    <h4>Two-factor authentication</h4>
+    {% if current_user.two_factor_enabled %}
+      <p><span class="badge bg-success">Enabled</span> — a 6-digit code is required at sign-in.</p>
+      <form method="post" action="{{ url_for('auth.two_factor_disable') }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <button class="btn btn-outline-danger">Disable two-factor</button>
+      </form>
+    {% else %}
+      <p><span class="badge bg-secondary">Off</span> — recommended for admins and finance roles.</p>
+      <a class="btn btn-dark" href="{{ url_for('auth.two_factor_setup') }}">Enable two-factor</a>
+    {% endif %}
+  </div></div>
+</div></div>
+{% endblock %}

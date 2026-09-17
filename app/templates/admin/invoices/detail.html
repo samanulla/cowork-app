@@ -28,6 +28,8 @@
       <button class="btn btn-outline-danger">Void</button>
     </form>
     {% endif %}
+    <a class="btn btn-outline-secondary"
+       href="{{ url_for('admin.invoice_pdf', invoice_id=invoice.id) }}">Download PDF</a>
   </div>
 </div>
 

@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}Capacity heatmap{% endblock %}
+{% block content %}
+<h3>Room booking heatmap</h3>
+<p class="text-muted small">Booking density by day-of-week and hour, last 8 weeks. Darker = busier. Peak = {{ peak }}.</p>
+<div class="card"><div class="card-body">
+<table class="heatmap" style="border-collapse:collapse;width:100%;text-align:center;font-size:12px;">
+  <thead>
+    <tr>
+      <th style="width:60px;"></th>
+      {% for h in range(24) %}<th>{{ '%02d'|format(h) }}</th>{% endfor %}
+    </tr>
+  </thead>
+  <tbody>
+    {% for row in grid %}
+    <tr>
+      <th style="text-align:right;padding-right:6px;">{{ days[loop.index0] }}</th>
+      {% for n in row %}
+        {% set intensity = ((n / peak * 100) | round(0, 'floor') | int) if peak else 0 %}
+        <td style="background: rgba(15,118,110,{{ (intensity/100)|round(2) }}); color: {% if intensity>50 %}#fff{% else %}#333{% endif %}; padding:6px 3px; border:1px solid #f3f4f6;">
+          {{ n if n else "" }}
+        </td>
+      {% endfor %}
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+</div></div>
+<p class="mt-3"><a class="btn btn-link" href="{{ url_for('admin.reports_home') }}">← Back to reports</a></p>
+{% endblock %}

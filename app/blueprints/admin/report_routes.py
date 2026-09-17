@@ -312,3 +312,31 @@ def register_report_routes(bp):
                                new_members_series=[by_month[m] for m in months],
                                top_companies=top_companies,
                                totals=totals)
+
+    # ==================================================== capacity heatmap --
+    @bp.route("/reports/heatmap")
+    @admin_required
+    def report_heatmap():
+        """Room booking density by (day-of-week, hour) over the last 8 weeks."""
+        cutoff = datetime.utcnow() - timedelta(weeks=8)
+        rows = (db.session.query(
+                    extract("dow", RoomBooking.start_at).label("dow"),
+                    extract("hour", RoomBooking.start_at).label("hr"),
+                    func.count(RoomBooking.id).label("n"),
+                )
+                .filter(RoomBooking.start_at >= cutoff,
+                        RoomBooking.status.in_([BookingStatus.CONFIRMED,
+                                                BookingStatus.CHECKED_IN,
+                                                BookingStatus.COMPLETED]))
+                .group_by("dow", "hr").all())
+        grid = [[0] * 24 for _ in range(7)]  # 0=Sun..6=Sat (Postgres dow convention)
+        peak = 0
+        for dow, hr, n in rows:
+            d, h, c = int(dow), int(hr), int(n)
+            if 0 <= d < 7 and 0 <= h < 24:
+                grid[d][h] = c
+                if c > peak:
+                    peak = c
+        return render_template("admin/reports/heatmap.html",
+                               grid=grid, peak=peak,
+                               days=["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"])

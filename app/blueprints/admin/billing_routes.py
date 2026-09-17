@@ -334,3 +334,18 @@ def register_billing_routes(bp):
         audit_service.record("refund.failed", "refund", r.id, {"amount": str(r.amount)})
         flash("Refund marked failed.", "info")
         return redirect(url_for("admin.refunds"))
+
+    @bp.route("/invoices/<int:invoice_id>/pdf")
+    @admin_required
+    def invoice_pdf(invoice_id: int):
+        from io import BytesIO
+        from flask import send_file, current_app
+        from xhtml2pdf import pisa
+        inv = Invoice.query.get_or_404(invoice_id)
+        html = render_template("admin/invoices/pdf.html", invoice=inv,
+                               app_name=current_app.config.get("APP_NAME", "CoWorkHub"))
+        buf = BytesIO()
+        pisa.CreatePDF(html, dest=buf, encoding="utf-8")
+        buf.seek(0)
+        return send_file(buf, mimetype="application/pdf",
+                         download_name=f"invoice-{inv.number or inv.id}.pdf")

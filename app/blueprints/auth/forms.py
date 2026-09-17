@@ -61,3 +61,14 @@ class ChangePasswordForm(FlaskForm):
 class TenantPickerForm(FlaskForm):
     workspace = StringField("Workspace slug", validators=[DataRequired(), Length(max=40)])
     submit = SubmitField("Continue")
+
+
+class TotpVerifyForm(FlaskForm):
+    code = StringField("6-digit code", validators=[DataRequired(), Length(min=6, max=6)])
+    submit = SubmitField("Verify")
+
+
+class TotpEnableForm(FlaskForm):
+    code = StringField("6-digit code from your app",
+                       validators=[DataRequired(), Length(min=6, max=6)])
+    submit = SubmitField("Enable two-factor")

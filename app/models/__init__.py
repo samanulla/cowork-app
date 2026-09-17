@@ -20,6 +20,10 @@ from .email_template import EmailTemplate, EmailKind
 from .settings import SystemSettings
 from .audit import AuditLog
 from .daypass import DayPass, DayPassStatus
+from .booking_addons import (
+    RoomWaitlist, WaitlistStatus,
+    RecurringRoomBooking, RecurrencePattern,
+)
 
 __all__ = [
     "User", "UserRole",
@@ -41,4 +45,6 @@ __all__ = [
     "AuditLog",
     "Tenant", "TenantScoped", "TenantStatus",
     "DayPass", "DayPassStatus",
+    "RoomWaitlist", "WaitlistStatus",
+    "RecurringRoomBooking", "RecurrencePattern",
 ]

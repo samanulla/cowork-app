@@ -2,8 +2,37 @@
 {% block title %}Audit log{% endblock %}
 
 {% block content %}
-<h3>Audit log</h3>
+<div class="d-flex justify-content-between align-items-center mb-2">
+  <h3 class="mb-0">Audit log</h3>
+  <a class="btn btn-sm btn-outline-secondary"
+     href="{{ url_for('admin.audit_log_csv', **filters) }}">Download CSV</a>
+</div>
 <p class="text-muted small">Sensitive actions recorded automatically. Newest first.</p>
+
+<form method="get" class="card card-body mb-3">
+  <div class="row g-2 align-items-end">
+    <div class="col-md-3">
+      <label class="form-label small">Action contains</label>
+      <input class="form-control" name="action" value="{{ filters.action }}" placeholder="invoice.void">
+    </div>
+    <div class="col-md-3">
+      <label class="form-label small">Actor email contains</label>
+      <input class="form-control" name="actor" value="{{ filters.actor }}" placeholder="jane@">
+    </div>
+    <div class="col-md-2">
+      <label class="form-label small">From (YYYY-MM-DD)</label>
+      <input class="form-control" name="from" value="{{ filters['from'] }}">
+    </div>
+    <div class="col-md-2">
+      <label class="form-label small">To</label>
+      <input class="form-control" name="to" value="{{ filters.to }}">
+    </div>
+    <div class="col-md-2 d-flex gap-2">
+      <button class="btn btn-dark w-100" type="submit">Filter</button>
+      <a class="btn btn-link" href="{{ url_for('admin.audit_log') }}">Clear</a>
+    </div>
+  </div>
+</form>
 
 <div class="card"><div class="card-body p-0">
 <table class="table mb-0">

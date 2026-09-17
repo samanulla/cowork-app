@@ -52,6 +52,10 @@ class User(db.Model, PkMixin, TimestampMixin, UserMixin, TenantScoped):
     is_active = Column(Boolean, default=True, nullable=False)
     email_verified = Column(Boolean, default=False, nullable=False)
 
+    # 2FA (TOTP)
+    two_factor_secret = Column(String(64), nullable=True)
+    two_factor_enabled = Column(Boolean, default=False, nullable=False)
+
     # Optional company link (for company_admin & employee)
     company_id = Column(Integer, ForeignKey("companies.id", ondelete="SET NULL"), nullable=True, index=True)
     company = relationship("Company", back_populates="users", foreign_keys=[company_id])

@@ -1,0 +1,66 @@
+<!doctype html>
+<html>
+<head><meta charset="utf-8">
+<style>
+  body { font-family: Helvetica, Arial, sans-serif; font-size: 11pt; color: #222; }
+  h1 { font-size: 20pt; margin: 0 0 4px; color: #0f766e; }
+  .muted { color: #666; font-size: 9pt; }
+  table.items { width: 100%; border-collapse: collapse; margin-top: 20px; }
+  table.items th, table.items td { border-bottom: 1px solid #ddd; padding: 6px 8px; text-align: left; }
+  table.items th { background: #f6f7f8; text-transform: uppercase; font-size: 9pt; }
+  .totals { margin-top: 12px; width: 40%; margin-left: 60%; }
+  .totals td { padding: 3px 6px; }
+  .totals .grand { font-weight: bold; border-top: 2px solid #333; padding-top: 6px; font-size: 12pt; }
+</style>
+</head>
+<body>
+  <h1>{{ app_name }}</h1>
+  <div class="muted">Invoice</div>
+
+  <table style="width:100%; margin-top: 16px;"><tr>
+    <td>
+      <strong>Invoice #{{ invoice.number or invoice.id }}</strong><br>
+      Issued: {{ invoice.issued_at.strftime('%d %b %Y') if invoice.issued_at else '—' }}<br>
+      Due:    {{ invoice.due_date.strftime('%d %b %Y') if invoice.due_date else '—' }}<br>
+      Status: {{ invoice.status.value }}
+    </td>
+    <td style="text-align:right;">
+      {% if invoice.company %}
+      <strong>Bill to:</strong><br>
+      {{ invoice.company.name }}<br>
+      {{ invoice.company.billing_email }}
+      {% elif invoice.user %}
+      <strong>Bill to:</strong><br>
+      {{ invoice.user.full_name }}<br>
+      {{ invoice.user.email }}
+      {% endif %}
+    </td>
+  </tr></table>
+
+  <table class="items">
+    <thead>
+      <tr><th>Description</th><th style="text-align:right;">Qty</th>
+          <th style="text-align:right;">Unit</th><th style="text-align:right;">Amount</th></tr>
+    </thead>
+    <tbody>
+      {% for li in invoice.line_items %}
+      <tr>
+        <td>{{ li.description }}</td>
+        <td style="text-align:right;">{{ li.quantity }}</td>
+        <td style="text-align:right;">{{ li.unit_price }}</td>
+        <td style="text-align:right;">{{ li.amount }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <table class="totals">
+    <tr><td>Subtotal</td><td style="text-align:right;">{{ invoice.subtotal }}</td></tr>
+    <tr><td>Tax</td><td style="text-align:right;">{{ invoice.tax_amount }}</td></tr>
+    <tr class="grand"><td>Total</td><td style="text-align:right;">{{ invoice.total_amount }}</td></tr>
+    <tr><td>Paid</td><td style="text-align:right;">{{ invoice.amount_paid or 0 }}</td></tr>
+  </table>
+
+  <p class="muted" style="margin-top: 40px;">Thank you for your business.</p>
+</body>
+</html>

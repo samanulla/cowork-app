@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% from "_macros.html" import field %}
+{% block title %}Enable two-factor{% endblock %}
+{% block content %}
+<div class="row justify-content-center"><div class="col-md-6">
+  <div class="card shadow-sm"><div class="card-body p-4">
+    <h4 class="mb-3">Enable two-factor authentication</h4>
+    <ol>
+      <li>Install an authenticator app (Google Authenticator, 1Password, Authy…).</li>
+      <li>Scan this QR code:</li>
+    </ol>
+    <div class="text-center my-3">
+      <img src="{{ url_for('auth.two_factor_qr') }}" alt="TOTP QR code" style="max-width:220px;">
+    </div>
+    <details class="mb-3"><summary class="small text-muted">Or use this URL manually</summary>
+      <code style="word-break:break-all;">{{ otpauth_url }}</code>
+    </details>
+    <form method="post" novalidate>
+      {{ form.hidden_tag() }}
+      {{ field(form.code) }}
+      <button class="btn btn-dark w-100" type="submit">{{ form.submit.label.text }}</button>
+    </form>
+  </div></div>
+</div></div>
+{% endblock %}

@@ -12,6 +12,7 @@ from ...services import mail_service
 from .forms import (
     LoginForm, RegisterIndividualForm, RegisterCompanyForm,
     ForgotPasswordForm, ResetPasswordForm, ChangePasswordForm, TenantPickerForm,
+    TotpVerifyForm, TotpEnableForm,
 )
 
 
@@ -63,8 +64,14 @@ def login():
     if form.validate_on_submit():
         user = User.query.filter_by(email=form.email.data.lower().strip()).first()
         if user and user.check_password(form.password.data) and user.is_active:
-            login_user(user, remember=form.remember.data)
             next_url = _safe_next(request.args.get("next"))
+            if user.two_factor_enabled:
+                from flask import session as flask_session
+                flask_session["pending_2fa_user_id"] = user.id
+                flask_session["pending_2fa_remember"] = form.remember.data
+                flask_session["pending_2fa_next"] = next_url
+                return redirect(url_for("auth.two_factor_login"))
+            login_user(user, remember=form.remember.data)
             return redirect(next_url or url_for("auth.post_login_redirect"))
         flash("Invalid email or password.", "danger")
     return render_template("auth/login.html", form=form)
@@ -248,3 +255,93 @@ def pick_workspace():
             scheme = "https" if not current_app.debug else request.scheme
             return redirect(f"{scheme}://{host}/auth/login")
     return render_template("auth/pick_workspace.html", form=form)
+
+
+# ------- two-factor auth (TOTP) -------
+
+def _totp_issuer_name() -> str:
+    tenant = getattr(g, "tenant", None)
+    return (tenant.name if tenant else current_app.config.get("APP_NAME", "CoWorkHub"))
+
+
+@auth_bp.route("/2fa/login", methods=["GET", "POST"])
+def two_factor_login():
+    from flask import session as flask_session
+    import pyotp
+    uid = flask_session.get("pending_2fa_user_id")
+    if uid is None:
+        return redirect(url_for("auth.login"))
+    form = TotpVerifyForm()
+    if form.validate_on_submit():
+        user = User.query.filter_by(id=int(uid)) \
+                         .execution_options(skip_tenant_filter=True).first()
+        if user is None or not user.two_factor_secret:
+            flash("Please sign in again.", "warning")
+            return redirect(url_for("auth.login"))
+        totp = pyotp.TOTP(user.two_factor_secret)
+        if totp.verify(form.code.data.strip(), valid_window=1):
+            remember = flask_session.pop("pending_2fa_remember", False)
+            next_url = flask_session.pop("pending_2fa_next", None)
+            flask_session.pop("pending_2fa_user_id", None)
+            login_user(user, remember=remember)
+            return redirect(next_url or url_for("auth.post_login_redirect"))
+        flash("Invalid code. Try again.", "danger")
+    return render_template("auth/two_factor_login.html", form=form)
+
+
+@auth_bp.route("/2fa/setup", methods=["GET", "POST"])
+@login_required
+def two_factor_setup():
+    import pyotp
+    if current_user.two_factor_enabled:
+        flash("Two-factor is already enabled. Disable it first to reset.", "info")
+        return redirect(url_for("auth.two_factor_status"))
+    if not current_user.two_factor_secret:
+        current_user.two_factor_secret = pyotp.random_base32()
+        db.session.commit()
+    otpauth_url = pyotp.TOTP(current_user.two_factor_secret).provisioning_uri(
+        name=current_user.email, issuer_name=_totp_issuer_name()
+    )
+    form = TotpEnableForm()
+    if form.validate_on_submit():
+        totp = pyotp.TOTP(current_user.two_factor_secret)
+        if totp.verify(form.code.data.strip(), valid_window=1):
+            current_user.two_factor_enabled = True
+            db.session.commit()
+            flash("Two-factor authentication is now on.", "success")
+            return redirect(url_for("auth.two_factor_status"))
+        flash("Invalid code — try again.", "danger")
+    return render_template("auth/two_factor_setup.html",
+                           form=form, otpauth_url=otpauth_url)
+
+
+@auth_bp.route("/2fa/qr.png")
+@login_required
+def two_factor_qr():
+    import pyotp, qrcode
+    from io import BytesIO
+    from flask import send_file
+    if not current_user.two_factor_secret:
+        return ("", 404)
+    url = pyotp.TOTP(current_user.two_factor_secret).provisioning_uri(
+        name=current_user.email, issuer_name=_totp_issuer_name()
+    )
+    img = qrcode.make(url)
+    buf = BytesIO(); img.save(buf, format="PNG"); buf.seek(0)
+    return send_file(buf, mimetype="image/png")
+
+
+@auth_bp.route("/2fa", methods=["GET"])
+@login_required
+def two_factor_status():
+    return render_template("auth/two_factor_status.html")
+
+
+@auth_bp.route("/2fa/disable", methods=["POST"])
+@login_required
+def two_factor_disable():
+    current_user.two_factor_enabled = False
+    current_user.two_factor_secret = None
+    db.session.commit()
+    flash("Two-factor authentication disabled.", "info")
+    return redirect(url_for("auth.two_factor_status"))

@@ -6,7 +6,7 @@ from datetime import datetime, timedelta
 from flask import Blueprint, render_template, request, redirect, url_for, flash
 from flask_login import current_user, login_required
 
-from ...models import Location, Seat, ConferenceRoom, SeatType
+from ...models import Location, Seat, ConferenceRoom, SeatType, RoomWaitlist, WaitlistStatus, RecurringRoomBooking, RecurrencePattern
 from ...services.booking_service import (
     create_seat_booking, create_room_booking, quote_seat, quote_room,
     BookingError, check_seat_conflict, check_room_conflict,
@@ -125,3 +125,54 @@ def room_book(room_id: int):
             ctx["has_conflict"] = check_room_conflict(room.id, start, end)
 
     return render_template("booking/room_book.html", **ctx)
+
+
+# --------- waitlist + recurring room bookings ----------
+
+@booking_bp.route("/rooms/<int:room_id>/waitlist", methods=["POST"])
+@member_required
+def room_waitlist_join(room_id: int):
+    from flask import g
+    room = ConferenceRoom.query.get_or_404(room_id)
+    try:
+        start = parse_local_naive_to_utc(request.form["start"])
+        end = parse_local_naive_to_utc(request.form["end"])
+    except (KeyError, ValueError):
+        flash("Invalid slot.", "warning")
+        return redirect(url_for("book.room_book", room_id=room_id))
+    from ...extensions import db as _db
+    entry = RoomWaitlist(
+        tenant_id=getattr(g, "tenant_id", None),
+        room_id=room.id, user_id=current_user.id,
+        start_at=start, end_at=end, status=WaitlistStatus.WAITING,
+    )
+    _db.session.add(entry); _db.session.commit()
+    flash("You've been added to the waitlist. We'll email you if a slot opens up.", "info")
+    return redirect(url_for("member.dashboard"))
+
+
+@booking_bp.route("/rooms/<int:room_id>/recurring", methods=["POST"])
+@member_required
+def room_recurring_create(room_id: int):
+    from flask import g
+    from datetime import date as _date, time as _time
+    room = ConferenceRoom.query.get_or_404(room_id)
+    try:
+        pattern = RecurrencePattern(request.form.get("pattern", "weekly"))
+        start_time = _time.fromisoformat(request.form["start_time"])
+        end_time = _time.fromisoformat(request.form["end_time"])
+        start_date = _date.fromisoformat(request.form["start_date"])
+        end_date = _date.fromisoformat(request.form["end_date"])
+    except (KeyError, ValueError):
+        flash("Invalid recurring request.", "warning")
+        return redirect(url_for("book.room_book", room_id=room_id))
+    from ...extensions import db as _db
+    rec = RecurringRoomBooking(
+        tenant_id=getattr(g, "tenant_id", None),
+        room_id=room.id, user_id=current_user.id,
+        pattern=pattern, start_time=start_time, end_time=end_time,
+        start_date=start_date, end_date=end_date, is_active=True,
+    )
+    _db.session.add(rec); _db.session.commit()
+    flash("Recurring booking series saved. Individual slots will be created nightly.", "success")
+    return redirect(url_for("member.dashboard"))
