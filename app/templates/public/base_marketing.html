@@ -1,0 +1,162 @@
+{# Marketing / public-facing base — editorial, "Coworking Co." inspired.
+   Deliberately separate from base.html so app dashboards keep their
+   current SaaS look untouched. #}
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}{{ tenant.name if tenant else app_name }}{% endblock %} · {{ tenant.tagline if tenant and tenant.tagline else "A workspace as thoughtful as your work." }}</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --ink: #1a1a1a;
+      --ink-soft: #4a4a4a;
+      --cream: #fbf7f0;
+      --cream-2: #f3ede1;
+      --line: #e5dfd0;
+      --saffron: #f5b642;
+      --coral: #ff6b57;
+      --forest: #2b4a3e;
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; }
+    body {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      background: var(--cream); color: var(--ink);
+      font-size: 17px; line-height: 1.65;
+    }
+    .serif { font-family: 'Cormorant Garamond', Georgia, serif; }
+    h1, h2, h3, h4 { font-family: 'Cormorant Garamond', Georgia, serif; font-weight: 600; letter-spacing: -0.01em; color: var(--ink); }
+    h1 { font-size: clamp(2.5rem, 6vw, 5rem); line-height: 1.05; }
+    h2 { font-size: clamp(2rem, 4vw, 3.25rem); line-height: 1.1; }
+    h3 { font-size: 1.75rem; line-height: 1.2; }
+    .eyebrow { font-family: 'Inter', sans-serif; font-size: .75rem; text-transform: uppercase; letter-spacing: .18em; color: var(--ink-soft); font-weight: 600; }
+    p { color: var(--ink-soft); font-size: 1.05rem; }
+    a { color: var(--ink); text-decoration: none; border-bottom: 1px solid transparent; transition: border-color .15s; }
+    a:hover { border-bottom-color: var(--ink); color: var(--ink); }
+
+    /* Buttons */
+    .btn-ink {
+      display: inline-block; padding: 1rem 2rem;
+      background: var(--ink); color: var(--cream); border: none;
+      font-weight: 500; font-size: .95rem; letter-spacing: .02em;
+      transition: background .15s, transform .15s; text-decoration: none;
+    }
+    .btn-ink:hover { background: var(--forest); color: var(--cream); transform: translateY(-1px); }
+    .btn-outline-ink {
+      display: inline-block; padding: 1rem 2rem;
+      background: transparent; color: var(--ink); border: 1.5px solid var(--ink);
+      font-weight: 500; font-size: .95rem; letter-spacing: .02em;
+      transition: all .15s; text-decoration: none;
+    }
+    .btn-outline-ink:hover { background: var(--ink); color: var(--cream); border-bottom-color: var(--ink); }
+    .btn-saffron {
+      display: inline-block; padding: 1rem 2rem;
+      background: var(--saffron); color: var(--ink); border: none;
+      font-weight: 600; font-size: .95rem; text-decoration: none;
+      transition: background .15s;
+    }
+    .btn-saffron:hover { background: color-mix(in srgb, var(--saffron) 80%, black); color: var(--ink); }
+
+    /* Nav */
+    .marketing-nav {
+      position: absolute; top: 0; left: 0; right: 0; z-index: 20;
+      padding: 1.6rem 3rem;
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .marketing-nav.solid { position: sticky; background: var(--cream); border-bottom: 1px solid var(--line); }
+    .marketing-nav .brand {
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      font-size: 1.6rem; font-weight: 700; color: var(--ink); letter-spacing: -0.01em;
+      display: inline-flex; align-items: center; gap: .5rem;
+      border-bottom: none;
+    }
+    .marketing-nav .brand-dot { width: 8px; height: 8px; background: var(--saffron); border-radius: 50%; }
+    .marketing-nav.on-hero .brand, .marketing-nav.on-hero .nav-link { color: var(--cream); }
+    .marketing-nav.on-hero .brand-dot { background: var(--saffron); }
+    .marketing-nav .nav-links { display: flex; gap: 2.5rem; align-items: center; }
+    .marketing-nav .nav-link { font-size: .9rem; font-weight: 500; letter-spacing: .04em; text-transform: uppercase; border-bottom: none; }
+    .marketing-nav .nav-link:hover { color: var(--saffron); border-bottom: 1px solid var(--saffron); }
+    .marketing-nav.on-hero .nav-link:hover { color: var(--saffron); border-bottom-color: var(--saffron); }
+    .marketing-nav .btn-nav-cta {
+      padding: .6rem 1.4rem; border: 1.5px solid currentColor; font-weight: 500;
+      text-transform: uppercase; letter-spacing: .05em; font-size: .8rem;
+    }
+    @media (max-width: 768px) {
+      .marketing-nav { padding: 1rem 1.5rem; }
+      .marketing-nav .nav-links { gap: 1rem; }
+      .marketing-nav .nav-link { display: none; }
+      .marketing-nav .btn-nav-cta { display: inline-block; }
+    }
+
+    /* Layout helpers */
+    .container-x { max-width: 1240px; margin: 0 auto; padding: 0 3rem; }
+    @media (max-width: 768px) { .container-x { padding: 0 1.5rem; } }
+    .section { padding: 7rem 0; }
+    @media (max-width: 768px) { .section { padding: 4rem 0; } }
+    .divider { width: 60px; height: 2px; background: var(--ink); border: 0; margin: 0 0 1.5rem; }
+
+    /* Cards & tiles */
+    .flat-card { background: transparent; border: 1px solid var(--line); padding: 2rem; transition: border-color .15s, transform .15s; }
+    .flat-card:hover { border-color: var(--ink); transform: translateY(-3px); }
+    .flat-card.on-ink { border-color: rgba(251,247,240,.2); color: var(--cream); }
+    .flat-card.on-ink:hover { border-color: var(--saffron); }
+    .num-serif { font-family: 'Cormorant Garamond', serif; font-size: 4.5rem; line-height: 1; color: var(--ink); font-weight: 600; }
+    .num-serif.small { font-size: 3rem; }
+    .num-serif.saffron { color: var(--saffron); }
+
+    /* Split panes */
+    .split { display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: center; }
+    .split.reverse .split-media { order: 2; }
+    @media (max-width: 900px) { .split { grid-template-columns: 1fr; gap: 2rem; } .split.reverse .split-media { order: 0; } }
+    .split-media { aspect-ratio: 4/5; background-size: cover; background-position: center; }
+
+    /* Hero */
+    .hero-full {
+      position: relative; min-height: 92vh; display: flex; align-items: center;
+      background: linear-gradient(rgba(26,26,26,.45), rgba(26,26,26,.7)),
+                  url('https://images.unsplash.com/photo-1497366216548-37526070297c?w=2000&q=80') center/cover no-repeat;
+      color: var(--cream);
+    }
+    .hero-full h1 { color: var(--cream); }
+    .hero-full p { color: rgba(251,247,240,.85); font-size: 1.25rem; max-width: 500px; }
+    .hero-full .eyebrow { color: var(--saffron); }
+
+    /* Footer */
+    footer.editorial {
+      background: var(--ink); color: var(--cream);
+      padding: 5rem 0 2rem;
+    }
+    footer.editorial a { color: var(--cream); border-bottom: none; }
+    footer.editorial a:hover { color: var(--saffron); border-bottom: none; }
+    footer.editorial h4 { color: var(--cream); font-size: 1.1rem; margin-bottom: 1rem; }
+    footer.editorial .eyebrow { color: rgba(251,247,240,.55); }
+
+    /* Flash messages */
+    .flash-bar { padding: .8rem 1rem; margin: 0; text-align: center; font-size: .95rem; background: var(--saffron); color: var(--ink); }
+    .flash-bar.danger { background: var(--coral); color: white; }
+
+    /* Utilities */
+    .text-cream { color: var(--cream); }
+    .text-saffron { color: var(--saffron); }
+    .bg-ink { background: var(--ink); color: var(--cream); }
+    .bg-cream-2 { background: var(--cream-2); }
+    .gap-buttons { display: flex; gap: 1rem; flex-wrap: wrap; }
+  </style>
+  {% block extra_head %}{% endblock %}
+</head>
+<body>
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% for cat, msg in messages %}
+      <div class="flash-bar {{ 'danger' if cat=='danger' else '' }}">{{ msg }}</div>
+    {% endfor %}
+  {% endwith %}
+
+  {% block body %}{% endblock %}
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

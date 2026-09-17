@@ -1,173 +1,251 @@
-{% extends "base.html" %}
-{% block title %}Welcome{% endblock %}
+{% extends "public/base_marketing.html" %}
+{% block title %}{{ tenant.name if tenant else app_name }} · A workspace as thoughtful as your work{% endblock %}
 
-{% block content %}
-{% endblock %}
+{% block body %}
+<!-- ============ HERO ============ -->
+<section class="hero-full">
+  <nav class="marketing-nav on-hero">
+    <a class="brand" href="/"><span class="brand-dot"></span> {{ tenant.name if tenant else app_name }}</a>
+    <div class="nav-links">
+      <a class="nav-link" href="#spaces">Spaces</a>
+      <a class="nav-link" href="#membership">Membership</a>
+      <a class="nav-link" href="#story">Story</a>
+      <a class="nav-link btn-nav-cta" href="{{ url_for('auth.login') }}">Sign in</a>
+    </div>
+  </nav>
 
-{% block full %}
-<section class="hero">
-  <div class="container">
-    <div class="row align-items-center g-5">
-      <div class="col-lg-7">
-        <h1 class="mb-3">
-          Beautiful coworking spaces,<br>
-          one login away.
-        </h1>
-        <p class="lead mb-4">
-          {{ tenant.tagline if tenant and tenant.tagline else "Book desks and meeting rooms, manage teams, pay invoices, and grow your community — all from one modern portal." }}
-        </p>
-        <div class="d-flex gap-2 flex-wrap">
-          <a class="btn btn-light btn-lg" href="{{ url_for('auth.login') }}">Sign in</a>
-          <a class="btn btn-outline-light btn-lg" href="{{ url_for('auth.register_individual') }}">Join as member</a>
-          <a class="btn btn-outline-light btn-lg" href="{{ url_for('auth.register_company') }}">Register a company</a>
-        </div>
-        <p class="mt-3 mb-0" style="opacity:.85;">
-          Not sure which workspace? <a class="text-white" style="text-decoration:underline;" href="{{ url_for('auth.pick_workspace') }}">Find yours →</a>
-        </p>
+  <div class="container-x" style="padding-top: 4rem;">
+    <div style="max-width: 720px;">
+      <div class="eyebrow" style="margin-bottom: 1.5rem;">Est. 2020 · India-first</div>
+      <h1>A workspace<br>as thoughtful<br>as your work.</h1>
+      <p style="margin-top: 1.5rem;">
+        {{ tenant.tagline if tenant and tenant.tagline else "Beautifully designed coworking. Serious operational software. From single-city studios to multi-brand operators — one login, real hospitality." }}
+      </p>
+      <div class="gap-buttons" style="margin-top: 2.5rem;">
+        <a class="btn-saffron" href="{{ url_for('auth.register_individual') }}">Book a tour</a>
+        <a class="btn-outline-ink" href="{{ url_for('auth.login') }}" style="color: var(--cream); border-color: var(--cream);">Sign in</a>
       </div>
-      <div class="col-lg-5">
-        <div class="p-4 rounded-4" style="background: rgba(255,255,255,.08); backdrop-filter: blur(6px);">
-          <div class="d-flex align-items-center gap-3 mb-3">
-            <div style="width:44px; height:44px; border-radius:50%; background:rgba(255,255,255,.2); display:flex; align-items:center; justify-content:center; font-size:1.5rem;">🏢</div>
-            <div><div style="font-weight:600;">Multi-tenant SaaS</div><small style="opacity:.85;">Host many workspaces on one platform.</small></div>
-          </div>
-          <div class="d-flex align-items-center gap-3 mb-3">
-            <div style="width:44px; height:44px; border-radius:50%; background:rgba(255,255,255,.2); display:flex; align-items:center; justify-content:center; font-size:1.5rem;">🪑</div>
-            <div><div style="font-weight:600;">Book a hot desk in 10 seconds</div><small style="opacity:.85;">Any location, any day.</small></div>
-          </div>
-          <div class="d-flex align-items-center gap-3">
-            <div style="width:44px; height:44px; border-radius:50%; background:rgba(255,255,255,.2); display:flex; align-items:center; justify-content:center; font-size:1.5rem;">📱</div>
-            <div><div style="font-weight:600;">Day-pass QR check-in</div><small style="opacity:.85;">Walk in, show the code, get to work.</small></div>
-          </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ STATS BAND ============ -->
+<section style="background: var(--cream-2); padding: 4rem 0; border-bottom: 1px solid var(--line);">
+  <div class="container-x">
+    <div class="row g-4 text-center text-md-start">
+      <div class="col-6 col-md-3">
+        <div class="num-serif small saffron">300+</div>
+        <div class="eyebrow" style="margin-top: .5rem;">Members</div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="num-serif small">12</div>
+        <div class="eyebrow" style="margin-top: .5rem;">Locations</div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="num-serif small">98%</div>
+        <div class="eyebrow" style="margin-top: .5rem;">Occupancy</div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="num-serif small">24/7</div>
+        <div class="eyebrow" style="margin-top: .5rem;">Access</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ SPACES (photo left, text right) ============ -->
+<section class="section" id="spaces">
+  <div class="container-x">
+    <div class="split">
+      <div class="split-media" style="background-image: url('https://images.unsplash.com/photo-1600880292203-757bb62b4baf?w=1200&q=80');"></div>
+      <div>
+        <div class="eyebrow">01 · Spaces</div>
+        <hr class="divider" style="margin-top: 1rem;">
+        <h2>Rooms that make you<br>want to stay a while.</h2>
+        <p style="margin-top: 1.5rem;">
+          Hot desks, dedicated desks, private offices, conference rooms. Book by the hour, day, or month. Real-time availability. No paper, no wait. Just walk in.
+        </p>
+        <div class="gap-buttons" style="margin-top: 2rem;">
+          <a class="btn-ink" href="{{ url_for('auth.register_individual') }}">See a space</a>
         </div>
       </div>
     </div>
   </div>
 </section>
 
-<section class="py-5">
-  <div class="container">
-    <div class="text-center mb-4">
-      <h2 class="fw-bold">Which one are you?</h2>
-      <p class="text-muted">One platform, three journeys.</p>
+<!-- ============ MEMBERSHIP (text left, photo right) ============ -->
+<section class="section" id="membership" style="background: var(--cream-2);">
+  <div class="container-x">
+    <div class="split reverse">
+      <div class="split-media" style="background-image: url('https://images.unsplash.com/photo-1521737604893-d14cc237f11d?w=1200&q=80');"></div>
+      <div>
+        <div class="eyebrow">02 · Membership</div>
+        <hr class="divider" style="margin-top: 1rem;">
+        <h2>One membership.<br>Every good habit.</h2>
+        <p style="margin-top: 1.5rem;">
+          Pool meeting credits with your team. Get one consolidated invoice. Manage everyone's bookings from one dashboard. Two-factor auth, GST-ready invoicing, PDF receipts — all built-in.
+        </p>
+        <div class="gap-buttons" style="margin-top: 2rem;">
+          <a class="btn-ink" href="{{ url_for('auth.register_company') }}">Bring your team</a>
+          <a class="btn-outline-ink" href="{{ url_for('auth.register_individual') }}">Join solo</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ WHO IT'S FOR — three cards ============ -->
+<section class="section">
+  <div class="container-x">
+    <div class="text-center" style="max-width: 700px; margin: 0 auto 4rem;">
+      <div class="eyebrow">03 · Who it's for</div>
+      <hr class="divider" style="margin: 1rem auto 1.5rem;">
+      <h2>Three doors.<br>Same building.</h2>
+    </div>
+    <div class="row g-0" style="border-top: 1px solid var(--line); border-bottom: 1px solid var(--line);">
+      <div class="col-md-4" style="padding: 3rem 2.5rem; border-right: 1px solid var(--line);">
+        <div class="num-serif small saffron">01</div>
+        <h3 style="margin-top: 1rem;">Individual</h3>
+        <p style="margin-top: .8rem;">Freelancers, remote workers, founders between meetings. Get a subscription. Book instantly. Meet interesting people.</p>
+        <a class="btn-ink" style="margin-top: 1rem;" href="{{ url_for('auth.register_individual') }}">Join as member</a>
+      </div>
+      <div class="col-md-4" style="padding: 3rem 2.5rem; border-right: 1px solid var(--line);">
+        <div class="num-serif small saffron">02</div>
+        <h3 style="margin-top: 1rem;">Company</h3>
+        <p style="margin-top: .8rem;">Bring your team. Pool credits. Consolidated invoices. Track allocations. Employees get email invites — no shared passwords.</p>
+        <a class="btn-ink" style="margin-top: 1rem;" href="{{ url_for('auth.register_company') }}">Register a company</a>
+      </div>
+      <div class="col-md-4" style="padding: 3rem 2.5rem;">
+        <div class="num-serif small saffron">03</div>
+        <h3 style="margin-top: 1rem;">Operator</h3>
+        <p style="margin-top: .8rem;">Run your own coworking brand on our software. Multi-tenant, per-tenant domain and branding, full back office.</p>
+        <a class="btn-ink" style="margin-top: 1rem;" href="{{ url_for('auth.pick_workspace') }}">Find your workspace</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ WHAT'S INCLUDED — dark editorial band ============ -->
+<section class="bg-ink" style="padding: 7rem 0;">
+  <div class="container-x">
+    <div class="text-center" style="max-width: 720px; margin: 0 auto 4rem;">
+      <div class="eyebrow text-saffron">04 · What's inside</div>
+      <hr class="divider" style="margin: 1rem auto 1.5rem; background: var(--cream);">
+      <h2 class="text-cream">Software that keeps up<br>with the hospitality.</h2>
     </div>
     <div class="row g-4">
-      <div class="col-md-4">
-        <div class="card role-card h-100">
-          <div class="card-body">
-            <div class="feature-icon">🧑‍💼</div>
-            <h5 class="fw-bold">Individual member</h5>
-            <p class="text-muted mb-3">Freelancers, remote-first pros, or just visiting town. Get a subscription, book seats and rooms, use meeting credits.</p>
-            <div class="d-flex gap-2">
-              <a class="btn btn-primary btn-sm" href="{{ url_for('auth.login') }}">Sign in</a>
-              <a class="btn btn-outline-dark btn-sm" href="{{ url_for('auth.register_individual') }}">Join</a>
-            </div>
-          </div>
+      <div class="col-md-6 col-lg-4">
+        <div class="flat-card on-ink" style="height: 100%;">
+          <div class="eyebrow text-saffron">Booking</div>
+          <h3 class="text-cream" style="margin-top: .8rem;">Instant availability</h3>
+          <p style="color: rgba(251,247,240,.7); margin-top: .8rem;">Hot desks, private offices, meeting rooms. Cancel with automatic credit refund. Waitlist and recurring bookings included.</p>
         </div>
       </div>
-      <div class="col-md-4">
-        <div class="card role-card company h-100">
-          <div class="card-body">
-            <div class="feature-icon purple">🏢</div>
-            <h5 class="fw-bold">Company</h5>
-            <p class="text-muted mb-3">Bring your team. Manage employees, pool credits, get one consolidated invoice, and track everyone's bookings.</p>
-            <div class="d-flex gap-2">
-              <a class="btn btn-primary btn-sm" href="{{ url_for('auth.login') }}">Sign in</a>
-              <a class="btn btn-outline-dark btn-sm" href="{{ url_for('auth.register_company') }}">Register</a>
-            </div>
-          </div>
+      <div class="col-md-6 col-lg-4">
+        <div class="flat-card on-ink" style="height: 100%;">
+          <div class="eyebrow text-saffron">Day pass</div>
+          <h3 class="text-cream" style="margin-top: .8rem;">QR check-in</h3>
+          <p style="color: rgba(251,247,240,.7); margin-top: .8rem;">Members get a scannable QR. Reception verifies with one tap. Guests and visitors pre-registered by their host.</p>
         </div>
       </div>
-      <div class="col-md-4">
-        <div class="card role-card individual h-100">
-          <div class="card-body">
-            <div class="feature-icon orange">⚡</div>
-            <h5 class="fw-bold">Platform / Operator</h5>
-            <p class="text-muted mb-3">Run your coworking business. Provision tenants, brand the portal, manage locations, staff, billing, reports.</p>
-            <div class="d-flex gap-2">
-              <a class="btn btn-primary btn-sm" href="{{ url_for('auth.login') }}">Sign in</a>
-              <a class="btn btn-outline-dark btn-sm" href="{{ url_for('auth.pick_workspace') }}">Find workspace</a>
-            </div>
-          </div>
+      <div class="col-md-6 col-lg-4">
+        <div class="flat-card on-ink" style="height: 100%;">
+          <div class="eyebrow text-saffron">Billing</div>
+          <h3 class="text-cream" style="margin-top: .8rem;">India-first invoicing</h3>
+          <p style="color: rgba(251,247,240,.7); margin-top: .8rem;">GSTIN, INR, Indian number formats, UPI/NEFT/RTGS/IMPS. Credit notes, refunds, PDF invoice export.</p>
+        </div>
+      </div>
+      <div class="col-md-6 col-lg-4">
+        <div class="flat-card on-ink" style="height: 100%;">
+          <div class="eyebrow text-saffron">Community</div>
+          <h3 class="text-cream" style="margin-top: .8rem;">Member directory</h3>
+          <p style="color: rgba(251,247,240,.7); margin-top: .8rem;">Opt-in profiles. Announcements per location. Refer &amp; earn credits. Actual community, not just wifi.</p>
+        </div>
+      </div>
+      <div class="col-md-6 col-lg-4">
+        <div class="flat-card on-ink" style="height: 100%;">
+          <div class="eyebrow text-saffron">Concierge</div>
+          <h3 class="text-cream" style="margin-top: .8rem;">Tickets &amp; requests</h3>
+          <p style="color: rgba(251,247,240,.7); margin-top: .8rem;">Broken A/C, package pickup, printing credits, locker rentals. Members submit, staff resolves. No lost emails.</p>
+        </div>
+      </div>
+      <div class="col-md-6 col-lg-4">
+        <div class="flat-card on-ink" style="height: 100%;">
+          <div class="eyebrow text-saffron">Security</div>
+          <h3 class="text-cream" style="margin-top: .8rem;">Enterprise-grade</h3>
+          <p style="color: rgba(251,247,240,.7); margin-top: .8rem;">Two-factor auth (TOTP), rate limiting, full audit log with CSV export, per-tenant data isolation.</p>
         </div>
       </div>
     </div>
   </div>
 </section>
 
-<section class="py-5" style="background: white;">
-  <div class="container">
-    <div class="text-center mb-5">
-      <h2 class="fw-bold">Everything a coworking space needs.</h2>
-      <p class="text-muted lead">From single-location startups to multi-city operators.</p>
-    </div>
-    <div class="row g-4">
-      <div class="col-md-6 col-lg-4">
-        <div class="feature-icon">📅</div>
-        <h5 class="fw-bold mb-2">Real-time booking</h5>
-        <p class="text-muted">Hot desks, dedicated desks, private offices, meeting rooms — all bookable by the hour, day, or month with live availability, cancellation policies, waitlist and recurring bookings.</p>
-      </div>
-      <div class="col-md-6 col-lg-4">
-        <div class="feature-icon purple">💳</div>
-        <h5 class="fw-bold mb-2">Invoicing & payments</h5>
-        <p class="text-muted">Automated monthly billing, credit notes, refunds. UPI, NEFT, RTGS, IMPS, cards, cheques — India-first from day one. PDF invoice export.</p>
-      </div>
-      <div class="col-md-6 col-lg-4">
-        <div class="feature-icon orange">📱</div>
-        <h5 class="fw-bold mb-2">Day-pass QR check-in</h5>
-        <p class="text-muted">Members book a day pass, receive a QR. Reception scans it. No paper, no wait.</p>
-      </div>
-      <div class="col-md-6 col-lg-4">
-        <div class="feature-icon">👥</div>
-        <h5 class="fw-bold mb-2">Multi-tenant SaaS</h5>
-        <p class="text-muted">Run many coworking brands from one deployment. Per-tenant branding, domain mapping, localisation, tax config, custom email templates.</p>
-      </div>
-      <div class="col-md-6 col-lg-4">
-        <div class="feature-icon purple">🎫</div>
-        <h5 class="fw-bold mb-2">Guest passes & visitors</h5>
-        <p class="text-muted">Companies issue guest passes. Members pre-register visitors. Reception checks them in and out.</p>
-      </div>
-      <div class="col-md-6 col-lg-4">
-        <div class="feature-icon orange">📊</div>
-        <h5 class="fw-bold mb-2">Reports that ship</h5>
-        <p class="text-muted">Occupancy, financials, subscriptions, people, capacity heatmaps. All with Chart.js and CSV export from the audit log.</p>
-      </div>
-      <div class="col-md-6 col-lg-4">
-        <div class="feature-icon">🔐</div>
-        <h5 class="fw-bold mb-2">Enterprise security</h5>
-        <p class="text-muted">Password reset by email, two-factor auth (TOTP), rate limiting, a full audit log with filters and CSV export, session hardening.</p>
-      </div>
-      <div class="col-md-6 col-lg-4">
-        <div class="feature-icon purple">💼</div>
-        <h5 class="fw-bold mb-2">Staff, payroll, expenses</h5>
-        <p class="text-muted">Track your operations team. Salaries, payroll runs, expense claims with approve / reject / pay workflow.</p>
-      </div>
-      <div class="col-md-6 col-lg-4">
-        <div class="feature-icon orange">✨</div>
-        <h5 class="fw-bold mb-2">Community built-in</h5>
-        <p class="text-muted">Member directory, announcements, support tickets, printing credits, lockers, referrals — the WeWork playbook, out of the box.</p>
-      </div>
+<!-- ============ STORY / QUOTE ============ -->
+<section class="section" id="story">
+  <div class="container-x">
+    <div style="max-width: 800px; margin: 0 auto; text-align: center;">
+      <div class="eyebrow">05 · The story</div>
+      <hr class="divider" style="margin: 1rem auto 2rem;">
+      <p class="serif" style="font-size: clamp(1.5rem, 3vw, 2.25rem); line-height: 1.35; color: var(--ink); font-weight: 500; font-style: italic;">
+        “A workspace should feel like a favourite café, run like a boutique hotel, and be operated with the software of a global brand.”
+      </p>
+      <div class="eyebrow" style="margin-top: 2rem;">— Our founding thesis</div>
     </div>
   </div>
 </section>
 
-<section class="py-5" style="background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); color: white;">
-  <div class="container text-center">
-    <h2 class="fw-bold mb-3">Ready to move in?</h2>
-    <p class="lead mb-4" style="opacity:.85;">Create an account in under a minute.</p>
-    <div class="d-flex justify-content-center gap-2 flex-wrap">
-      <a class="btn btn-light btn-lg" href="{{ url_for('auth.register_individual') }}">Join as member</a>
-      <a class="btn btn-outline-light btn-lg" href="{{ url_for('auth.register_company') }}">Register a company</a>
+<!-- ============ CTA ============ -->
+<section class="bg-ink" style="padding: 6rem 0;">
+  <div class="container-x text-center">
+    <h2 class="text-cream">Come find your table.</h2>
+    <p class="text-cream" style="opacity: .8; max-width: 500px; margin: 1rem auto 2rem;">
+      Sign up in a minute. Walk in tomorrow.
+    </p>
+    <div class="gap-buttons" style="justify-content: center;">
+      <a class="btn-saffron" href="{{ url_for('auth.register_individual') }}">Join as member</a>
+      <a class="btn-outline-ink" style="color: var(--cream); border-color: var(--cream);" href="{{ url_for('auth.register_company') }}">Register a company</a>
     </div>
   </div>
 </section>
 
-<footer class="py-4 border-top" style="background:#f8fafc;">
-  <div class="container d-flex justify-content-between align-items-center flex-wrap gap-2">
-    <div>© {{ tenant.name if tenant else app_name }} · India-first coworking platform</div>
-    <div>
-      <a class="text-muted me-3" href="{{ url_for('auth.login') }}">Sign in</a>
-      <a class="text-muted" href="{{ url_for('auth.pick_workspace') }}">Find workspace</a>
+<!-- ============ FOOTER ============ -->
+<footer class="editorial">
+  <div class="container-x">
+    <div class="row g-4" style="margin-bottom: 3rem;">
+      <div class="col-md-4">
+        <div class="brand" style="font-family: 'Cormorant Garamond', serif; font-size: 1.6rem; font-weight: 700; display: inline-flex; align-items: center; gap: .5rem;">
+          <span class="brand-dot" style="width: 8px; height: 8px; background: var(--saffron); border-radius: 50%;"></span>
+          {{ tenant.name if tenant else app_name }}
+        </div>
+        <p style="color: rgba(251,247,240,.65); margin-top: 1rem; max-width: 320px;">
+          {{ tenant.tagline if tenant and tenant.tagline else "A workspace as thoughtful as your work. India-first coworking platform." }}
+        </p>
+      </div>
+      <div class="col-6 col-md-2">
+        <div class="eyebrow">Explore</div>
+        <ul style="list-style: none; padding: 0; margin: 1rem 0 0;">
+          <li style="margin-bottom: .5rem;"><a href="#spaces">Spaces</a></li>
+          <li style="margin-bottom: .5rem;"><a href="#membership">Membership</a></li>
+          <li style="margin-bottom: .5rem;"><a href="#story">Story</a></li>
+        </ul>
+      </div>
+      <div class="col-6 col-md-2">
+        <div class="eyebrow">Account</div>
+        <ul style="list-style: none; padding: 0; margin: 1rem 0 0;">
+          <li style="margin-bottom: .5rem;"><a href="{{ url_for('auth.login') }}">Sign in</a></li>
+          <li style="margin-bottom: .5rem;"><a href="{{ url_for('auth.register_individual') }}">Join</a></li>
+          <li style="margin-bottom: .5rem;"><a href="{{ url_for('auth.pick_workspace') }}">Find workspace</a></li>
+        </ul>
+      </div>
+      <div class="col-md-4">
+        <div class="eyebrow">Say hello</div>
+        <p style="color: rgba(251,247,240,.65); margin-top: 1rem;">
+          {% if tenant and tenant.support_email %}{{ tenant.support_email }}{% else %}hello@coworkhub.io{% endif %}
+        </p>
+      </div>
+    </div>
+    <div style="border-top: 1px solid rgba(251,247,240,.15); padding-top: 2rem; color: rgba(251,247,240,.5); font-size: .85rem;">
+      © {{ tenant.name if tenant else app_name }} · Made in India · <a href="/healthz" style="color: rgba(251,247,240,.6);">health</a>
     </div>
   </div>
 </footer>
