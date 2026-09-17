@@ -13,6 +13,7 @@ from ._mixins import PkMixin, TimestampMixin
 
 class UserRole(str, enum.Enum):
     SUPER_ADMIN = "super_admin"        # Platform owner — full access
+    MANAGER = "manager"                # CoWorkHub operations manager (day-to-day, no destructive actions)
     LOCATION_MANAGER = "location_manager"  # Manages a specific location
     COMPANY_ADMIN = "company_admin"    # Admin of a subscribing company
     EMPLOYEE = "employee"              # Employee of a subscribing company
@@ -60,12 +61,16 @@ class User(db.Model, PkMixin, TimestampMixin, UserMixin):
         return self.role == UserRole.SUPER_ADMIN
 
     @property
+    def is_manager(self) -> bool:
+        return self.role == UserRole.MANAGER
+
+    @property
     def is_location_manager(self) -> bool:
         return self.role == UserRole.LOCATION_MANAGER
 
     @property
     def is_admin(self) -> bool:
-        return self.role in {UserRole.SUPER_ADMIN, UserRole.LOCATION_MANAGER}
+        return self.role in {UserRole.SUPER_ADMIN, UserRole.MANAGER, UserRole.LOCATION_MANAGER}
 
     @property
     def is_company_admin(self) -> bool:

@@ -8,7 +8,7 @@ and individual members.
 
 | Area | Capabilities |
 |------|--------------|
-| **Auth** | Email/password login, role-based access (Super Admin, Location Manager, Company Admin, Employee, Individual), password reset hooks |
+| **Auth** | Email/password login, role-based access (Super Admin, CoWorkHub Manager, Location Manager, Company Admin, Employee, Individual), password reset hooks |
 | **Locations** | Multi-city, multi-building, multi-floor hierarchy with amenities and operating hours |
 | **Workspaces** | Hot desks, dedicated desks, private offices, and conference rooms with capacity, amenities, hourly/daily/monthly rates |
 | **Companies** | Company onboarding, KYC document uploads (S3), employee roster, seat/office allocations, credit pools |
@@ -16,6 +16,7 @@ and individual members.
 | **Bookings** | Real-time seat booking, conference room booking with conflict detection, recurring bookings, check-in/check-out, cancellation policy |
 | **Admin console** | Manage locations, floors, seats, rooms, pricing plans, companies, invoices, documents, occupancy analytics |
 | **Back office** | Staff members, salary structures, monthly payroll runs, expense management (categories, receipts, approvals), credit notes, refunds, editable email templates |
+| **Reports** | Occupancy (booking volume, top rooms, per-location inventory), Financials (revenue vs expenses trend, AR aging, invoice status), Subscriptions (MRR/ARR, plan mix, top customers), People (staff by department, new members, headcount) |
 | **Company console** | Onboard/offboard employees, allocate seats, view invoices, manage credits, upload company documents |
 | **Employee/Individual** | Book seats and rooms, view bookings, download invoices, manage profile |
 | **Billing** | Auto-generated monthly invoices, per-booking usage charges, credit tracking, downloadable PDFs (stub) |
@@ -111,7 +112,9 @@ promoting this environment.**
 
 | Role | Email | Password | What they can do |
 |------|-------|----------|------------------|
-| Super Admin | `admin@coworkhub.io` | `ChangeMe123!` | Manage all locations, seats, rooms, plans, companies, invoices, billing |
+| Super Admin | `admin@coworkhub.io` | `ChangeMe123!` | Full access. Manage locations, pricing plans, staff terminations, payroll approvals, invoice voids, credit-note cancellations, refund settlements, email-template deletion. |
+| **CoWorkHub Manager** | `manager@coworkhub.io` | `ChangeMe123!` | Day-to-day operations. Companies, staff, expenses (approve/reject/pay), invoices (line items, payments), credit notes (issue), refunds (issue), booking allocations, reports. Cannot create locations, edit pricing plans, terminate staff, run/approve payroll, void invoices, or delete templates. |
+| Location Manager | *(none seeded)* | — | Same as Manager but scoped to a specific location. |
 | Company Admin (Acme Robotics) | `jane@acme.example` | `ChangeMe123!` | Manage Acme's employees, subscriptions, allocations, invoices |
 | Employee (Acme Robotics) | `bob@acme.example` | `ChangeMe123!` | Book seats/rooms; view own bookings |
 | Individual member | `alex@example.com` | `ChangeMe123!` | Book seats/rooms; view own bookings |

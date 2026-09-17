@@ -12,7 +12,7 @@ from ...models import (
     Location, StaffMember, Document, DocumentKind,
 )
 from ...services.storage import storage_service
-from ...utils.decorators import admin_required, super_admin_required
+from ...utils.decorators import admin_required, manager_or_super_required
 from .forms import ExpenseCategoryForm, ExpenseForm, ExpenseDecisionForm
 
 
@@ -119,7 +119,7 @@ def register_expense_routes(bp):
         return render_template("admin/expenses/detail.html", expense=exp, form=form)
 
     @bp.route("/expenses/<int:exp_id>/approve", methods=["POST"])
-    @super_admin_required
+    @manager_or_super_required
     def expense_approve(exp_id: int):
         exp = Expense.query.get_or_404(exp_id)
         exp.status = ExpenseStatus.APPROVED
@@ -130,7 +130,7 @@ def register_expense_routes(bp):
         return redirect(url_for("admin.expense_detail", exp_id=exp.id))
 
     @bp.route("/expenses/<int:exp_id>/reject", methods=["POST"])
-    @super_admin_required
+    @manager_or_super_required
     def expense_reject(exp_id: int):
         from flask import request
         exp = Expense.query.get_or_404(exp_id)
@@ -143,7 +143,7 @@ def register_expense_routes(bp):
         return redirect(url_for("admin.expense_detail", exp_id=exp.id))
 
     @bp.route("/expenses/<int:exp_id>/mark-paid", methods=["POST"])
-    @super_admin_required
+    @manager_or_super_required
     def expense_mark_paid(exp_id: int):
         exp = Expense.query.get_or_404(exp_id)
         exp.status = ExpenseStatus.PAID

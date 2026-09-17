@@ -15,7 +15,7 @@ from ...models import (
     Document, DocumentKind, CompanyDocument, Invoice,
 )
 from ...services.storage import storage_service
-from ...utils.decorators import admin_required, super_admin_required
+from ...utils.decorators import admin_required, super_admin_required, manager_or_super_required
 from .forms import (
     LocationForm, FloorForm, SeatForm, RoomForm, PricingPlanForm,
     CompanyForm, AllocationForm, DocumentUploadForm,
@@ -235,7 +235,7 @@ def companies_list():
 
 
 @admin_bp.route("/companies/new", methods=["GET", "POST"])
-@super_admin_required
+@manager_or_super_required
 def company_new():
     form = CompanyForm()
     if form.validate_on_submit():
@@ -256,7 +256,7 @@ def company_detail(company_id: int):
 
 
 @admin_bp.route("/companies/<int:company_id>/edit", methods=["GET", "POST"])
-@super_admin_required
+@manager_or_super_required
 def company_edit(company_id: int):
     c = Company.query.get_or_404(company_id)
     form = CompanyForm(obj=c)
@@ -359,7 +359,7 @@ def invoices_list():
 
 
 @admin_bp.route("/billing/run", methods=["POST"])
-@super_admin_required
+@manager_or_super_required
 def billing_run():
     from ...services.billing_service import run_monthly_billing
     invoices = run_monthly_billing()

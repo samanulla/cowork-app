@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% block title %}Financials report{% endblock %}
+
+{% block content %}
+<div class="d-flex align-items-center gap-3 mb-3">
+  <h3 class="mb-0">Financials</h3>
+  <span class="text-muted small">rolling 12 months</span>
+  <a class="ms-auto btn btn-sm btn-outline-secondary" href="{{ url_for('admin.reports_home') }}">All reports</a>
+</div>
+
+<div class="row g-3 mb-4">
+  {% for label, val, color in [
+    ("Revenue (12mo)", totals.revenue_12mo, "success"),
+    ("Refunds (12mo)", totals.refunds_12mo, "warning"),
+    ("Expenses (12mo)", totals.expenses_12mo, "danger"),
+    ("Net (12mo)", totals.net_12mo, "info"),
+    ("Outstanding AR", totals.outstanding, "secondary"),
+    ("Overdue AR", totals.overdue, "danger"),
+  ] %}
+  <div class="col-6 col-md-4 col-lg-2">
+    <div class="card card-stat h-100"><div class="card-body">
+      <div class="text-muted small">{{ label }}</div>
+      <div class="stat-value text-{{ color }}">${{ '%.0f'|format(val) }}</div>
+    </div></div>
+  </div>
+  {% endfor %}
+</div>
+
+<div class="card mb-3"><div class="card-body">
+  <h6>Revenue vs Expenses (monthly)</h6>
+  <canvas id="chartFin" height="90"></canvas>
+</div></div>
+
+<div class="row g-3">
+  <div class="col-md-6"><div class="card"><div class="card-body">
+    <h6>Invoice status</h6>
+    <canvas id="chartStatus" height="180"></canvas>
+  </div></div></div>
+
+  <div class="col-md-6"><div class="card"><div class="card-body">
+    <h6>AR aging</h6>
+    <table class="table table-sm mb-0">
+      <thead><tr><th>Bucket</th><th class="text-end">Amount</th></tr></thead>
+      <tbody>
+        {% for bucket, val in aging.items() %}
+          <tr><td>{{ bucket }} days</td><td class="text-end">${{ val }}</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div></div></div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<script>
+  new Chart(document.getElementById('chartFin'), {
+    type: 'bar',
+    data: {
+      labels: {{ months | tojson }},
+      datasets: [
+        { label: 'Revenue', data: {{ revenue_series | tojson }}, backgroundColor: 'rgba(15,118,110,0.7)' },
+        { label: 'Refunds', data: {{ refund_series | tojson }}, backgroundColor: 'rgba(234,179,8,0.7)' },
+        { label: 'Expenses', data: {{ expense_series | tojson }}, backgroundColor: 'rgba(220,38,38,0.7)' },
+        { label: 'Net', data: {{ net_series | tojson }}, type: 'line', borderColor: '#0f172a', backgroundColor: 'transparent', tension: 0.3 }
+      ]
+    },
+    options: { responsive: true, plugins: { legend: { position: 'top' } } }
+  });
+
+  new Chart(document.getElementById('chartStatus'), {
+    type: 'doughnut',
+    data: {
+      labels: {{ status_counts.keys() | list | tojson }},
+      datasets: [{
+        data: {{ status_counts.values() | list | tojson }},
+        backgroundColor: ['#0f766e','#eab308','#dc2626','#6b7280','#0ea5e9','#a855f7']
+      }]
+    }
+  });
+</script>
+{% endblock %}

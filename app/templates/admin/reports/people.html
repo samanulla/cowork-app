@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+{% block title %}People report{% endblock %}
+
+{% block content %}
+<div class="d-flex align-items-center gap-3 mb-3">
+  <h3 class="mb-0">People</h3>
+  <a class="ms-auto btn btn-sm btn-outline-secondary" href="{{ url_for('admin.reports_home') }}">All reports</a>
+</div>
+
+<div class="row g-3 mb-4">
+  {% for label, val in [
+    ("Active staff", totals.active_staff),
+    ("Total staff", totals.total_staff),
+    ("Members", totals.members),
+    ("Companies", totals.companies),
+    ("Active companies", totals.active_companies),
+    ("Total users", totals.total_users),
+  ] %}
+  <div class="col-6 col-md-4 col-lg-2">
+    <div class="card card-stat h-100"><div class="card-body">
+      <div class="text-muted small">{{ label }}</div>
+      <div class="stat-value">{{ val }}</div>
+    </div></div>
+  </div>
+  {% endfor %}
+</div>
+
+<div class="row g-3">
+  <div class="col-md-6"><div class="card"><div class="card-body">
+    <h6>Staff by department</h6>
+    <canvas id="chartDept" height="200"></canvas>
+  </div></div></div>
+
+  <div class="col-md-6"><div class="card"><div class="card-body">
+    <h6>New members per month</h6>
+    <canvas id="chartMembers" height="200"></canvas>
+  </div></div></div>
+</div>
+
+<div class="row g-3 mt-1">
+  <div class="col-md-4"><div class="card h-100"><div class="card-body">
+    <h6>Users by role</h6>
+    <table class="table table-sm mb-0">
+      {% for k, v in role_counts.items() %}
+        <tr><td>{{ k.replace('_',' ') }}</td><td class="text-end">{{ v }}</td></tr>
+      {% endfor %}
+    </table>
+  </div></div></div>
+
+  <div class="col-md-4"><div class="card h-100"><div class="card-body">
+    <h6>Companies by status</h6>
+    <table class="table table-sm mb-0">
+      {% for k, v in company_status.items() %}
+        <tr><td>{{ k }}</td><td class="text-end">{{ v }}</td></tr>
+      {% endfor %}
+    </table>
+  </div></div></div>
+
+  <div class="col-md-4"><div class="card h-100"><div class="card-body">
+    <h6>Top companies by headcount</h6>
+    <table class="table table-sm mb-0">
+      <thead><tr><th>Company</th><th class="text-end">Users</th></tr></thead>
+      <tbody>
+        {% for name, n in top_companies %}
+          <tr><td>{{ name }}</td><td class="text-end">{{ n }}</td></tr>
+        {% else %}
+          <tr><td colspan="2" class="text-muted text-center py-3">No companies.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div></div></div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<script>
+  new Chart(document.getElementById('chartDept'), {
+    type: 'bar',
+    data: {
+      labels: {{ dept_labels | tojson }},
+      datasets: [{ label: 'Active staff', data: {{ dept_values | tojson }}, backgroundColor: '#0f766e' }]
+    },
+    options: { plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
+  });
+
+  new Chart(document.getElementById('chartMembers'), {
+    type: 'line',
+    data: {
+      labels: {{ months | tojson }},
+      datasets: [{ label: 'New members', data: {{ new_members_series | tojson }}, tension: 0.3 }]
+    },
+    options: { plugins: { legend: { display: false } } }
+  });
+</script>
+{% endblock %}

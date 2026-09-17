@@ -105,7 +105,7 @@ def register_company():
 def post_login_redirect():
     """Route logged-in users to their home based on role."""
     role = current_user.role
-    if role == UserRole.SUPER_ADMIN or role == UserRole.LOCATION_MANAGER:
+    if role in (UserRole.SUPER_ADMIN, UserRole.MANAGER, UserRole.LOCATION_MANAGER):
         return redirect(url_for("admin.dashboard"))
     if role == UserRole.COMPANY_ADMIN:
         return redirect(url_for("company.dashboard"))

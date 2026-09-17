@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+{% block title %}Subscriptions report{% endblock %}
+
+{% block content %}
+<div class="d-flex align-items-center gap-3 mb-3">
+  <h3 class="mb-0">Subscriptions</h3>
+  <a class="ms-auto btn btn-sm btn-outline-secondary" href="{{ url_for('admin.reports_home') }}">All reports</a>
+</div>
+
+<div class="row g-3 mb-4">
+  {% for label, val in [
+    ("MRR", '$%.0f' | format(mrr)),
+    ("ARR", '$%.0f' | format(arr)),
+    ("Active subs", active_total),
+    ("Companies with subs", active_companies),
+    ("Individuals with subs", active_individuals),
+  ] %}
+  <div class="col-6 col-md-4 col-lg-2">
+    <div class="card card-stat h-100"><div class="card-body">
+      <div class="text-muted small">{{ label }}</div>
+      <div class="stat-value">{{ val }}</div>
+    </div></div>
+  </div>
+  {% endfor %}
+</div>
+
+<div class="row g-3">
+  <div class="col-md-6"><div class="card"><div class="card-body">
+    <h6>Subscription status</h6>
+    <table class="table table-sm mb-0">
+      <thead><tr><th>Status</th><th class="text-end">Count</th></tr></thead>
+      <tbody>
+        {% for k, v in subs_by_status.items() %}
+          <tr><td>{{ k }}</td><td class="text-end">{{ v }}</td></tr>
+        {% else %}
+          <tr><td colspan="2" class="text-muted text-center py-3">No subscriptions.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div></div></div>
+
+  <div class="col-md-6"><div class="card"><div class="card-body">
+    <h6>Active plan mix (seats/users)</h6>
+    <canvas id="chartPlans" height="200"></canvas>
+  </div></div></div>
+</div>
+
+<div class="card mt-3"><div class="card-body">
+  <h6>Top companies by monthly subscription value</h6>
+  <table class="table table-sm mb-0">
+    <thead><tr><th>Company</th><th class="text-end">Monthly total</th></tr></thead>
+    <tbody>
+      {% for name, val in top_companies %}
+        <tr><td>{{ name }}</td><td class="text-end">${{ val }}</td></tr>
+      {% else %}
+        <tr><td colspan="2" class="text-muted text-center py-3">No active company subscriptions.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div></div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<script>
+  new Chart(document.getElementById('chartPlans'), {
+    type: 'pie',
+    data: {
+      labels: {{ plan_labels | tojson }},
+      datasets: [{
+        data: {{ plan_values | tojson }},
+        backgroundColor: ['#0f766e','#eab308','#dc2626','#0ea5e9','#a855f7','#22c55e']
+      }]
+    }
+  });
+</script>
+{% endblock %}

@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+{% block title %}Occupancy report{% endblock %}
+
+{% block content %}
+<div class="d-flex align-items-center gap-3 mb-3">
+  <h3 class="mb-0">Occupancy</h3>
+  <span class="text-muted small">last {{ window_days }} days</span>
+  <a class="ms-auto btn btn-sm btn-outline-secondary" href="{{ url_for('admin.reports_home') }}">All reports</a>
+</div>
+
+<div class="row g-3 mb-4">
+  {% for label, val in [
+    ("Hot desks", totals.hot_desks),
+    ("Dedicated desks", totals.dedicated_desks),
+    ("Private offices", totals.private_offices),
+    ("Rooms", totals.rooms),
+    ("Seat bookings 30d", totals.seat_bookings_30d),
+    ("Room bookings 30d", totals.room_bookings_30d),
+  ] %}
+  <div class="col-6 col-md-4 col-lg-2">
+    <div class="card card-stat h-100"><div class="card-body">
+      <div class="text-muted small">{{ label }}</div>
+      <div class="stat-value">{{ val }}</div>
+    </div></div>
+  </div>
+  {% endfor %}
+</div>
+
+<div class="card mb-3"><div class="card-body">
+  <h6>Daily booking volume</h6>
+  <canvas id="chartVolume" height="90"></canvas>
+</div></div>
+
+<div class="row g-3">
+  <div class="col-md-6"><div class="card h-100"><div class="card-body">
+    <h6>Top conference rooms</h6>
+    <table class="table table-sm mb-0">
+      <thead><tr><th>Room</th><th>Location</th><th class="text-end">Bookings</th></tr></thead>
+      <tbody>
+        {% for name, loc, n in top_rooms %}
+          <tr><td>{{ name }}</td><td>{{ loc }}</td><td class="text-end">{{ n }}</td></tr>
+        {% else %}
+          <tr><td colspan="3" class="text-muted text-center py-3">No bookings yet.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div></div></div>
+
+  <div class="col-md-6"><div class="card h-100"><div class="card-body">
+    <h6>Inventory by location</h6>
+    <table class="table table-sm mb-0">
+      <thead><tr><th>Location</th><th>Hot</th><th>Ded</th><th>Priv</th><th>Rooms</th><th class="text-end">Bookings 30d</th></tr></thead>
+      <tbody>
+        {% for l in loc_stats %}
+        <tr>
+          <td>{{ l.name }}</td>
+          <td>{{ l.hot }}</td>
+          <td>{{ l.dedicated }}</td>
+          <td>{{ l.private }}</td>
+          <td>{{ l.rooms }}</td>
+          <td class="text-end">{{ l.bookings_30d }}</td>
+        </tr>
+        {% else %}
+          <tr><td colspan="6" class="text-muted text-center py-3">No locations.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div></div></div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<script>
+  new Chart(document.getElementById('chartVolume'), {
+    type: 'line',
+    data: {
+      labels: {{ labels | tojson }},
+      datasets: [
+        { label: 'Seat bookings', data: {{ seat_series | tojson }}, tension: 0.3 },
+        { label: 'Room bookings', data: {{ room_series | tojson }}, tension: 0.3 }
+      ]
+    },
+    options: { responsive: true, plugins: { legend: { position: 'top' } } }
+  });
+</script>
+{% endblock %}

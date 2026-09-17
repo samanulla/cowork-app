@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block title %}Reports{% endblock %}
+
+{% block content %}
+<h3>Reports</h3>
+<p class="text-muted">Choose a report to open.</p>
+
+<div class="row g-3">
+  <div class="col-md-6 col-lg-3">
+    <a class="card text-decoration-none text-body h-100" href="{{ url_for('admin.report_occupancy') }}">
+      <div class="card-body">
+        <i class="bi bi-graph-up fs-2 text-teal"></i>
+        <h5 class="mt-2">Occupancy</h5>
+        <p class="text-muted small mb-0">Booking volume, top rooms, seat utilization by location.</p>
+      </div>
+    </a>
+  </div>
+  <div class="col-md-6 col-lg-3">
+    <a class="card text-decoration-none text-body h-100" href="{{ url_for('admin.report_financials') }}">
+      <div class="card-body">
+        <i class="bi bi-cash-coin fs-2"></i>
+        <h5 class="mt-2">Financials</h5>
+        <p class="text-muted small mb-0">Revenue, refunds, expenses, AR aging, invoice status.</p>
+      </div>
+    </a>
+  </div>
+  <div class="col-md-6 col-lg-3">
+    <a class="card text-decoration-none text-body h-100" href="{{ url_for('admin.report_subscriptions') }}">
+      <div class="card-body">
+        <i class="bi bi-arrow-repeat fs-2"></i>
+        <h5 class="mt-2">Subscriptions</h5>
+        <p class="text-muted small mb-0">MRR / ARR, plan mix, top-value customers.</p>
+      </div>
+    </a>
+  </div>
+  <div class="col-md-6 col-lg-3">
+    <a class="card text-decoration-none text-body h-100" href="{{ url_for('admin.report_people') }}">
+      <div class="card-body">
+        <i class="bi bi-people-fill fs-2"></i>
+        <h5 class="mt-2">People</h5>
+        <p class="text-muted small mb-0">Staff, members, companies, new signups.</p>
+      </div>
+    </a>
+  </div>
+</div>
+{% endblock %}

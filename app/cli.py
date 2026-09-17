@@ -55,6 +55,15 @@ def seed_demo_cmd() -> None:
         db.session.add(admin)
         click.echo(f"Seeded super admin: {email}")
 
+    # --- CoWorkHub manager (day-to-day operations) ---
+    manager_email = "manager@coworkhub.io"
+    if not User.query.filter_by(email=manager_email).first():
+        mgr = User(email=manager_email, full_name="Operations Manager",
+                   role=UserRole.MANAGER, is_active=True, email_verified=True)
+        mgr.set_password("ChangeMe123!")
+        db.session.add(mgr)
+        click.echo(f"Seeded manager: {manager_email}")
+
     # --- amenities ---
     amenity_names = ["Wi-Fi", "Coffee", "Printing", "Phone booths", "Kitchen", "Shower", "Bike storage"]
     for n in amenity_names:
