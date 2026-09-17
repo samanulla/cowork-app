@@ -162,6 +162,30 @@ Additional Platform Owner accounts can be created without running `seed-demo`:
 flask --app wsgi.py create-admin --email you@coworkhub.io --password ChangeMe123! --platform-owner
 ```
 
+## Resetting the database (clear test / synthetic data)
+
+If you've been poking around and want to wipe everything back to a clean seed
+state — including test tenants, users, bookings, invoices, etc. — do this:
+
+```powershell
+# 1) drop and recreate the DB (fastest and 100% clean)
+docker compose exec db psql -U coworkhub -d postgres -c "DROP DATABASE coworkhub;"
+docker compose exec db psql -U coworkhub -d postgres -c "CREATE DATABASE coworkhub;"
+
+# 2) rerun migrations
+Remove-Item Env:\FLASK_ENV -ErrorAction SilentlyContinue
+$env:DATABASE_URL = "postgresql+psycopg2://coworkhub:coworkhub@localhost:5432/coworkhub"
+flask --app wsgi.py db upgrade
+
+# 3) reseed the default tenant + demo accounts
+flask --app wsgi.py seed-demo
+```
+
+Or, if you just want to blow away a single test tenant (e.g. `adyar`) without
+touching the rest, use the platform-owner UI at `/platform/tenants` and delete
+it — the `ON DELETE CASCADE` on every `tenant_id` FK will remove all of its
+users, companies, locations, invoices, and bookings.
+
 ## Deploying to AWS
 
 See [`deploy/aws-setup.md`](deploy/aws-setup.md) for a step-by-step production

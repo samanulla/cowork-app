@@ -182,12 +182,17 @@ Platform Owner              Tenant Super Admin / Manager        Company Admin   
 
 ## 9. Known gaps / roadmap
 
-- **Password change UI** for users (currently only settable at creation).
-- **Password reset** via email token.
+Completed (Phase 1):
+- ✅ **Password change UI** — logged-in users at `/auth/change-password`.
+- ✅ **Password reset via email token** — `/auth/forgot-password` sends an itsdangerous-signed link with 2-hour TTL; reset at `/auth/reset-password/<token>`.
+- ✅ **Transactional email via SMTP** (Flask-Mail; SES-compatible). `MAIL_SUPPRESS_SEND=true` for local/CI.
+- ✅ **Workspace picker** at `/auth/pick-workspace` — for users who don't know their tenant subdomain.
+
+Still open:
 - **Email invite** flow for employees (today: admin gives them a temp password out-of-band).
 - **Wildcard-cert automation** for tenant custom domains.
-- **Platform-side subscription billing** (charging tenants for the SaaS itself) — deferred; platform-admin does not need to see per-tenant company/individual pricing.
 - **Two-factor authentication.**
+- **Platform-side subscription billing** (charging tenants for the SaaS itself) — deferred.
 - **Read replicas** for report queries.
 
 ---

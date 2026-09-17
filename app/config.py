@@ -47,6 +47,7 @@ class BaseConfig:
     MAIL_USERNAME = os.getenv("MAIL_USERNAME") or None
     MAIL_PASSWORD = os.getenv("MAIL_PASSWORD") or None
     MAIL_DEFAULT_SENDER = os.getenv("MAIL_DEFAULT_SENDER", "no-reply@coworkhub.io")
+    MAIL_SUPPRESS_SEND = _bool("MAIL_SUPPRESS_SEND", False)
 
     # Booking policy
     BOOKING_MIN_ADVANCE_MINUTES = int(os.getenv("BOOKING_MIN_ADVANCE_MINUTES", "15"))
@@ -78,6 +79,7 @@ class TestingConfig(BaseConfig):
     TESTING = True
     SQLALCHEMY_DATABASE_URI = "sqlite:///:memory:"
     WTF_CSRF_ENABLED = False
+    MAIL_SUPPRESS_SEND = True
 
 
 def get_config() -> type[BaseConfig]:

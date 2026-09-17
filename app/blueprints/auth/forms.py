@@ -33,3 +33,31 @@ class RegisterCompanyForm(FlaskForm):
     confirm = PasswordField("Confirm password",
                             validators=[DataRequired(), EqualTo("password")])
     submit = SubmitField("Create company account")
+
+
+class ForgotPasswordForm(FlaskForm):
+    email = StringField("Email", validators=[DataRequired(), Email(), Length(max=255)])
+    submit = SubmitField("Send reset link")
+
+
+class ResetPasswordForm(FlaskForm):
+    password = PasswordField("New password",
+                             validators=[DataRequired(), Length(min=8, max=200)])
+    confirm = PasswordField("Confirm new password",
+                            validators=[DataRequired(), EqualTo("password")])
+    submit = SubmitField("Reset password")
+
+
+class ChangePasswordForm(FlaskForm):
+    current_password = PasswordField("Current password",
+                                     validators=[DataRequired(), Length(max=200)])
+    password = PasswordField("New password",
+                             validators=[DataRequired(), Length(min=8, max=200)])
+    confirm = PasswordField("Confirm new password",
+                            validators=[DataRequired(), EqualTo("password")])
+    submit = SubmitField("Change password")
+
+
+class TenantPickerForm(FlaskForm):
+    workspace = StringField("Workspace slug", validators=[DataRequired(), Length(max=40)])
+    submit = SubmitField("Continue")

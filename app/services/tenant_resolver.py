@@ -51,6 +51,7 @@ def install(app: Flask) -> None:
             tid = app.config.get("TENANT_ID")
             if tid:
                 g.tenant = db.session.get(Tenant, int(tid))
+                g.tenant_id = int(tid) if g.tenant else None
                 return
 
         host = (request.host or "").split(":")[0].lower()
@@ -59,6 +60,7 @@ def install(app: Flask) -> None:
             # Fallback for localhost / unknown host: use the first tenant.
             t = Tenant.default()
         g.tenant = t
+        g.tenant_id = t.id if t is not None else None
 
     @event.listens_for(Session, "do_orm_execute")
     def _apply_tenant_filter(orm_execute_state):
@@ -68,11 +70,10 @@ def install(app: Flask) -> None:
             return
         if not has_request_context():
             return
-        tenant = getattr(g, "tenant", None)
-        if tenant is None:
+        tid = getattr(g, "tenant_id", None)
+        if tid is None:
             return
 
-        tid = tenant.id
         opts = []
         for cls in _tenant_scoped_classes():
             opts.append(
