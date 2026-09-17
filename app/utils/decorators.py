@@ -33,15 +33,20 @@ def roles_required(*roles: UserRole):
 
 
 def admin_required(view):
-    return roles_required(UserRole.SUPER_ADMIN, UserRole.MANAGER, UserRole.LOCATION_MANAGER)(view)
+    return roles_required(UserRole.PLATFORM_OWNER, UserRole.SUPER_ADMIN,
+                          UserRole.MANAGER, UserRole.LOCATION_MANAGER)(view)
 
 
 def super_admin_required(view):
-    return roles_required(UserRole.SUPER_ADMIN)(view)
+    return roles_required(UserRole.PLATFORM_OWNER, UserRole.SUPER_ADMIN)(view)
 
 
 def manager_or_super_required(view):
-    return roles_required(UserRole.SUPER_ADMIN, UserRole.MANAGER)(view)
+    return roles_required(UserRole.PLATFORM_OWNER, UserRole.SUPER_ADMIN, UserRole.MANAGER)(view)
+
+
+def platform_owner_required(view):
+    return roles_required(UserRole.PLATFORM_OWNER)(view)
 
 
 def company_admin_required(view):

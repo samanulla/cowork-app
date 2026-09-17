@@ -7,6 +7,7 @@ from sqlalchemy.orm import relationship
 
 from ..extensions import db
 from ._mixins import PkMixin, TimestampMixin
+from .tenant import TenantScoped
 
 
 class ExpenseStatus(str, enum.Enum):
@@ -17,8 +18,11 @@ class ExpenseStatus(str, enum.Enum):
     PAID = "paid"
 
 
-class ExpenseCategory(db.Model, PkMixin, TimestampMixin):
+class ExpenseCategory(db.Model, PkMixin, TimestampMixin, TenantScoped):
     __tablename__ = "expense_categories"
+
+    tenant_id = Column(Integer, ForeignKey("tenants.id", ondelete="CASCADE"),
+                       nullable=True, index=True)
 
     name = Column(String(120), nullable=False, unique=True)
     description = Column(Text)
@@ -27,8 +31,11 @@ class ExpenseCategory(db.Model, PkMixin, TimestampMixin):
     expenses = relationship("Expense", back_populates="category")
 
 
-class Expense(db.Model, PkMixin, TimestampMixin):
+class Expense(db.Model, PkMixin, TimestampMixin, TenantScoped):
     __tablename__ = "expenses"
+
+    tenant_id = Column(Integer, ForeignKey("tenants.id", ondelete="CASCADE"),
+                       nullable=True, index=True)
 
     category_id = Column(Integer, ForeignKey("expense_categories.id", ondelete="RESTRICT"),
                          nullable=False, index=True)

@@ -59,6 +59,9 @@ def register_individual():
     if current_user.is_authenticated:
         return redirect(url_for("auth.post_login_redirect"))
 
+    from flask import g
+    tenant = getattr(g, "tenant", None)
+
     form = RegisterIndividualForm()
     if form.validate_on_submit():
         email = form.email.data.lower().strip()
@@ -66,6 +69,7 @@ def register_individual():
             flash("An account with that email already exists.", "warning")
         else:
             user = User(
+                tenant_id=tenant.id if tenant else None,
                 email=email,
                 full_name=form.full_name.data.strip(),
                 phone=form.phone.data,
@@ -75,7 +79,7 @@ def register_individual():
             db.session.add(user)
             db.session.commit()
             login_user(user)
-            flash("Welcome to CoWorkHub!", "success")
+            flash(f"Welcome to {tenant.name if tenant else 'CoWorkHub'}!", "success")
             return redirect(url_for("member.dashboard"))
     return render_template("auth/register_individual.html", form=form)
 
@@ -84,6 +88,9 @@ def register_individual():
 def register_company():
     if current_user.is_authenticated:
         return redirect(url_for("auth.post_login_redirect"))
+
+    from flask import g
+    tenant = getattr(g, "tenant", None)
 
     form = RegisterCompanyForm()
     if form.validate_on_submit():
@@ -96,6 +103,7 @@ def register_company():
             return render_template("auth/register_company.html", form=form)
 
         company = Company(
+            tenant_id=tenant.id if tenant else None,
             name=form.company_name.data.strip(),
             billing_email=form.billing_email.data.lower().strip(),
             status=CompanyStatus.PROSPECT,
@@ -104,6 +112,7 @@ def register_company():
         db.session.flush()
 
         admin = User(
+            tenant_id=tenant.id if tenant else None,
             email=admin_email,
             full_name=form.admin_full_name.data.strip(),
             role=UserRole.COMPANY_ADMIN,
@@ -124,6 +133,8 @@ def register_company():
 def post_login_redirect():
     """Route logged-in users to their home based on role."""
     role = current_user.role
+    if role == UserRole.PLATFORM_OWNER:
+        return redirect(url_for("platform.dashboard"))
     if role in (UserRole.SUPER_ADMIN, UserRole.MANAGER, UserRole.LOCATION_MANAGER):
         return redirect(url_for("admin.dashboard"))
     if role == UserRole.COMPANY_ADMIN:

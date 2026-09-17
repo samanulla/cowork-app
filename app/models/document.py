@@ -7,6 +7,7 @@ from sqlalchemy.orm import relationship
 
 from ..extensions import db
 from ._mixins import PkMixin, TimestampMixin
+from .tenant import TenantScoped
 
 
 class DocumentKind(str, enum.Enum):
@@ -18,8 +19,11 @@ class DocumentKind(str, enum.Enum):
     OTHER = "other"
 
 
-class Document(db.Model, PkMixin, TimestampMixin):
+class Document(db.Model, PkMixin, TimestampMixin, TenantScoped):
     __tablename__ = "documents"
+
+    tenant_id = Column(Integer, ForeignKey("tenants.id", ondelete="CASCADE"),
+                       nullable=True, index=True)
 
     kind = Column(Enum(DocumentKind), nullable=False, default=DocumentKind.OTHER, index=True)
     filename = Column(String(255), nullable=False)

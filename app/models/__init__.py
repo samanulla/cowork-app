@@ -1,4 +1,5 @@
 """SQLAlchemy models re-exported from a single package for convenience."""
+from .tenant import Tenant, TenantScoped, TenantStatus
 from .user import User, UserRole
 from .company import Company, CompanyStatus, CompanyDocument
 from .location import Location, Floor, Amenity
@@ -37,4 +38,5 @@ __all__ = [
     "EmailTemplate", "EmailKind",
     "SystemSettings",
     "AuditLog",
+    "Tenant", "TenantScoped", "TenantStatus",
 ]

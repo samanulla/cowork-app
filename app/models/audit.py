@@ -6,10 +6,14 @@ from sqlalchemy.orm import relationship
 
 from ..extensions import db
 from ._mixins import PkMixin, TimestampMixin
+from .tenant import TenantScoped
 
 
-class AuditLog(db.Model, PkMixin, TimestampMixin):
+class AuditLog(db.Model, PkMixin, TimestampMixin, TenantScoped):
     __tablename__ = "audit_logs"
+
+    tenant_id = Column(Integer, ForeignKey("tenants.id", ondelete="CASCADE"),
+                       nullable=True, index=True)
 
     actor_id = Column(Integer, ForeignKey("users.id", ondelete="SET NULL"), nullable=True, index=True)
     action = Column(String(80), nullable=False, index=True)      # e.g. 'invoice.void'

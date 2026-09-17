@@ -7,6 +7,7 @@ from sqlalchemy.orm import relationship
 
 from ..extensions import db
 from ._mixins import PkMixin, TimestampMixin
+from .tenant import TenantScoped
 
 
 class CompanyStatus(str, enum.Enum):
@@ -16,8 +17,11 @@ class CompanyStatus(str, enum.Enum):
     CHURNED = "churned"
 
 
-class Company(db.Model, PkMixin, TimestampMixin):
+class Company(db.Model, PkMixin, TimestampMixin, TenantScoped):
     __tablename__ = "companies"
+
+    tenant_id = Column(Integer, ForeignKey("tenants.id", ondelete="CASCADE"),
+                       nullable=True, index=True)
 
     name = Column(String(200), nullable=False, unique=True, index=True)
     legal_name = Column(String(255))

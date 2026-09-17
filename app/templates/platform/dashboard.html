@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}Platform dashboard{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between mb-4">
+  <div>
+    <h3 class="mb-0">Platform overview</h3>
+    <div class="text-muted small">CoWorkHub SaaS operator view — visible only to Platform Owners.</div>
+  </div>
+  <a class="btn btn-dark" href="{{ url_for('platform.tenant_new') }}">+ Provision tenant</a>
+</div>
+
+<div class="row g-3 mb-4">
+  {% for label, val, icon in [
+    ("Tenants", stats.tenants, "building"),
+    ("Active", stats.active_tenants, "check-circle"),
+    ("Users", stats.total_users, "people"),
+    ("Companies", stats.total_companies, "briefcase"),
+    ("Locations", stats.total_locations, "geo-alt"),
+    ("Invoices", stats.total_invoices, "receipt"),
+  ] %}
+  <div class="col-6 col-md-4 col-lg-2">
+    <div class="card card-stat h-100"><div class="card-body">
+      <div class="text-muted small"><i class="bi bi-{{ icon }}"></i> {{ label }}</div>
+      <div class="stat-value">{{ val }}</div>
+    </div></div>
+  </div>
+  {% endfor %}
+</div>
+
+<div class="card"><div class="card-body">
+  <div class="d-flex justify-content-between align-items-center mb-2">
+    <h5 class="mb-0">Quick links</h5>
+  </div>
+  <ul class="list-unstyled mb-0">
+    <li><a href="{{ url_for('platform.tenants_list') }}">Tenants →</a></li>
+    <li><a href="{{ url_for('admin.audit_log') }}">Global audit log →</a></li>
+  </ul>
+</div></div>
+{% endblock %}

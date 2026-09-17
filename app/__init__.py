@@ -10,6 +10,7 @@ from .config import get_config
 from .extensions import db, migrate, login_manager, csrf, mail, limiter
 from .services.storage import storage_service
 from .services.formatting import register_formatting
+from .services import tenant_resolver
 
 load_dotenv()
 
@@ -27,6 +28,7 @@ def create_app(config_override: dict | None = None) -> Flask:
     _register_context(app)
     _register_root_routes(app)
     register_formatting(app)
+    tenant_resolver.install(app)
 
     return app
 
@@ -54,6 +56,7 @@ def _register_blueprints(app: Flask) -> None:
     from .blueprints.member import member_bp
     from .blueprints.booking import booking_bp
     from .blueprints.api import api_bp
+    from .blueprints.platform import platform_bp
 
     app.register_blueprint(auth_bp, url_prefix="/auth")
     app.register_blueprint(admin_bp, url_prefix="/admin")
@@ -61,6 +64,7 @@ def _register_blueprints(app: Flask) -> None:
     app.register_blueprint(member_bp, url_prefix="/me")
     app.register_blueprint(booking_bp, url_prefix="/book")
     app.register_blueprint(api_bp, url_prefix="/api/v1")
+    app.register_blueprint(platform_bp, url_prefix="/platform")
 
     # API blueprint is stateless — exempt from CSRF (uses tokens)
     csrf.exempt(api_bp)
@@ -88,8 +92,10 @@ def _register_error_handlers(app: Flask) -> None:
 def _register_context(app: Flask) -> None:
     @app.context_processor
     def inject_globals():
+        from flask import g
         return {
             "app_name": app.config.get("APP_NAME", "CoWorkHub"),
+            "tenant": getattr(g, "tenant", None),
         }
 
 

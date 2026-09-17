@@ -7,6 +7,7 @@ from sqlalchemy.orm import relationship
 
 from ..extensions import db
 from ._mixins import PkMixin, TimestampMixin
+from .tenant import TenantScoped
 
 
 class SubscriptionStatus(str, enum.Enum):
@@ -16,8 +17,11 @@ class SubscriptionStatus(str, enum.Enum):
     EXPIRED = "expired"
 
 
-class Subscription(db.Model, PkMixin, TimestampMixin):
+class Subscription(db.Model, PkMixin, TimestampMixin, TenantScoped):
     __tablename__ = "subscriptions"
+
+    tenant_id = Column(Integer, ForeignKey("tenants.id", ondelete="CASCADE"),
+                       nullable=True, index=True)
 
     plan_id = Column(Integer, ForeignKey("pricing_plans.id", ondelete="RESTRICT"), nullable=False, index=True)
     company_id = Column(Integer, ForeignKey("companies.id", ondelete="CASCADE"), nullable=True, index=True)

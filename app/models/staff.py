@@ -11,6 +11,7 @@ from sqlalchemy.orm import relationship
 
 from ..extensions import db
 from ._mixins import PkMixin, TimestampMixin
+from .tenant import TenantScoped
 
 
 class EmploymentType(str, enum.Enum):
@@ -37,8 +38,11 @@ class Department(str, enum.Enum):
     MANAGEMENT = "management"
 
 
-class StaffMember(db.Model, PkMixin, TimestampMixin):
+class StaffMember(db.Model, PkMixin, TimestampMixin, TenantScoped):
     __tablename__ = "staff_members"
+
+    tenant_id = Column(Integer, ForeignKey("tenants.id", ondelete="CASCADE"),
+                       nullable=True, index=True)
 
     employee_code = Column(String(30), unique=True, nullable=False, index=True)
     full_name = Column(String(150), nullable=False)

@@ -9,10 +9,12 @@ from werkzeug.security import generate_password_hash, check_password_hash
 
 from ..extensions import db
 from ._mixins import PkMixin, TimestampMixin
+from .tenant import TenantScoped
 
 
 class UserRole(str, enum.Enum):
-    SUPER_ADMIN = "super_admin"        # Platform owner — full access
+    PLATFORM_OWNER = "platform_owner"  # SaaS operator — manages tenants; not scoped to one
+    SUPER_ADMIN = "super_admin"        # Tenant owner — full access within one tenant
     MANAGER = "manager"                # CoWorkHub operations manager (day-to-day, no destructive actions)
     LOCATION_MANAGER = "location_manager"  # Manages a specific location
     COMPANY_ADMIN = "company_admin"    # Admin of a subscribing company
@@ -20,8 +22,12 @@ class UserRole(str, enum.Enum):
     INDIVIDUAL = "individual"          # Independent member (no company)
 
 
-class User(db.Model, PkMixin, TimestampMixin, UserMixin):
+class User(db.Model, PkMixin, TimestampMixin, UserMixin, TenantScoped):
     __tablename__ = "users"
+
+    tenant_id = Column(Integer, ForeignKey("tenants.id", ondelete="CASCADE"),
+                       nullable=True, index=True)
+    tenant = relationship("Tenant", foreign_keys=[tenant_id])
 
     email = Column(String(255), unique=True, nullable=False, index=True)
     password_hash = Column(String(255), nullable=False)
@@ -61,6 +67,10 @@ class User(db.Model, PkMixin, TimestampMixin, UserMixin):
         return self.role == UserRole.SUPER_ADMIN
 
     @property
+    def is_platform_owner(self) -> bool:
+        return self.role == UserRole.PLATFORM_OWNER
+
+    @property
     def is_manager(self) -> bool:
         return self.role == UserRole.MANAGER
 
@@ -70,7 +80,8 @@ class User(db.Model, PkMixin, TimestampMixin, UserMixin):
 
     @property
     def is_admin(self) -> bool:
-        return self.role in {UserRole.SUPER_ADMIN, UserRole.MANAGER, UserRole.LOCATION_MANAGER}
+        return self.role in {UserRole.PLATFORM_OWNER, UserRole.SUPER_ADMIN,
+                             UserRole.MANAGER, UserRole.LOCATION_MANAGER}
 
     @property
     def is_company_admin(self) -> bool:

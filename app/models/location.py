@@ -6,10 +6,14 @@ from sqlalchemy.orm import relationship
 
 from ..extensions import db
 from ._mixins import PkMixin, TimestampMixin
+from .tenant import TenantScoped
 
 
-class Location(db.Model, PkMixin, TimestampMixin):
+class Location(db.Model, PkMixin, TimestampMixin, TenantScoped):
     __tablename__ = "locations"
+
+    tenant_id = Column(Integer, ForeignKey("tenants.id", ondelete="CASCADE"),
+                       nullable=True, index=True)
 
     name = Column(String(150), nullable=False, unique=True)
     code = Column(String(20), nullable=False, unique=True)

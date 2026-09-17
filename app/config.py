@@ -58,6 +58,11 @@ class BaseConfig:
     BOOTSTRAP_ADMIN_EMAIL = os.getenv("BOOTSTRAP_ADMIN_EMAIL", "admin@coworkhub.io")
     BOOTSTRAP_ADMIN_PASSWORD = os.getenv("BOOTSTRAP_ADMIN_PASSWORD", "ChangeMe123!")
 
+    # Multi-tenancy
+    DEPLOY_MODE = os.getenv("DEPLOY_MODE", "shared").lower()  # 'shared' | 'dedicated'
+    TENANT_ID = os.getenv("TENANT_ID")  # only used when DEPLOY_MODE=dedicated
+    PLATFORM_BASE_DOMAIN = os.getenv("PLATFORM_BASE_DOMAIN", "coworkhub.io")
+
 
 class DevelopmentConfig(BaseConfig):
     DEBUG = True

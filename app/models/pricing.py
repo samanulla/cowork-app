@@ -2,11 +2,12 @@
 from __future__ import annotations
 
 import enum
-from sqlalchemy import Column, String, Integer, Numeric, Enum, Text, Boolean
+from sqlalchemy import Column, String, Integer, Numeric, Enum, Text, Boolean, ForeignKey
 from sqlalchemy.orm import relationship
 
 from ..extensions import db
 from ._mixins import PkMixin, TimestampMixin
+from .tenant import TenantScoped
 
 
 class PlanType(str, enum.Enum):
@@ -25,8 +26,11 @@ class BillingCycle(str, enum.Enum):
     ANNUAL = "annual"
 
 
-class PricingPlan(db.Model, PkMixin, TimestampMixin):
+class PricingPlan(db.Model, PkMixin, TimestampMixin, TenantScoped):
     __tablename__ = "pricing_plans"
+
+    tenant_id = Column(Integer, ForeignKey("tenants.id", ondelete="CASCADE"),
+                       nullable=True, index=True)
 
     name = Column(String(120), nullable=False, unique=True)
     plan_type = Column(Enum(PlanType), nullable=False, default=PlanType.HOT_DESK)
