@@ -2,26 +2,27 @@
 {% block title %}Platform dashboard{% endblock %}
 
 {% block content %}
-<div class="d-flex justify-content-between mb-4">
+<div class="d-flex justify-content-between align-items-start mb-4">
   <div>
-    <h3 class="mb-0">Platform overview</h3>
+    <h3 class="mb-1">Platform overview</h3>
     <div class="text-muted small">CoWorkHub SaaS operator view — visible only to Platform Owners.</div>
   </div>
-  <a class="btn btn-dark" href="{{ url_for('platform.tenant_new') }}">+ Provision tenant</a>
+  <a class="btn btn-dark" href="{{ url_for('platform.tenant_new') }}"><i class="bi bi-plus-lg me-1"></i>Provision tenant</a>
 </div>
 
 <div class="row g-3 mb-4">
-  {% for label, val, icon in [
-    ("Tenants", stats.tenants, "building"),
-    ("Active", stats.active_tenants, "check-circle"),
-    ("Users", stats.total_users, "people"),
-    ("Companies", stats.total_companies, "briefcase"),
-    ("Locations", stats.total_locations, "geo-alt"),
-    ("Invoices", stats.total_invoices, "receipt"),
+  {% for label, val, icon, tint in [
+    ("Tenants", stats.tenants, "building", ""),
+    ("Active", stats.active_tenants, "check-circle-fill", "teal"),
+    ("Users", stats.total_users, "people-fill", "purple"),
+    ("Companies", stats.total_companies, "briefcase-fill", "amber"),
+    ("Locations", stats.total_locations, "geo-alt-fill", "orange"),
+    ("Invoices", stats.total_invoices, "receipt", "blue"),
   ] %}
   <div class="col-6 col-md-4 col-lg-2">
     <div class="card card-stat h-100"><div class="card-body">
-      <div class="text-muted small"><i class="bi bi-{{ icon }}"></i> {{ label }}</div>
+      <span class="stat-icon {{ tint }}"><i class="bi bi-{{ icon }}"></i></span>
+      <div class="stat-label">{{ label }}</div>
       <div class="stat-value">{{ val }}</div>
     </div></div>
   </div>
@@ -29,12 +30,22 @@
 </div>
 
 <div class="card"><div class="card-body">
-  <div class="d-flex justify-content-between align-items-center mb-2">
+  <div class="d-flex justify-content-between align-items-center mb-3">
     <h5 class="mb-0">Quick links</h5>
   </div>
-  <ul class="list-unstyled mb-0">
-    <li><a href="{{ url_for('platform.tenants_list') }}">Tenants →</a></li>
-    <li><a href="{{ url_for('admin.audit_log') }}">Global audit log →</a></li>
-  </ul>
+  <div class="row g-3">
+    <div class="col-md-6">
+      <a class="d-flex align-items-center gap-3 p-3 rounded-3 text-body" style="background: color-mix(in srgb, var(--brand) 6%, transparent); text-decoration: none;" href="{{ url_for('platform.tenants_list') }}">
+        <span class="stat-icon m-0" style="width:40px;height:40px;"><i class="bi bi-building"></i></span>
+        <div><div class="fw-semibold">Manage tenants</div><small class="text-muted">List, suspend, activate, edit branding</small></div>
+      </a>
+    </div>
+    <div class="col-md-6">
+      <a class="d-flex align-items-center gap-3 p-3 rounded-3 text-body" style="background: rgba(124,58,237,.06); text-decoration: none;" href="{{ url_for('admin.audit_log') }}">
+        <span class="stat-icon purple m-0" style="width:40px;height:40px;"><i class="bi bi-journal-text"></i></span>
+        <div><div class="fw-semibold">Global audit log</div><small class="text-muted">Every sensitive action, filterable + CSV</small></div>
+      </a>
+    </div>
+  </div>
 </div></div>
 {% endblock %}

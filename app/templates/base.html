@@ -14,24 +14,80 @@
       --brand-3: #f97316;
       --bg-soft: #f8fafc;
       --card-shadow: 0 1px 2px rgba(0,0,0,.04), 0 8px 24px -12px rgba(0,0,0,.08);
+      --nav-shadow: 0 1px 3px rgba(15, 23, 42, 0.04), 0 6px 20px -12px rgba(15, 23, 42, 0.12);
     }
     body { font-family: 'Inter', system-ui, -apple-system, sans-serif; background: var(--bg-soft); color: #0f172a; }
-    .navbar-brand { font-weight: 800; letter-spacing: -0.02em; font-size: 1.15rem; }
-    .brand-mark { color: var(--brand); font-size: 1.3rem; }
-    .nav-link { font-weight: 500; color: #334155; }
-    .nav-link:hover, .nav-link.active { color: var(--brand); }
-    .btn-dark, .btn-primary { background: var(--brand); border-color: var(--brand); font-weight: 500; }
+
+    /* Navbar */
+    .navbar { padding: .85rem 0; background: rgba(255,255,255,.85) !important; backdrop-filter: saturate(180%) blur(10px); border-bottom: 1px solid #eef2f7 !important; box-shadow: var(--nav-shadow); }
+    .navbar-brand { font-weight: 800; letter-spacing: -0.02em; font-size: 1.15rem; display: flex; align-items: center; }
+    .brand-mark {
+      color: white; background: linear-gradient(135deg, var(--brand), var(--brand-2));
+      width: 32px; height: 32px; border-radius: 8px;
+      display: inline-flex; align-items: center; justify-content: center;
+      font-size: .85rem; font-weight: 800; margin-right: .6rem;
+    }
+    .navbar-nav .nav-item { margin: 0 .1rem; }
+    .navbar-nav .nav-link { font-weight: 500; color: #334155; padding: .5rem .9rem !important; border-radius: 8px; transition: all .15s; }
+    .navbar-nav .nav-link:hover { color: var(--brand); background: color-mix(in srgb, var(--brand) 8%, transparent); }
+    .navbar-nav .nav-link.active { color: var(--brand); background: color-mix(in srgb, var(--brand) 12%, transparent); }
+    /* User chip */
+    .user-chip {
+      display: inline-flex; align-items: center; gap: .6rem;
+      padding: .35rem .35rem .35rem .8rem !important;
+      background: #f1f5f9; border-radius: 999px; margin-left: .5rem;
+      color: #0f172a !important;
+    }
+    .user-chip:hover { background: #e2e8f0 !important; }
+    .user-chip::after { display: none !important; }   /* hide the Bootstrap caret */
+    .user-avatar {
+      width: 30px; height: 30px; border-radius: 50%;
+      display: inline-flex; align-items: center; justify-content: center;
+      color: white; font-weight: 700; font-size: .8rem;
+      background: linear-gradient(135deg, var(--brand), var(--brand-2));
+    }
+    .badge-role {
+      background: rgba(15,23,42,.06); color: #475569 !important;
+      font-size: .65rem; font-weight: 600; letter-spacing: .05em;
+      text-transform: uppercase; padding: .3em .55em; border-radius: 999px;
+    }
+    .dropdown-menu { border: 1px solid #eef2f7; border-radius: 10px; box-shadow: var(--card-shadow); padding: .4rem; }
+    .dropdown-item { border-radius: 6px; padding: .5rem .75rem; font-weight: 500; }
+    .dropdown-item:hover { background: color-mix(in srgb, var(--brand) 8%, transparent); color: var(--brand); }
+
+    /* Buttons */
+    .btn { font-weight: 500; border-radius: 8px; padding: .5rem 1rem; }
+    .btn-dark, .btn-primary { background: var(--brand); border-color: var(--brand); }
     .btn-dark:hover, .btn-primary:hover { background: color-mix(in srgb, var(--brand) 85%, black); border-color: color-mix(in srgb, var(--brand) 85%, black); }
     .btn-outline-dark { color: var(--brand); border-color: var(--brand); }
     .btn-outline-dark:hover { background: var(--brand); border-color: var(--brand); }
-    .card { border: 1px solid #e5e7eb; border-radius: 12px; box-shadow: var(--card-shadow); }
+    .btn-lg { padding: .75rem 1.5rem; }
+
+    /* Cards */
+    .card { border: 1px solid #eef2f7; border-radius: 12px; box-shadow: var(--card-shadow); background: white; }
     .card-body { padding: 1.25rem; }
-    .card-stat .stat-value { font-size: 2rem; font-weight: 700; color: var(--brand); }
-    .badge-role { text-transform: uppercase; letter-spacing: .05em; font-size: .7rem; }
+    .card-stat { position: relative; overflow: hidden; }
+    .card-stat .stat-value { font-size: 2.15rem; font-weight: 800; color: #0f172a; line-height: 1.1; letter-spacing: -0.02em; }
+    .card-stat .stat-label { font-size: .75rem; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; color: #64748b; margin-bottom: .35rem; }
+    .card-stat .stat-icon {
+      width: 42px; height: 42px; border-radius: 10px;
+      display: inline-flex; align-items: center; justify-content: center;
+      font-size: 1.15rem; margin-bottom: .8rem;
+      background: color-mix(in srgb, var(--brand) 12%, white); color: var(--brand);
+    }
+    .card-stat .stat-icon.teal { background: rgba(20,184,166,.12); color: #14b8a6; }
+    .card-stat .stat-icon.purple { background: rgba(124,58,237,.12); color: var(--brand-2); }
+    .card-stat .stat-icon.orange { background: rgba(249,115,22,.12); color: var(--brand-3); }
+    .card-stat .stat-icon.blue { background: rgba(59,130,246,.12); color: #3b82f6; }
+    .card-stat .stat-icon.pink { background: rgba(236,72,153,.12); color: #ec4899; }
+    .card-stat .stat-icon.amber { background: rgba(245,158,11,.12); color: #f59e0b; }
+
     .badge.bg-secondary { background: #e2e8f0 !important; color: #475569; }
     a { text-decoration: none; color: var(--brand); }
     a:hover { color: color-mix(in srgb, var(--brand) 80%, black); }
+
     footer { color: #64748b; font-size: .875rem; }
+
     /* Marketing landing */
     .hero { background: linear-gradient(135deg, var(--brand) 0%, var(--brand-2) 100%); color: white; padding: 6rem 0; }
     .hero h1 { font-size: 3.5rem; font-weight: 800; letter-spacing: -0.03em; line-height: 1.1; }
@@ -59,9 +115,9 @@
   <div class="container">
     <a class="navbar-brand d-flex align-items-center" href="{{ url_for('index') }}">
       {% if tenant and tenant.logo_url %}
-        <img src="{{ tenant.logo_url }}" alt="{{ tenant.name }}" style="height:28px;" class="me-2">
+        <img src="{{ tenant.logo_url }}" alt="{{ tenant.name }}" style="height:32px;" class="me-2">
       {% else %}
-        <span class="brand-mark me-2">◧</span>
+        <span class="brand-mark">{{ (tenant.name if tenant else app_name)[:1] | upper }}</span>
       {% endif %}
       {{ tenant.name if tenant else app_name }}
     </a>
@@ -104,15 +160,18 @@
           </li>
           {% endif %}
           <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#">
-              {{ current_user.full_name }}
-              <span class="badge bg-secondary badge-role">{{ current_user.role.value.replace('_',' ') }}</span>
+            <a class="nav-link user-chip dropdown-toggle" data-bs-toggle="dropdown" href="#" aria-expanded="false">
+              <span class="d-flex flex-column align-items-end lh-sm">
+                <span class="fw-semibold">{{ current_user.full_name }}</span>
+                <span class="badge-role">{{ current_user.role.value.replace('_',' ') }}</span>
+              </span>
+              <span class="user-avatar">{{ current_user.full_name[:1] | upper }}</span>
             </a>
             <ul class="dropdown-menu dropdown-menu-end">
-              <li><a class="dropdown-item" href="{{ url_for('auth.change_password') }}">Change password</a></li>
-              <li><a class="dropdown-item" href="{{ url_for('auth.two_factor_status') }}">Two-factor</a></li>
+              <li><a class="dropdown-item" href="{{ url_for('auth.change_password') }}"><i class="bi bi-key me-2"></i>Change password</a></li>
+              <li><a class="dropdown-item" href="{{ url_for('auth.two_factor_status') }}"><i class="bi bi-shield-check me-2"></i>Two-factor</a></li>
               <li><hr class="dropdown-divider"></li>
-              <li><a class="dropdown-item" href="{{ url_for('auth.logout') }}">Sign out</a></li>
+              <li><a class="dropdown-item text-danger" href="{{ url_for('auth.logout') }}"><i class="bi bi-box-arrow-right me-2"></i>Sign out</a></li>
             </ul>
           </li>
         {% else %}
