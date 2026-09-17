@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block title %}Lockers{% endblock %}
+{% block content %}
+<h3>Lockers</h3>
+<div class="card mb-3"><div class="card-body">
+  <form method="post" class="row g-2">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <div class="col-md-3"><label class="form-label small">Location</label>
+      <select class="form-select" name="location_id" required>
+        {% for l in locations %}<option value="{{ l.id }}">{{ l.name }}</option>{% endfor %}
+      </select></div>
+    <div class="col-md-3"><label class="form-label small">Code</label>
+      <input class="form-control" name="code" required></div>
+    <div class="col-md-3"><label class="form-label small">Monthly rate</label>
+      <input class="form-control" name="monthly_rate" type="number" step="0.01" value="500"></div>
+    <div class="col-md-3 d-flex align-items-end"><button class="btn btn-dark w-100">Add locker</button></div>
+  </form>
+</div></div>
+<table class="table">
+  <thead><tr><th>Code</th><th>Location</th><th>Rate</th><th>Status</th><th>Assigned to</th><th></th></tr></thead>
+  <tbody>
+    {% for l in lockers %}
+    <tr>
+      <td>{{ l.code }}</td>
+      <td>{{ l.location.name }}</td>
+      <td>{{ l.monthly_rate }}</td>
+      <td>{{ l.status.value }}</td>
+      <td>{{ l.assigned_user.full_name if l.assigned_user else "—" }}</td>
+      <td>
+        {% if l.status.value == 'available' %}
+        <form method="post" action="{{ url_for('community.locker_assign', lid=l.id) }}" class="d-inline">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <input name="user_id" type="number" placeholder="User ID" required style="width:100px;">
+          <button class="btn btn-sm btn-outline-dark">Assign</button>
+        </form>
+        {% else %}
+        <form method="post" action="{{ url_for('community.locker_release', lid=l.id) }}" class="d-inline">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <button class="btn btn-sm btn-outline-secondary">Release</button>
+        </form>
+        {% endif %}
+      </td>
+    </tr>
+    {% else %}<tr><td colspan="6" class="text-muted">No lockers yet.</td></tr>{% endfor %}
+  </tbody>
+</table>
+{% endblock %}

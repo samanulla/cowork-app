@@ -48,6 +48,23 @@
           <li class="nav-item"><a class="nav-link" href="{{ url_for('member.bookings') }}">My bookings</a></li>
           {% if not current_user.is_platform_owner %}
           <li class="nav-item"><a class="nav-link" href="{{ url_for('member.day_passes') }}">Day pass</a></li>
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#">Hub</a>
+            <ul class="dropdown-menu">
+              <li><a class="dropdown-item" href="{{ url_for('community.directory') }}">Community</a></li>
+              <li><a class="dropdown-item" href="{{ url_for('community.announcements') }}">Announcements</a></li>
+              <li><a class="dropdown-item" href="{{ url_for('community.guest_passes') }}">Guest passes</a></li>
+              <li><a class="dropdown-item" href="{{ url_for('community.visitors') }}">Visitors</a></li>
+              <li><a class="dropdown-item" href="{{ url_for('community.tickets') }}">Support tickets</a></li>
+              <li><a class="dropdown-item" href="{{ url_for('community.printing') }}">Printing credits</a></li>
+              <li><a class="dropdown-item" href="{{ url_for('community.referrals') }}">Refer &amp; earn</a></li>
+              {% if current_user.is_admin %}
+              <li><hr class="dropdown-divider"></li>
+              <li><a class="dropdown-item" href="{{ url_for('community.lockers') }}">Lockers (admin)</a></li>
+              <li><a class="dropdown-item" href="{{ url_for('community.visitors_reception') }}">Reception (visitors)</a></li>
+              {% endif %}
+            </ul>
+          </li>
           {% endif %}
           <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#">

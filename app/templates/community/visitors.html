@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}Visitors{% endblock %}
+{% block content %}
+<h3>Pre-register a visitor</h3>
+<div class="card mb-3"><div class="card-body">
+  <form method="post" class="row g-2">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <div class="col-md-3"><label class="form-label small">Visitor name</label>
+      <input class="form-control" name="name" required></div>
+    <div class="col-md-2"><label class="form-label small">Email</label>
+      <input class="form-control" type="email" name="email"></div>
+    <div class="col-md-2"><label class="form-label small">Phone</label>
+      <input class="form-control" name="phone"></div>
+    <div class="col-md-2"><label class="form-label small">Company</label>
+      <input class="form-control" name="company"></div>
+    <div class="col-md-2"><label class="form-label small">Expected at</label>
+      <input class="form-control" type="datetime-local" name="expected_at" required></div>
+    <div class="col-md-1 d-flex align-items-end"><button class="btn btn-dark w-100">Add</button></div>
+    <div class="col-12"><label class="form-label small">Purpose</label>
+      <input class="form-control" name="purpose"></div>
+    <div class="col-md-3"><label class="form-label small">Location</label>
+      <select class="form-select" name="location_id" required>
+        {% for l in locations %}<option value="{{ l.id }}">{{ l.name }}</option>{% endfor %}
+      </select></div>
+  </form>
+</div></div>
+<table class="table">
+  <thead><tr><th>Expected</th><th>Visitor</th><th>Company</th><th>Location</th><th>Status</th></tr></thead>
+  <tbody>
+    {% for v in visitors %}
+    <tr><td>{{ v.expected_at | dt }}</td><td>{{ v.name }}</td><td>{{ v.company or "" }}</td>
+        <td>{{ v.location.name }}</td><td>{{ v.status.value.replace('_',' ') }}</td></tr>
+    {% else %}<tr><td colspan="5" class="text-muted">No visitors yet.</td></tr>{% endfor %}
+  </tbody>
+</table>
+{% endblock %}

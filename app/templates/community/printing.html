@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}Printing credits{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h3 class="mb-0">Printing credits</h3>
+  <div><strong>Balance:</strong> {{ balance }} pages</div>
+</div>
+{% if current_user.is_admin %}
+<div class="card mb-3"><div class="card-body">
+  <form method="post" action="{{ url_for('community.printing_adjust') }}" class="row g-2">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <div class="col-md-3"><label class="form-label small">User ID</label>
+      <input class="form-control" name="user_id" type="number" required></div>
+    <div class="col-md-3"><label class="form-label small">Delta (+credit / -pages used)</label>
+      <input class="form-control" name="delta" type="number" required></div>
+    <div class="col-md-4"><label class="form-label small">Note</label>
+      <input class="form-control" name="note"></div>
+    <div class="col-md-2 d-flex align-items-end"><button class="btn btn-dark w-100">Adjust</button></div>
+  </form>
+</div></div>
+{% endif %}
+<table class="table">
+  <thead><tr><th>When</th><th>Delta</th><th>Note</th></tr></thead>
+  <tbody>
+    {% for e in entries %}
+    <tr><td>{{ e.created_at | dt }}</td><td>{{ '+' if e.delta > 0 else '' }}{{ e.delta }}</td><td>{{ e.note or '' }}</td></tr>
+    {% else %}<tr><td colspan="3" class="text-muted">No printing activity.</td></tr>{% endfor %}
+  </tbody>
+</table>
+{% endblock %}

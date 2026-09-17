@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block title %}Support tickets{% endblock %}
+{% block content %}
+<h3>Support tickets</h3>
+<div class="card mb-3"><div class="card-body">
+  <form method="post" class="row g-2">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <div class="col-md-4"><label class="form-label small">Subject</label>
+      <input class="form-control" name="subject" required></div>
+    <div class="col-md-3"><label class="form-label small">Location</label>
+      <select class="form-select" name="location_id">
+        <option value="">(no location)</option>
+        {% for l in locations %}<option value="{{ l.id }}">{{ l.name }}</option>{% endfor %}
+      </select></div>
+    <div class="col-md-3"><label class="form-label small">Priority</label>
+      <select class="form-select" name="priority">
+        {% for p in priorities %}<option value="{{ p.value }}" {% if p.value == 'normal' %}selected{% endif %}>{{ p.value }}</option>{% endfor %}
+      </select></div>
+    <div class="col-md-2 d-flex align-items-end"><button class="btn btn-dark w-100">Submit</button></div>
+    <div class="col-12"><label class="form-label small">Description</label>
+      <textarea class="form-control" name="body" rows="3" required></textarea></div>
+  </form>
+</div></div>
+<table class="table">
+  <thead><tr><th>When</th><th>Subject</th><th>By</th><th>Priority</th><th>Status</th><th></th></tr></thead>
+  <tbody>
+    {% for t in tickets %}
+    <tr>
+      <td>{{ t.created_at | dt }}</td>
+      <td>{{ t.subject }}<div class="small text-muted">{{ t.body[:120] }}</div></td>
+      <td>{{ t.submitter.full_name if t.submitter else "—" }}</td>
+      <td>{{ t.priority.value }}</td>
+      <td>{{ t.status.value.replace('_',' ') }}</td>
+      <td>
+        {% if current_user.is_admin and t.status.value in ('open','in_progress') %}
+        <form method="post" action="{{ url_for('community.ticket_resolve', tid=t.id) }}" class="d-inline">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <button class="btn btn-sm btn-outline-success">Resolve</button>
+        </form>
+        {% endif %}
+      </td>
+    </tr>
+    {% else %}<tr><td colspan="6" class="text-muted">No tickets.</td></tr>{% endfor %}
+  </tbody>
+</table>
+{% endblock %}

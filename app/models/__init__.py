@@ -24,6 +24,16 @@ from .booking_addons import (
     RoomWaitlist, WaitlistStatus,
     RecurringRoomBooking, RecurrencePattern,
 )
+from .community import (
+    GuestPass, GuestPassStatus,
+    Visitor, VisitorStatus,
+    CommunityProfile,
+    Announcement,
+    PrintingLedger,
+    SupportTicket, TicketStatus, TicketPriority,
+    Locker, LockerStatus,
+    Referral, ReferralStatus,
+)
 
 __all__ = [
     "User", "UserRole",
@@ -47,4 +57,12 @@ __all__ = [
     "DayPass", "DayPassStatus",
     "RoomWaitlist", "WaitlistStatus",
     "RecurringRoomBooking", "RecurrencePattern",
+    "GuestPass", "GuestPassStatus",
+    "Visitor", "VisitorStatus",
+    "CommunityProfile",
+    "Announcement",
+    "PrintingLedger",
+    "SupportTicket", "TicketStatus", "TicketPriority",
+    "Locker", "LockerStatus",
+    "Referral", "ReferralStatus",
 ]

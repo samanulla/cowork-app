@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}Guest passes{% endblock %}
+{% block content %}
+<h3>Guest passes</h3>
+<div class="card mb-3"><div class="card-body">
+  <form method="post" class="row g-2">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <div class="col-md-3"><label class="form-label small">Guest name</label>
+      <input class="form-control" name="guest_name" required></div>
+    <div class="col-md-3"><label class="form-label small">Email (optional)</label>
+      <input class="form-control" name="guest_email" type="email"></div>
+    <div class="col-md-3"><label class="form-label small">Location</label>
+      <select class="form-select" name="location_id" required>
+        {% for l in locations %}<option value="{{ l.id }}">{{ l.name }}</option>{% endfor %}
+      </select></div>
+    <div class="col-md-2"><label class="form-label small">Visit date</label>
+      <input class="form-control" type="date" name="visit_date" value="{{ today }}"></div>
+    <div class="col-md-1 d-flex align-items-end"><button class="btn btn-dark w-100">Issue</button></div>
+  </form>
+</div></div>
+<table class="table">
+  <thead><tr><th>Date</th><th>Guest</th><th>Location</th><th>Code</th><th>Status</th></tr></thead>
+  <tbody>
+    {% for p in passes %}
+    <tr><td>{{ p.visit_date }}</td><td>{{ p.guest_name }}</td><td>{{ p.location.name }}</td><td><code>{{ p.code }}</code></td><td>{{ p.status.value }}</td></tr>
+    {% else %}<tr><td colspan="5" class="text-muted">No guest passes yet.</td></tr>{% endfor %}
+  </tbody>
+</table>
+{% endblock %}

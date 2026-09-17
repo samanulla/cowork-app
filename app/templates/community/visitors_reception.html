@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}Reception — visitors{% endblock %}
+{% block content %}
+<h3>Reception — visitors</h3>
+<p class="text-muted small">Expected + already-checked-in.</p>
+<table class="table">
+  <thead><tr><th>Expected</th><th>Visitor</th><th>Host</th><th>Location</th><th>Status</th><th></th></tr></thead>
+  <tbody>
+    {% for v in visitors %}
+    <tr>
+      <td>{{ v.expected_at | dt }}</td>
+      <td>{{ v.name }}<br><small class="text-muted">{{ v.company or "" }}</small></td>
+      <td>{{ v.host.full_name if v.host else "—" }}</td>
+      <td>{{ v.location.name }}</td>
+      <td>{{ v.status.value.replace('_',' ') }}</td>
+      <td>
+        {% if v.status.value == 'pending' %}
+        <form method="post" action="{{ url_for('community.visitor_check_in', vid=v.id) }}" class="d-inline">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <button class="btn btn-sm btn-dark">Check in</button>
+        </form>
+        {% elif v.status.value == 'checked_in' %}
+        <form method="post" action="{{ url_for('community.visitor_check_out', vid=v.id) }}" class="d-inline">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <button class="btn btn-sm btn-outline-secondary">Check out</button>
+        </form>
+        {% endif %}
+      </td>
+    </tr>
+    {% else %}<tr><td colspan="6" class="text-muted">No visitors expected.</td></tr>{% endfor %}
+  </tbody>
+</table>
+{% endblock %}

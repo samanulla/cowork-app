@@ -57,6 +57,7 @@ def _register_blueprints(app: Flask) -> None:
     from .blueprints.booking import booking_bp
     from .blueprints.api import api_bp
     from .blueprints.platform import platform_bp
+    from .blueprints.community import community_bp
 
     app.register_blueprint(auth_bp, url_prefix="/auth")
     app.register_blueprint(admin_bp, url_prefix="/admin")
@@ -65,6 +66,7 @@ def _register_blueprints(app: Flask) -> None:
     app.register_blueprint(booking_bp, url_prefix="/book")
     app.register_blueprint(api_bp, url_prefix="/api/v1")
     app.register_blueprint(platform_bp, url_prefix="/platform")
+    app.register_blueprint(community_bp, url_prefix="/hub")
 
     # API blueprint is stateless — exempt from CSRF (uses tokens)
     csrf.exempt(api_bp)

@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}New announcement{% endblock %}
+{% block content %}
+<h3>New announcement</h3>
+<form method="post" class="card card-body">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <div class="mb-2"><label class="form-label small">Title</label>
+    <input class="form-control" name="title" required></div>
+  <div class="mb-2"><label class="form-label small">Body</label>
+    <textarea class="form-control" name="body" rows="5" required></textarea></div>
+  <div class="row g-2">
+    <div class="col-md-4"><label class="form-label small">Location (blank = all)</label>
+      <select class="form-select" name="location_id">
+        <option value="">All locations</option>
+        {% for l in locations %}<option value="{{ l.id }}">{{ l.name }}</option>{% endfor %}
+      </select></div>
+    <div class="col-md-3 d-flex align-items-end">
+      <div class="form-check"><input type="checkbox" class="form-check-input" id="pin" name="is_pinned">
+        <label class="form-check-label" for="pin">Pin to top</label></div>
+    </div>
+    <div class="col-md-5 d-flex align-items-end justify-content-end">
+      <button class="btn btn-dark">Publish</button>
+    </div>
+  </div>
+</form>
+{% endblock %}

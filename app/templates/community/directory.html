@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}Community directory{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h3 class="mb-0">Community</h3>
+  <a class="btn btn-outline-dark btn-sm" href="{{ url_for('community.edit_profile') }}">Edit my profile</a>
+</div>
+<div class="row g-3">
+  {% for p in profiles %}
+  <div class="col-md-4">
+    <div class="card h-100"><div class="card-body">
+      <h5 class="mb-1">{{ p.user.full_name }}</h5>
+      <div class="text-muted small">{{ p.headline or "" }}</div>
+      {% if p.skills %}<div class="small mt-2"><strong>Skills:</strong> {{ p.skills }}</div>{% endif %}
+      {% if p.bio %}<p class="small mt-2">{{ p.bio }}</p>{% endif %}
+      {% if p.linkedin_url %}<a class="btn btn-sm btn-link p-0" href="{{ p.linkedin_url }}" target="_blank">LinkedIn</a>{% endif %}
+    </div></div>
+  </div>
+  {% else %}
+  <div class="col"><p class="text-muted">No community members have opted in yet.</p></div>
+  {% endfor %}
+</div>
+{% endblock %}
