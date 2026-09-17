@@ -1,7 +1,7 @@
 """Admin (Super Admin + Location Manager) routes."""
 from __future__ import annotations
 
-from datetime import date
+from datetime import date, datetime
 
 from flask import Blueprint, render_template, redirect, url_for, flash, request, abort
 from flask_login import current_user
@@ -12,7 +12,7 @@ from ...models import (
     User, UserRole, Location, Floor, Seat, ConferenceRoom,
     Company, CompanyStatus, PricingPlan, Subscription, SubscriptionStatus,
     SeatAllocation, AllocationStatus, SeatBooking, RoomBooking, BookingStatus,
-    Document, DocumentKind, CompanyDocument, Invoice,
+    Document, DocumentKind, CompanyDocument, Invoice, DayPass, DayPassStatus,
 )
 from ...services.storage import storage_service
 from ...utils.decorators import admin_required, super_admin_required, manager_or_super_required
@@ -365,3 +365,36 @@ def billing_run():
     invoices = run_monthly_billing()
     flash(f"Generated {len(invoices)} invoice(s).", "success")
     return redirect(url_for("admin.invoices_list"))
+
+
+# ------------------------------------------------------ reception (day-pass) --
+
+@admin_bp.route("/reception", methods=["GET", "POST"])
+@admin_required
+def reception():
+    """Reception check-in: paste or scan a day-pass code to check the guest in."""
+    checked = None
+    error = None
+    if request.method == "POST":
+        code = (request.form.get("code") or "").strip()
+        dp = DayPass.query.filter_by(code=code).first()
+        if dp is None:
+            error = "Unknown code."
+        elif dp.status == DayPassStatus.CANCELLED:
+            error = "This day pass was cancelled."
+        elif dp.status == DayPassStatus.CHECKED_IN:
+            error = f"Already checked in at {dp.checked_in_at:%Y-%m-%d %H:%M}."
+            checked = dp
+        elif dp.pass_date != date.today():
+            error = f"Pass is valid on {dp.pass_date}, not today."
+            checked = dp
+        else:
+            dp.status = DayPassStatus.CHECKED_IN
+            dp.checked_in_at = datetime.utcnow()
+            db.session.commit()
+            checked = dp
+            flash(f"{dp.user.full_name} checked in.", "success")
+    todays = (DayPass.query.filter(DayPass.pass_date == date.today())
+                             .order_by(DayPass.created_at.desc()).limit(50).all())
+    return render_template("admin/reception.html",
+                           checked=checked, error=error, todays=todays)

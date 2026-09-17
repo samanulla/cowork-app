@@ -1,0 +1,11 @@
+Hi {{ admin.full_name }},
+
+A new company has signed up on {{ company.name and 'your workspace' or '' }} and is awaiting activation.
+
+Company: {{ company.name }}
+Billing email: {{ company.billing_email }}
+Applicant: {{ applicant.full_name }} <{{ applicant.email }}>
+
+Review and activate at: /admin/companies/{{ company.id }}
+
+— CoWorkHub

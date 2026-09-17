@@ -33,6 +33,26 @@ def _safe_next(target: str | None) -> str | None:
 auth_bp = Blueprint("auth", __name__, template_folder="../../templates")
 
 
+def _notify_new_company_signup(company, admin_user):
+    """Email the tenant's super admins that a new company self-registered."""
+    from ...models import Tenant
+    tid = getattr(g, "tenant_id", None)
+    if tid is None:
+        return
+    admins = User.query.filter_by(role=UserRole.SUPER_ADMIN, tenant_id=tid) \
+                       .execution_options(skip_tenant_filter=True).all()
+    for a in admins:
+        try:
+            mail_service.send(
+                subject=f"[{current_app.config['APP_NAME']}] New company signup: {company.name}",
+                recipient=a.email,
+                template="company_signup_notify",
+                admin=a, company=company, applicant=admin_user,
+            )
+        except Exception as e:
+            current_app.logger.warning("company-signup notify failed: %s", e)
+
+
 @auth_bp.route("/login", methods=["GET", "POST"])
 @limiter.limit("10 per minute; 30 per hour", methods=["POST"])
 def login():
@@ -125,6 +145,9 @@ def register_company():
         admin.set_password(form.password.data)
         db.session.add(admin)
         db.session.commit()
+
+        # Notify tenant super admins so they can approve.
+        _notify_new_company_signup(company, admin)
 
         login_user(admin)
         flash("Your company account is created. A platform admin will contact you to finalise onboarding.", "success")

@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from decimal import Decimal
 
-from flask import Blueprint, render_template, redirect, url_for, flash, request
+from flask import Blueprint, render_template, redirect, url_for, flash, request, current_app
 
 from ...extensions import db
 from ...models import (
@@ -83,13 +83,16 @@ def tenants_list():
 @platform_owner_required
 def tenant_new():
     form = NewTenantForm()
-    # Suggest a default primary_domain based on slug + base domain
-    if request.method == "GET" and not form.primary_domain.data:
-        form.primary_domain.data = ""
     if form.validate_on_submit():
+        slug = form.slug.data.lower().strip()
+        # Auto-fill primary_domain if the operator left it blank
+        if not (form.primary_domain.data or "").strip():
+            base = current_app.config.get("PLATFORM_BASE_DOMAIN", "coworkhub.io")
+            form.primary_domain.data = f"{slug}.{base}"
+
         existing = (Tenant.query
                     .execution_options(skip_tenant_filter=True)
-                    .filter_by(slug=form.slug.data).first())
+                    .filter_by(slug=slug).first())
         if existing:
             flash("A tenant with that slug already exists.", "warning")
             return render_template("platform/tenant_form.html", form=form, title="New tenant")

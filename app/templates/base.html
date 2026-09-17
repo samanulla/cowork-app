@@ -46,6 +46,9 @@
           {% endif %}
           <li class="nav-item"><a class="nav-link" href="{{ url_for('book.index') }}">Book</a></li>
           <li class="nav-item"><a class="nav-link" href="{{ url_for('member.bookings') }}">My bookings</a></li>
+          {% if not current_user.is_platform_owner %}
+          <li class="nav-item"><a class="nav-link" href="{{ url_for('member.day_passes') }}">Day pass</a></li>
+          {% endif %}
           <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#">
               {{ current_user.full_name }}

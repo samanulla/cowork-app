@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block title %}Reception{% endblock %}
+{% block content %}
+<div class="row">
+  <div class="col-md-5">
+    <div class="card shadow-sm">
+      <div class="card-body">
+        <h5 class="mb-3">Check in a guest</h5>
+        <form method="post" class="mb-3">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <label class="form-label small">Scan or paste the day-pass code</label>
+          <div class="input-group">
+            <input type="text" name="code" class="form-control" required autofocus
+                   placeholder="e.g. abc123def456">
+            <button class="btn btn-dark">Check in</button>
+          </div>
+        </form>
+        {% if error %}<div class="alert alert-warning">{{ error }}</div>{% endif %}
+        {% if checked %}
+        <div class="alert alert-success">
+          <strong>{{ checked.user.full_name }}</strong><br>
+          {{ checked.user.email }}<br>
+          {{ checked.location.name }} · {{ checked.pass_date }}<br>
+          Status: {{ checked.status.value.replace('_',' ') }}
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+  <div class="col-md-7">
+    <h6>Today's day passes</h6>
+    <table class="table table-sm">
+      <thead><tr><th>Member</th><th>Location</th><th>Code</th><th>Status</th></tr></thead>
+      <tbody>
+        {% for p in todays %}
+        <tr>
+          <td>{{ p.user.full_name }}</td>
+          <td>{{ p.location.name }}</td>
+          <td><code>{{ p.code }}</code></td>
+          <td>{{ p.status.value.replace('_',' ') }}</td>
+        </tr>
+        {% else %}
+        <tr><td colspan="4" class="text-muted">No day passes issued today.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

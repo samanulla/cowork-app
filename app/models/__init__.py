@@ -19,6 +19,7 @@ from .finance import CreditNote, CreditNoteStatus, Refund, RefundStatus
 from .email_template import EmailTemplate, EmailKind
 from .settings import SystemSettings
 from .audit import AuditLog
+from .daypass import DayPass, DayPassStatus
 
 __all__ = [
     "User", "UserRole",
@@ -39,4 +40,5 @@ __all__ = [
     "SystemSettings",
     "AuditLog",
     "Tenant", "TenantScoped", "TenantStatus",
+    "DayPass", "DayPassStatus",
 ]

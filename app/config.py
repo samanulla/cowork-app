@@ -73,6 +73,10 @@ class DevelopmentConfig(BaseConfig):
 class ProductionConfig(BaseConfig):
     DEBUG = False
     SESSION_COOKIE_SECURE = True
+    REMEMBER_COOKIE_SECURE = True
+    REMEMBER_COOKIE_HTTPONLY = True
+    REMEMBER_COOKIE_SAMESITE = "Lax"
+    PREFERRED_URL_SCHEME = "https"
 
 
 class TestingConfig(BaseConfig):

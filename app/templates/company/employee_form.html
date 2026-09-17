@@ -10,9 +10,8 @@
     {{ field(form.full_name, autofocus=true) }}
     {{ field(form.email) }}
     {{ field(form.phone) }}
-    {{ field(form.temp_password) }}
-    <div class="form-text mb-3">Share the temporary password with the employee securely. They can change it after login.</div>
-    <button class="btn btn-dark">Add employee</button>
+    <div class="form-text mb-3">We'll email them a secure link to set their own password and activate their account.</div>
+    <button class="btn btn-dark">Send invitation</button>
     <a class="btn btn-link" href="{{ url_for('company.employees') }}">Cancel</a>
   </form>
 </div></div>

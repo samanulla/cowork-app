@@ -4,8 +4,8 @@ from __future__ import annotations
 from datetime import date
 from decimal import Decimal
 
-from flask import Blueprint, render_template, redirect, url_for, flash, abort
-from flask_login import current_user
+from flask import Blueprint, render_template, redirect, url_for, flash, abort, request, g, current_app
+from flask_login import current_user, login_user
 
 from ...extensions import db
 from ...models import (
@@ -13,8 +13,11 @@ from ...models import (
     SeatAllocation, AllocationStatus, Invoice, SeatBooking, RoomBooking,
 )
 from ...utils.decorators import company_admin_required
-from .forms import InviteEmployeeForm, SubscribeForm
+from .forms import InviteEmployeeForm, SubscribeForm, AcceptInviteForm
 from ...services.formatting import format_money
+from ...services import mail_service
+
+INVITE_TTL_SECONDS = 60 * 60 * 24 * 7  # 7 days
 
 company_bp = Blueprint("company", __name__, template_folder="../../templates")
 
@@ -65,21 +68,60 @@ def employee_new():
             return redirect(url_for("company.employees"))
         email = form.email.data.lower().strip()
         if User.query.filter_by(email=email).first():
-            flash("That email is already registered.", "warning")
+            flash("That email is already registered under this workspace.", "warning")
             return redirect(url_for("company.employees"))
         u = User(
+            tenant_id=getattr(g, "tenant_id", None),
             email=email,
             full_name=form.full_name.data.strip(),
             phone=form.phone.data,
             role=UserRole.EMPLOYEE,
             company_id=c.id,
+            is_active=False,   # activated when invite is accepted
         )
-        u.set_password(form.temp_password.data)
-        db.session.add(u)
-        db.session.commit()
-        flash(f"Added {u.full_name}. Share the temporary password securely.", "success")
+        # Random placeholder — invitee will replace via accept-invite link.
+        u.set_password(current_app.config["SECRET_KEY"] + email)
+        db.session.add(u); db.session.commit()
+
+        token = mail_service.make_token(u.id, "employee-invite")
+        accept_url = url_for("company.accept_invite", token=token, _external=True)
+        mail_service.send(
+            subject=f"You're invited to {c.name} on CoWorkHub",
+            recipient=u.email,
+            template="employee_invite",
+            user=u, company=c, accept_url=accept_url,
+            ttl_days=INVITE_TTL_SECONDS // 86400,
+        )
+        flash(f"Invitation sent to {u.email}.", "success")
         return redirect(url_for("company.employees"))
     return render_template("company/employee_form.html", form=form, company=c)
+
+
+@company_bp.route("/invite/<token>", methods=["GET", "POST"])
+def accept_invite(token: str):
+    uid = mail_service.read_token(token, "employee-invite", INVITE_TTL_SECONDS)
+    if uid is None:
+        flash("This invitation link is invalid or has expired.", "danger")
+        return redirect(url_for("auth.login"))
+    user = User.query.filter_by(id=int(uid)) \
+                     .execution_options(skip_tenant_filter=True).first()
+    if user is None:
+        flash("Account not found.", "danger")
+        return redirect(url_for("auth.login"))
+    if user.is_active:
+        flash("This invitation has already been accepted. Please sign in.", "info")
+        return redirect(url_for("auth.login"))
+
+    form = AcceptInviteForm()
+    if form.validate_on_submit():
+        user.set_password(form.password.data)
+        user.is_active = True
+        user.email_verified = True
+        db.session.commit()
+        login_user(user)
+        flash(f"Welcome to {user.company.name}!", "success")
+        return redirect(url_for("member.dashboard"))
+    return render_template("company/accept_invite.html", form=form, user=user)
 
 
 @company_bp.route("/employees/<int:user_id>/deactivate", methods=["POST"])

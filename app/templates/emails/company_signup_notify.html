@@ -1,0 +1,9 @@
+<p>Hi {{ admin.full_name }},</p>
+<p>A new company has signed up on your workspace and is awaiting activation.</p>
+<table>
+  <tr><td><strong>Company</strong></td><td>{{ company.name }}</td></tr>
+  <tr><td><strong>Billing email</strong></td><td>{{ company.billing_email }}</td></tr>
+  <tr><td><strong>Applicant</strong></td><td>{{ applicant.full_name }} &lt;{{ applicant.email }}&gt;</td></tr>
+</table>
+<p><a href="/admin/companies/{{ company.id }}">Review and activate</a></p>
+<p>— CoWorkHub</p>

@@ -1,14 +1,18 @@
 """Member portal (employees & individual users)."""
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import datetime, date
+from io import BytesIO
 
-from flask import Blueprint, render_template, redirect, url_for, flash
+import qrcode
+
+from flask import Blueprint, render_template, redirect, url_for, flash, request, send_file, abort, g
 from flask_login import current_user, login_required
 
 from ...extensions import db
 from ...models import (
     SeatBooking, RoomBooking, BookingStatus, Invoice, Subscription, SubscriptionStatus,
+    Location, DayPass, DayPassStatus,
 )
 from ...services.booking_service import cancel_booking, BookingError
 from ...utils.decorators import member_required
@@ -82,3 +86,56 @@ def cancel_room_booking(booking_id: int):
     except BookingError as e:
         flash(str(e), "warning")
     return redirect(url_for("member.bookings"))
+
+
+# ------- day passes -------
+
+@member_bp.route("/day-passes")
+@member_required
+def day_passes():
+    passes = (DayPass.query.filter_by(user_id=current_user.id)
+                            .order_by(DayPass.pass_date.desc()).limit(60).all())
+    locations = Location.query.filter_by(is_active=True).order_by(Location.name).all()
+    return render_template("member/day_passes.html", passes=passes, locations=locations)
+
+
+@member_bp.route("/day-passes/new", methods=["POST"])
+@member_required
+def day_pass_new():
+    location_id = int(request.form.get("location_id", 0))
+    loc = Location.query.get_or_404(location_id)
+    pass_date_str = request.form.get("pass_date") or ""
+    try:
+        pd = date.fromisoformat(pass_date_str) if pass_date_str else date.today()
+    except ValueError:
+        pd = date.today()
+    dp = DayPass(
+        tenant_id=getattr(g, "tenant_id", None),
+        user_id=current_user.id,
+        location_id=loc.id,
+        pass_date=pd,
+        code=DayPass.new_code(),
+        status=DayPassStatus.ISSUED,
+    )
+    db.session.add(dp); db.session.commit()
+    flash(f"Day pass issued for {loc.name} on {pd.isoformat()}.", "success")
+    return redirect(url_for("member.day_pass_detail", pass_id=dp.id))
+
+
+@member_bp.route("/day-passes/<int:pass_id>")
+@member_required
+def day_pass_detail(pass_id: int):
+    dp = DayPass.query.filter_by(id=pass_id, user_id=current_user.id).first_or_404()
+    return render_template("member/day_pass_detail.html", dp=dp)
+
+
+@member_bp.route("/day-passes/<int:pass_id>/qr.png")
+@member_required
+def day_pass_qr(pass_id: int):
+    dp = DayPass.query.filter_by(id=pass_id, user_id=current_user.id).first_or_404()
+    img = qrcode.make(dp.code)
+    buf = BytesIO()
+    img.save(buf, format="PNG")
+    buf.seek(0)
+    return send_file(buf, mimetype="image/png",
+                     download_name=f"daypass-{dp.code}.png")
