@@ -2,40 +2,173 @@
 {% block title %}Welcome{% endblock %}
 
 {% block content %}
-<section class="py-5 text-center">
-  <h1 class="display-4 fw-bold">A workspace that scales with your team.</h1>
-  <p class="lead text-muted col-lg-8 mx-auto">
-    Hot desks, dedicated desks, private offices and beautiful meeting rooms — booked in seconds.
-    Built for individuals, freelancers, growing teams, and enterprises.
-  </p>
-  <div class="mt-4">
-    <a class="btn btn-dark btn-lg me-2" href="{{ url_for('auth.register_individual') }}">Join as a member</a>
-    <a class="btn btn-outline-dark btn-lg" href="{{ url_for('auth.register_company') }}">Register a company</a>
+{% endblock %}
+
+{% block full %}
+<section class="hero">
+  <div class="container">
+    <div class="row align-items-center g-5">
+      <div class="col-lg-7">
+        <h1 class="mb-3">
+          Beautiful coworking spaces,<br>
+          one login away.
+        </h1>
+        <p class="lead mb-4">
+          {{ tenant.tagline if tenant and tenant.tagline else "Book desks and meeting rooms, manage teams, pay invoices, and grow your community — all from one modern portal." }}
+        </p>
+        <div class="d-flex gap-2 flex-wrap">
+          <a class="btn btn-light btn-lg" href="{{ url_for('auth.login') }}">Sign in</a>
+          <a class="btn btn-outline-light btn-lg" href="{{ url_for('auth.register_individual') }}">Join as member</a>
+          <a class="btn btn-outline-light btn-lg" href="{{ url_for('auth.register_company') }}">Register a company</a>
+        </div>
+        <p class="mt-3 mb-0" style="opacity:.85;">
+          Not sure which workspace? <a class="text-white" style="text-decoration:underline;" href="{{ url_for('auth.pick_workspace') }}">Find yours →</a>
+        </p>
+      </div>
+      <div class="col-lg-5">
+        <div class="p-4 rounded-4" style="background: rgba(255,255,255,.08); backdrop-filter: blur(6px);">
+          <div class="d-flex align-items-center gap-3 mb-3">
+            <div style="width:44px; height:44px; border-radius:50%; background:rgba(255,255,255,.2); display:flex; align-items:center; justify-content:center; font-size:1.5rem;">🏢</div>
+            <div><div style="font-weight:600;">Multi-tenant SaaS</div><small style="opacity:.85;">Host many workspaces on one platform.</small></div>
+          </div>
+          <div class="d-flex align-items-center gap-3 mb-3">
+            <div style="width:44px; height:44px; border-radius:50%; background:rgba(255,255,255,.2); display:flex; align-items:center; justify-content:center; font-size:1.5rem;">🪑</div>
+            <div><div style="font-weight:600;">Book a hot desk in 10 seconds</div><small style="opacity:.85;">Any location, any day.</small></div>
+          </div>
+          <div class="d-flex align-items-center gap-3">
+            <div style="width:44px; height:44px; border-radius:50%; background:rgba(255,255,255,.2); display:flex; align-items:center; justify-content:center; font-size:1.5rem;">📱</div>
+            <div><div style="font-weight:600;">Day-pass QR check-in</div><small style="opacity:.85;">Walk in, show the code, get to work.</small></div>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </section>
 
-<section class="row g-4 py-5">
-  <div class="col-md-4">
-    <div class="p-4 bg-white rounded shadow-sm h-100">
-      <i class="bi bi-laptop fs-2 text-teal"></i>
-      <h5 class="mt-3">Hot desks & dedicated desks</h5>
-      <p class="text-muted">Book by the hour, day, or month. Any location, any time.</p>
+<section class="py-5">
+  <div class="container">
+    <div class="text-center mb-4">
+      <h2 class="fw-bold">Which one are you?</h2>
+      <p class="text-muted">One platform, three journeys.</p>
     </div>
-  </div>
-  <div class="col-md-4">
-    <div class="p-4 bg-white rounded shadow-sm h-100">
-      <i class="bi bi-calendar-event fs-2"></i>
-      <h5 class="mt-3">Conference rooms with credits</h5>
-      <p class="text-muted">Meeting-room credits included in every plan.
-        Overage billed to your company automatically.</p>
-    </div>
-  </div>
-  <div class="col-md-4">
-    <div class="p-4 bg-white rounded shadow-sm h-100">
-      <i class="bi bi-building fs-2"></i>
-      <h5 class="mt-3">Enterprise onboarding</h5>
-      <p class="text-muted">Bring your entire team. Central billing, allocations, and reporting.</p>
+    <div class="row g-4">
+      <div class="col-md-4">
+        <div class="card role-card h-100">
+          <div class="card-body">
+            <div class="feature-icon">🧑‍💼</div>
+            <h5 class="fw-bold">Individual member</h5>
+            <p class="text-muted mb-3">Freelancers, remote-first pros, or just visiting town. Get a subscription, book seats and rooms, use meeting credits.</p>
+            <div class="d-flex gap-2">
+              <a class="btn btn-primary btn-sm" href="{{ url_for('auth.login') }}">Sign in</a>
+              <a class="btn btn-outline-dark btn-sm" href="{{ url_for('auth.register_individual') }}">Join</a>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card role-card company h-100">
+          <div class="card-body">
+            <div class="feature-icon purple">🏢</div>
+            <h5 class="fw-bold">Company</h5>
+            <p class="text-muted mb-3">Bring your team. Manage employees, pool credits, get one consolidated invoice, and track everyone's bookings.</p>
+            <div class="d-flex gap-2">
+              <a class="btn btn-primary btn-sm" href="{{ url_for('auth.login') }}">Sign in</a>
+              <a class="btn btn-outline-dark btn-sm" href="{{ url_for('auth.register_company') }}">Register</a>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card role-card individual h-100">
+          <div class="card-body">
+            <div class="feature-icon orange">⚡</div>
+            <h5 class="fw-bold">Platform / Operator</h5>
+            <p class="text-muted mb-3">Run your coworking business. Provision tenants, brand the portal, manage locations, staff, billing, reports.</p>
+            <div class="d-flex gap-2">
+              <a class="btn btn-primary btn-sm" href="{{ url_for('auth.login') }}">Sign in</a>
+              <a class="btn btn-outline-dark btn-sm" href="{{ url_for('auth.pick_workspace') }}">Find workspace</a>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </section>
+
+<section class="py-5" style="background: white;">
+  <div class="container">
+    <div class="text-center mb-5">
+      <h2 class="fw-bold">Everything a coworking space needs.</h2>
+      <p class="text-muted lead">From single-location startups to multi-city operators.</p>
+    </div>
+    <div class="row g-4">
+      <div class="col-md-6 col-lg-4">
+        <div class="feature-icon">📅</div>
+        <h5 class="fw-bold mb-2">Real-time booking</h5>
+        <p class="text-muted">Hot desks, dedicated desks, private offices, meeting rooms — all bookable by the hour, day, or month with live availability, cancellation policies, waitlist and recurring bookings.</p>
+      </div>
+      <div class="col-md-6 col-lg-4">
+        <div class="feature-icon purple">💳</div>
+        <h5 class="fw-bold mb-2">Invoicing & payments</h5>
+        <p class="text-muted">Automated monthly billing, credit notes, refunds. UPI, NEFT, RTGS, IMPS, cards, cheques — India-first from day one. PDF invoice export.</p>
+      </div>
+      <div class="col-md-6 col-lg-4">
+        <div class="feature-icon orange">📱</div>
+        <h5 class="fw-bold mb-2">Day-pass QR check-in</h5>
+        <p class="text-muted">Members book a day pass, receive a QR. Reception scans it. No paper, no wait.</p>
+      </div>
+      <div class="col-md-6 col-lg-4">
+        <div class="feature-icon">👥</div>
+        <h5 class="fw-bold mb-2">Multi-tenant SaaS</h5>
+        <p class="text-muted">Run many coworking brands from one deployment. Per-tenant branding, domain mapping, localisation, tax config, custom email templates.</p>
+      </div>
+      <div class="col-md-6 col-lg-4">
+        <div class="feature-icon purple">🎫</div>
+        <h5 class="fw-bold mb-2">Guest passes & visitors</h5>
+        <p class="text-muted">Companies issue guest passes. Members pre-register visitors. Reception checks them in and out.</p>
+      </div>
+      <div class="col-md-6 col-lg-4">
+        <div class="feature-icon orange">📊</div>
+        <h5 class="fw-bold mb-2">Reports that ship</h5>
+        <p class="text-muted">Occupancy, financials, subscriptions, people, capacity heatmaps. All with Chart.js and CSV export from the audit log.</p>
+      </div>
+      <div class="col-md-6 col-lg-4">
+        <div class="feature-icon">🔐</div>
+        <h5 class="fw-bold mb-2">Enterprise security</h5>
+        <p class="text-muted">Password reset by email, two-factor auth (TOTP), rate limiting, a full audit log with filters and CSV export, session hardening.</p>
+      </div>
+      <div class="col-md-6 col-lg-4">
+        <div class="feature-icon purple">💼</div>
+        <h5 class="fw-bold mb-2">Staff, payroll, expenses</h5>
+        <p class="text-muted">Track your operations team. Salaries, payroll runs, expense claims with approve / reject / pay workflow.</p>
+      </div>
+      <div class="col-md-6 col-lg-4">
+        <div class="feature-icon orange">✨</div>
+        <h5 class="fw-bold mb-2">Community built-in</h5>
+        <p class="text-muted">Member directory, announcements, support tickets, printing credits, lockers, referrals — the WeWork playbook, out of the box.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="py-5" style="background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); color: white;">
+  <div class="container text-center">
+    <h2 class="fw-bold mb-3">Ready to move in?</h2>
+    <p class="lead mb-4" style="opacity:.85;">Create an account in under a minute.</p>
+    <div class="d-flex justify-content-center gap-2 flex-wrap">
+      <a class="btn btn-light btn-lg" href="{{ url_for('auth.register_individual') }}">Join as member</a>
+      <a class="btn btn-outline-light btn-lg" href="{{ url_for('auth.register_company') }}">Register a company</a>
+    </div>
+  </div>
+</section>
+
+<footer class="py-4 border-top" style="background:#f8fafc;">
+  <div class="container d-flex justify-content-between align-items-center flex-wrap gap-2">
+    <div>© {{ tenant.name if tenant else app_name }} · India-first coworking platform</div>
+    <div>
+      <a class="text-muted me-3" href="{{ url_for('auth.login') }}">Sign in</a>
+      <a class="text-muted" href="{{ url_for('auth.pick_workspace') }}">Find workspace</a>
+    </div>
+  </div>
+</footer>
 {% endblock %}

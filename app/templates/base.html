@@ -6,14 +6,51 @@
   <title>{% block title %}{{ app_name }}{% endblock %} · {{ tenant.name if tenant else app_name }}</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
-    :root { --brand: {{ tenant.brand_color if tenant else "#0f766e" }}; }
-    .navbar-brand { font-weight: 700; letter-spacing: -0.02em; }
-    .brand-mark { color: var(--brand); }
-    .card-stat .stat-value { font-size: 2rem; font-weight: 700; }
+    :root {
+      --brand: {{ tenant.brand_color if tenant else "#0f766e" }};
+      --brand-2: #7c3aed;
+      --brand-3: #f97316;
+      --bg-soft: #f8fafc;
+      --card-shadow: 0 1px 2px rgba(0,0,0,.04), 0 8px 24px -12px rgba(0,0,0,.08);
+    }
+    body { font-family: 'Inter', system-ui, -apple-system, sans-serif; background: var(--bg-soft); color: #0f172a; }
+    .navbar-brand { font-weight: 800; letter-spacing: -0.02em; font-size: 1.15rem; }
+    .brand-mark { color: var(--brand); font-size: 1.3rem; }
+    .nav-link { font-weight: 500; color: #334155; }
+    .nav-link:hover, .nav-link.active { color: var(--brand); }
+    .btn-dark, .btn-primary { background: var(--brand); border-color: var(--brand); font-weight: 500; }
+    .btn-dark:hover, .btn-primary:hover { background: color-mix(in srgb, var(--brand) 85%, black); border-color: color-mix(in srgb, var(--brand) 85%, black); }
+    .btn-outline-dark { color: var(--brand); border-color: var(--brand); }
+    .btn-outline-dark:hover { background: var(--brand); border-color: var(--brand); }
+    .card { border: 1px solid #e5e7eb; border-radius: 12px; box-shadow: var(--card-shadow); }
+    .card-body { padding: 1.25rem; }
+    .card-stat .stat-value { font-size: 2rem; font-weight: 700; color: var(--brand); }
     .badge-role { text-transform: uppercase; letter-spacing: .05em; font-size: .7rem; }
-    footer { color: #6b7280; font-size: .875rem; }
-    a { text-decoration: none; }
+    .badge.bg-secondary { background: #e2e8f0 !important; color: #475569; }
+    a { text-decoration: none; color: var(--brand); }
+    a:hover { color: color-mix(in srgb, var(--brand) 80%, black); }
+    footer { color: #64748b; font-size: .875rem; }
+    /* Marketing landing */
+    .hero { background: linear-gradient(135deg, var(--brand) 0%, var(--brand-2) 100%); color: white; padding: 6rem 0; }
+    .hero h1 { font-size: 3.5rem; font-weight: 800; letter-spacing: -0.03em; line-height: 1.1; }
+    .hero .lead { font-size: 1.25rem; opacity: 0.95; }
+    .hero .btn-light { color: var(--brand); font-weight: 600; }
+    .feature-icon {
+      width: 48px; height: 48px; border-radius: 12px;
+      display: inline-flex; align-items: center; justify-content: center;
+      background: color-mix(in srgb, var(--brand) 15%, white); color: var(--brand);
+      font-size: 1.5rem; margin-bottom: 1rem;
+    }
+    .feature-icon.orange { background: rgba(249,115,22,.15); color: var(--brand-3); }
+    .feature-icon.purple { background: rgba(124,58,237,.15); color: var(--brand-2); }
+    .role-card { border-top: 4px solid var(--brand); transition: transform .15s; }
+    .role-card.company { border-top-color: var(--brand-2); }
+    .role-card.individual { border-top-color: var(--brand-3); }
+    .role-card:hover { transform: translateY(-4px); }
+    .table thead th { text-transform: uppercase; font-size: .75rem; letter-spacing: .05em; color: #64748b; font-weight: 600; background: #f8fafc; }
+    .heatmap td { transition: background .2s; }
   </style>
 </head>
 <body class="bg-light">
@@ -90,6 +127,7 @@
   </div>
 </nav>
 
+{% block full %}
 <main class="container py-4">
   {% with messages = get_flashed_messages(with_categories=true) %}
     {% for cat, msg in messages %}
@@ -109,6 +147,7 @@
     <span>v0.1 · <a href="/healthz">health</a></span>
   </div>
 </footer>
+{% endblock %}
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 {% block scripts %}{% endblock %}
